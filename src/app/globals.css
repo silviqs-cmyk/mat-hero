@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-display: "Trebuchet MS", "Aptos", "Segoe UI", sans-serif;
+  --font-sans: "Aptos", "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+:root {
+  --background: #111217;
+  --surface: #171923;
+  --surface-soft: #1d2030;
+  --surface-elevated: #222638;
+  --text-main: #f7f8ff;
+  --text-muted: #9aa1c5;
+  --brand: #39d7ff;
+  --brand-strong: #6e6bff;
+  --accent: #f84ec8;
+  --accent-lime: #b8ff3b;
+  --accent-blue: #44aaff;
+  --border-soft: rgba(115, 137, 218, 0.24);
+  --glow-cyan: 0 0 0 1px rgba(57, 215, 255, 0.18), 0 0 24px rgba(57, 215, 255, 0.18);
+  --glow-pink: 0 0 0 1px rgba(248, 78, 200, 0.2), 0 0 30px rgba(248, 78, 200, 0.14);
+  --shadow-soft: 0 18px 60px rgba(0, 0, 0, 0.35);
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(57, 215, 255, 0.16), transparent 28%),
+    radial-gradient(circle at 85% 12%, rgba(248, 78, 200, 0.14), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(110, 107, 255, 0.16), transparent 35%),
+    linear-gradient(180deg, #0f1118 0%, #131723 45%, #10131d 100%);
+  color: var(--text-main);
+  font-family: "Aptos", "Segoe UI", "Trebuchet MS", sans-serif;
+}
+
+a,
+button {
+  outline-color: var(--brand);
+}
+
+.font-display {
+  font-family: "Trebuchet MS", "Aptos", "Segoe UI", sans-serif;
+}
+
+.shadow-soft {
+  box-shadow: var(--shadow-soft);
+}
+
+.panel {
+  background: linear-gradient(180deg, rgba(30, 33, 48, 0.96), rgba(20, 23, 34, 0.96));
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+}
+
+.panel-glow {
+  background: linear-gradient(180deg, rgba(33, 37, 56, 0.98), rgba(20, 23, 34, 0.98));
+  border: 1px solid rgba(57, 215, 255, 0.2);
+  box-shadow: var(--glow-cyan), var(--shadow-soft);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.neon-ring {
+  box-shadow: var(--glow-cyan);
+}
+
+.btn-neon-primary {
+  background: linear-gradient(135deg, #0ea5ff 0%, #2563eb 48%, #39d7ff 100%);
+  border: 1px solid rgba(147, 227, 255, 0.82);
+  box-shadow:
+    0 0 0 1px rgba(57, 215, 255, 0.28),
+    0 0 26px rgba(14, 165, 255, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  color: white;
+}
+
+.btn-neon-primary:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    0 0 0 1px rgba(147, 227, 255, 0.55),
+    0 0 34px rgba(57, 215, 255, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.btn-neon-outline {
+  background: rgba(57, 215, 255, 0.035);
+  border: 1px solid rgba(57, 215, 255, 0.72);
+  box-shadow:
+    0 0 0 1px rgba(57, 215, 255, 0.14),
+    0 0 20px rgba(57, 215, 255, 0.2);
+  color: #bff3ff;
+}
+
+.btn-neon-outline:hover {
+  background: rgba(57, 215, 255, 0.12);
+  color: white;
+  box-shadow:
+    0 0 0 1px rgba(57, 215, 255, 0.28),
+    0 0 28px rgba(57, 215, 255, 0.34);
+}
