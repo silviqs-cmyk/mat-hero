@@ -10,38 +10,35 @@ const hiddenBottomNavRoutes = ["/", "/quiz", "/explanation"];
 
 function getRouteTitle(pathname: string): { title: string; subtitle: string } {
   if (pathname === "/") {
-    return {
-      title: "MatHero",
-      subtitle: "Мобилна подготовка за 7. клас",
-    };
+    return { title: "MatHero", subtitle: "Подготовка по математика за 7. клас" };
   }
 
   if (pathname.startsWith("/dashboard")) {
-    return { title: "Твоят табло", subtitle: "Следи прогреса си всеки ден" };
+    return { title: "Табло", subtitle: "XP, серия и днешна мисия" };
   }
 
   if (pathname.startsWith("/roadmap")) {
-    return { title: "10-дневен план", subtitle: "Само 3 активни мисии наведнъж" };
+    return { title: "Пътна карта", subtitle: "10 дни до увереност" };
   }
 
   if (pathname.startsWith("/lesson")) {
-    return { title: "Урок", subtitle: "Кратка теория + пример" };
+    return { title: "Урок", subtitle: "Кратко обяснение и пример" };
   }
 
   if (pathname.startsWith("/quiz")) {
-    return { title: "Бърз куиз", subtitle: "Един въпрос наведнъж" };
+    return { title: "Тест", subtitle: "Един въпрос наведнъж" };
   }
 
   if (pathname.startsWith("/explanation")) {
-    return { title: "Обяснение", subtitle: "Стъпка по стъпка" };
+    return { title: "Обяснение", subtitle: "Решение стъпка по стъпка" };
   }
 
   if (pathname.startsWith("/results")) {
-    return { title: "Резултат", subtitle: "Как се справи днес" };
+    return { title: "Резултати", subtitle: "Как се справи днес" };
   }
 
   if (pathname.startsWith("/report")) {
-    return { title: "Финален отчет", subtitle: "Слабите теми и напредъкът" };
+    return { title: "Отчет", subtitle: "Слаби теми и напредък" };
   }
 
   return { title: "MatHero", subtitle: "Математика с ритъм" };
@@ -50,6 +47,7 @@ function getRouteTitle(pathname: string): { title: string; subtitle: string } {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { title, subtitle } = getRouteTitle(pathname);
+  const isLanding = pathname === "/";
   const showBottomNav = !hiddenBottomNavRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
@@ -59,10 +57,20 @@ export function AppShell({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="mx-auto flex min-h-screen w-full max-w-md flex-col bg-[rgba(16,19,29,0.92)] shadow-[0_20px_80px_rgba(0,0,0,0.45)]"
+      className={`mx-auto flex min-h-screen w-full max-w-md flex-col border-x border-white/8 bg-[rgba(5,7,13,0.94)] shadow-[0_24px_90px_rgba(0,0,0,0.7)] ${
+        isLanding ? "lg:max-w-md" : "lg:max-w-7xl"
+      }`}
     >
-      <TopBar title={title} subtitle={subtitle} />
-      <main className="flex-1 px-4 pb-28 pt-4">{children}</main>
+      {isLanding ? null : <TopBar title={title} subtitle={subtitle} />}
+      <main
+        className={`flex-1 ${
+          isLanding ? "p-0" : "px-4 pb-28 pt-4 lg:px-8 lg:pb-10"
+        } ${
+          showBottomNav ? "lg:pl-64" : ""
+        }`}
+      >
+        {children}
+      </main>
       {showBottomNav ? <BottomNav /> : null}
     </motion.div>
   );

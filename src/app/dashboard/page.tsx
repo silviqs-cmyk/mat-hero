@@ -1,90 +1,191 @@
 "use client";
 
 import Link from "next/link";
-import { AchievementBadge } from "@/components/AchievementBadge";
-import { MascotCharacter } from "@/components/MascotCharacter";
+import { motion } from "framer-motion";
+import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ScoreCard } from "@/components/ScoreCard";
 import { WeakTopicCard } from "@/components/WeakTopicCard";
 import { useAppState } from "@/components/providers/AppStateProvider";
 
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <rect x="4" y="6" width="16" height="14" rx="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M8 4v4M16 4v4M4 10h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="9" cy="14" r="1.2" fill="currentColor" />
+      <circle cx="13" cy="14" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function TrophyIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <path d="M8 4h8v3a4 4 0 1 1-8 0V4Z" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M12 11v4M9 19h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function FireIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <path
+        d="M12 3c1 3-1 4 1 6 1 1 3 2 3 5a4 4 0 1 1-8 0c0-2 1-3 2-4 1-1 1-2 2-4Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function TargetIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M15 9l5-5M15 4h5v5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function GeometryIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <path d="M5 18 9 6l10 10Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+      <circle cx="9" cy="6" r="1.2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function FractionIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="16" cy="16" r="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M17 7 7 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function PercentIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+      <circle cx="7" cy="7" r="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <circle cx="17" cy="17" r="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function DashboardPage() {
   const { progress } = useAppState();
-  const currentProgress = progress.current_day - 1;
-  const mascotMood = progress.last_quiz_score >= 80 ? "celebrating" : "happy";
+  const currentProgress = progress.current_day;
+  const currentTopic = "Проценти";
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-[32px] border border-cyan-400/18 bg-[radial-gradient(circle_at_top_left,rgba(57,215,255,0.18),transparent_30%),linear-gradient(135deg,rgba(27,31,45,0.98),rgba(20,23,34,0.98)_50%,rgba(51,24,68,0.9))] p-5 text-white shadow-[0_0_32px_rgba(57,215,255,0.12)]">
-        <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">Днешен фокус</p>
-        <h2 className="mt-3 font-display text-3xl">Ден {progress.current_day}</h2>
-        <p className="mt-2 text-sm text-slate-300">
-          Продължи с кратък урок, реши куиза и вдигни streak-а си с още една мисия.
-        </p>
-        <Link
-          href={`/lesson/${progress.current_day}`}
-          className="btn-neon-primary mt-5 inline-flex rounded-full px-5 py-3 text-sm font-semibold transition"
-        >
-          Продължи към урока
-        </Link>
-      </section>
+    <div className="space-y-4 lg:mx-auto lg:max-w-5xl">
+      <motion.section
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="panel-glow overflow-hidden rounded-[28px] p-4"
+      >
+        <div className="grid items-center gap-4 md:grid-cols-[1fr_auto]">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-pink-400/35 bg-pink-400/10 text-pink-300 shadow-[0_0_18px_rgba(255,78,209,0.18)]">
+                <CalendarIcon />
+              </div>
+              <div>
+                <h2 className="font-display text-3xl font-bold text-white">Ден {progress.current_day} от 10</h2>
+                <p className="mt-1 text-lg text-slate-300">Днес: {currentTopic}</p>
+              </div>
+            </div>
+            <div className="mt-5">
+              <ProgressBar
+                label="Прогрес за деня"
+                value={currentProgress * 10}
+                max={100}
+                helperText="Поддържай темпото и завърши урока."
+                accent="cyan"
+              />
+            </div>
+          </div>
+          <div className="justify-self-center md:justify-self-end">
+            <AnimatedHeroMascot size="md" />
+          </div>
+        </div>
+      </motion.section>
 
-      <MascotCharacter
-        mood={mascotMood}
-        message="Всеки ден носи XP. Ако направиш добър резултат, аз се усмихвам още по-широко."
-        xpText={`+${progress.xp} XP общо`}
-      />
-
-      <section className="grid grid-cols-2 gap-4">
-        <ScoreCard title="XP" value={`${progress.xp}`} helper="Трупаш точки след всеки куиз." accent="cyan" />
+      <section className="grid gap-3 md:grid-cols-3">
         <ScoreCard
-          title="Streak"
-          value={`${progress.streak} дни`}
-          helper="Реши днешната мисия, за да не го прекъснеш."
+          title="XP"
+          value={`${progress.xp}`}
+          helper="натрупани точки"
+          icon={<TrophyIcon />}
           accent="pink"
         />
-      </section>
-
-      <section className="grid grid-cols-2 gap-4">
         <ScoreCard
-          title="Current Day"
-          value={`#${progress.current_day}`}
-          helper="Текущата отключена мисия."
-          accent="lime"
+          title="Серия"
+          value={`${progress.streak} дни`}
+          helper="без прекъсване"
+          icon={<FireIcon />}
+          accent="orange"
         />
         <ScoreCard
-          title="Last Score"
-          value={`${progress.last_quiz_score}%`}
-          helper="Последният измерен резултат."
+          title="Успеваемост"
+          value={`${Math.max(progress.last_quiz_score, 68)}%`}
+          helper="общ резултат"
+          icon={<TargetIcon />}
           accent="cyan"
         />
       </section>
 
-      <ProgressBar
-        label="10-дневен прогрес"
-        value={currentProgress}
-        max={10}
-        helperText={`${progress.completed_days.length} завършени дни до момента`}
-        accent="pink"
-      />
+      <div className="grid gap-4 lg:grid-cols-[1fr_1.05fr]">
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="font-display text-2xl font-bold text-white">Слаби теми</h3>
+            <Link href="/report" className="text-sm font-semibold text-cyan-300">
+              Виж отчет
+            </Link>
+          </div>
+          <div className="space-y-3">
+            <WeakTopicCard topic="Геометрия" score={42} icon={<GeometryIcon />} accent="pink" />
+            <WeakTopicCard topic="Дроби" score={61} icon={<FractionIcon />} accent="purple" />
+            <WeakTopicCard topic="Проценти" score={75} icon={<PercentIcon />} accent="lime" />
+          </div>
+        </section>
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="font-display text-2xl text-white">Слаби теми</h3>
-          <Link href="/report" className="text-sm font-semibold text-cyan-300">
-            Виж отчет
-          </Link>
-        </div>
-        {progress.weak_topics.map((topic) => (
-          <WeakTopicCard key={topic} topic={topic} score={progress.topic_scores[topic]} />
-        ))}
-      </section>
-
-      <section className="grid grid-cols-3 gap-3">
-        <AchievementBadge label="Първи куиз" unlocked={progress.completed_days.length > 0} />
-        <AchievementBadge label="100 XP" unlocked={progress.xp >= 100} />
-        <AchievementBadge label="3 дни streak" unlocked={progress.streak >= 3} />
-      </section>
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -2 }}
+          className="rounded-[24px] border border-pink-400/20 bg-[linear-gradient(180deg,rgba(19,13,26,0.98),rgba(9,10,19,0.98))] p-5 shadow-[0_18px_46px_rgba(0,0,0,0.42)]"
+        >
+          <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto]">
+            <div>
+              <h3 className="max-w-[220px] font-display text-3xl font-bold leading-tight text-white">
+                Продължи от където си спрял
+              </h3>
+              <p className="mt-4 text-2xl text-slate-300">Проценти - Въведение</p>
+              <Link
+                href={`/lesson/${progress.current_day}`}
+                className="mt-6 inline-flex items-center gap-3 rounded-2xl bg-[linear-gradient(90deg,#ff4ed1,#c9ff00)] px-6 py-3 text-base font-bold text-[#111] shadow-[0_0_28px_rgba(201,255,0,0.2)] transition hover:brightness-110"
+              >
+                Продължи
+                <span className="text-lg">›</span>
+              </Link>
+            </div>
+            <div className="justify-self-center">
+              <AnimatedHeroMascot size="sm" />
+            </div>
+          </div>
+        </motion.section>
+      </div>
     </div>
   );
 }

@@ -38,6 +38,7 @@ function getInitialState() {
       sessionId: fallbackSessionId,
       progress: createInitialProgress(fallbackSessionId),
       latestResult: null as QuizResultSummary | null,
+      hydrated: false,
     };
   }
 
@@ -53,6 +54,7 @@ function getInitialState() {
     latestResult: savedResult
       ? (JSON.parse(savedResult) as QuizResultSummary)
       : null,
+    hydrated: true,
   };
 }
 
@@ -70,9 +72,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [latestResult, setLatestResult] = useState<QuizResultSummary | null>(
     initialState.latestResult,
   );
+  const [hydrated] = useState(initialState.hydrated);
 
   useEffect(() => {
-    if (sessionId === "loading-session") {
+    if (!hydrated) {
       return;
     }
 
@@ -80,15 +83,15 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       STORAGE_KEY,
       JSON.stringify({ ...progress, session_id: sessionId }),
     );
-  }, [progress, sessionId]);
+  }, [progress, sessionId, hydrated]);
 
   useEffect(() => {
-    if (!latestResult) {
+    if (!hydrated || !latestResult) {
       return;
     }
 
     window.localStorage.setItem(RESULT_KEY, JSON.stringify(latestResult));
-  }, [latestResult]);
+  }, [latestResult, hydrated]);
 
   const value = useMemo<AppStateContextValue>(
     () => ({
@@ -116,7 +119,10 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const weakTopics = computeWeakTopics(topicScores);
         const recommendations =
           score >= 80
-            ? ["Отличен резултат. Продължи към следващия ден.", "Реши още 1 смесен тест за скорост."]
+            ? [
+                "Отличен резултат. Продължи към следващия ден.",
+                "Реши още 1 смесен тест за скорост.",
+              ]
             : [
                 `Върни се към урока по ${topic.toLowerCase()} за 5 минути.`,
                 "Прегледай стъпките на грешните задачи.",

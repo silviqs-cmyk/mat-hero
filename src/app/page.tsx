@@ -1,70 +1,94 @@
-import { AchievementBadge } from "@/components/AchievementBadge";
 import Link from "next/link";
-import { getDays } from "@/lib/supabaseClient";
+import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 
-export default async function LandingPage() {
-  const { data: days } = await getDays();
-  const activeDays = days.filter((day) => day.is_active).length;
-
+function LogoMark() {
   return (
-    <div className="space-y-5">
-      <section className="overflow-hidden rounded-[32px] border border-cyan-400/20 bg-[radial-gradient(circle_at_top_left,rgba(57,215,255,0.18),transparent_28%),linear-gradient(135deg,rgba(20,23,34,0.98),rgba(18,22,36,0.96)_45%,rgba(41,24,60,0.92))] p-6 text-white shadow-[0_0_36px_rgba(57,215,255,0.12)]">
-        <p className="text-sm font-semibold uppercase tracking-[0.28em] text-cyan-300">
-          7. клас математика
-        </p>
-        <h2 className="mt-4 max-w-xs font-display text-4xl leading-tight">
-          Математика като игра с XP, мисии и малки победи.
-        </h2>
-        <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--text-muted)]">
-          10-дневен roadmap, неонови награди, кратки уроци и куизове с мигновена
-          обратна връзка. Създадено да държи вниманието и да дава чувство за напредък.
-        </p>
-        <div className="mt-6 flex gap-3">
+    <svg viewBox="0 0 32 32" className="h-7 w-7">
+      <path
+        d="M8 3 H22 L17 13 H24 L10 29 L14 17 H7 Z"
+        fill="rgba(182,92,255,0.12)"
+        stroke="#d779ff"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <div className="relative min-h-screen overflow-hidden bg-[#05070d] px-5 py-5 text-white">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_36%,rgba(37,221,255,0.16),transparent_18%),radial-gradient(circle_at_22%_74%,rgba(182,92,255,0.16),transparent_24%),radial-gradient(circle_at_82%_55%,rgba(255,78,209,0.12),transparent_22%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:radial-gradient(circle,rgba(143,244,255,0.7)_0_1px,transparent_1px)] [background-position:18px_32px] [background-size:58px_58px]" />
+
+      <header className="relative z-10 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="drop-shadow-[0_0_12px_rgba(182,92,255,0.65)]">
+            <LogoMark />
+          </div>
+          <span className="font-display text-lg font-bold tracking-tight">MatHero</span>
+        </div>
+        <button
+          type="button"
+          aria-label="Меню"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-white/90"
+        >
+          <span className="space-y-1.5">
+            <span className="block h-0.5 w-5 rounded-full bg-white" />
+            <span className="block h-0.5 w-5 rounded-full bg-white" />
+            <span className="block h-0.5 w-5 rounded-full bg-white" />
+          </span>
+        </button>
+      </header>
+
+      <main className="relative z-10 flex min-h-[calc(100vh-4rem)] flex-col items-center text-center">
+        <section className="pt-9">
+          <h1 className="mx-auto max-w-[330px] font-display text-[28px] font-extrabold leading-tight tracking-tight text-[#d8cbff] drop-shadow-[0_0_18px_rgba(182,92,255,0.55)]">
+            Твоят герой
+            <br />
+            за матурата по математика
+          </h1>
+          <p className="mx-auto mt-4 max-w-[310px] text-sm leading-5 text-white/78">
+            10 дни. Ясна стратегия. Реални резултати.
+            <br />
+            Подготви се уверено и постигни отличен резултат!
+          </p>
+        </section>
+
+        <section className="relative mt-5 w-full">
+          <div className="absolute left-6 top-20 text-4xl font-light text-cyan-300 drop-shadow-[0_0_12px_rgba(37,221,255,0.8)]">
+            %
+          </div>
+          <div className="absolute right-10 top-16 text-4xl font-light text-pink-400 drop-shadow-[0_0_12px_rgba(255,78,209,0.75)]">
+            x²
+          </div>
+          <svg
+            viewBox="0 0 70 70"
+            className="absolute left-0 top-32 h-16 w-16 overflow-visible text-indigo-300 drop-shadow-[0_0_10px_rgba(129,140,248,0.6)]"
+          >
+            <path d="M8 60 L24 8 L62 56 Z" fill="none" stroke="currentColor" strokeWidth="2" />
+            <circle cx="49" cy="50" r="1.5" fill="currentColor" />
+          </svg>
+          <AnimatedHeroMascot />
+        </section>
+
+        <section className="relative z-10 mt-1 w-full">
           <Link
             href="/dashboard"
-            className="btn-neon-primary rounded-full px-5 py-3 text-sm font-semibold transition"
+            className="mx-auto flex h-12 w-[205px] items-center justify-center gap-3 rounded-xl bg-[#c9ff00] text-sm font-extrabold text-[#101604] shadow-[0_0_28px_rgba(201,255,0,0.48)] transition hover:brightness-110"
           >
-            Влез в таблото
+            Започни приключението
+            <span className="text-lg leading-none">›</span>
           </Link>
-          <Link
-            href="/roadmap"
-            className="btn-neon-outline rounded-full px-5 py-3 text-sm font-semibold transition"
+          <button
+            type="button"
+            className="mt-5 inline-flex items-center gap-3 text-sm text-[#d8cbff]"
           >
-            Виж плана
-          </Link>
-        </div>
-      </section>
-
-      <section className="grid gap-4 sm:grid-cols-3">
-        <article className="panel rounded-[28px] p-5">
-          <p className="text-sm font-semibold text-[var(--text-muted)]">План</p>
-          <h3 className="mt-2 font-display text-3xl text-white">10 дни</h3>
-          <p className="mt-2 text-sm text-[var(--text-muted)]">Активни днес: {activeDays}</p>
-        </article>
-        <article className="panel rounded-[28px] p-5">
-          <p className="text-sm font-semibold text-[var(--text-muted)]">Теми</p>
-          <h3 className="mt-2 font-display text-3xl text-white">3 ядра</h3>
-          <p className="mt-2 text-sm text-[var(--text-muted)]">Проценти, дроби, геометрия</p>
-        </article>
-        <article className="panel rounded-[28px] p-5">
-          <p className="text-sm font-semibold text-[var(--text-muted)]">Финал</p>
-          <h3 className="mt-2 font-display text-3xl text-white">Отчет</h3>
-          <p className="mt-2 text-sm text-[var(--text-muted)]">Препоръки за последен преговор</p>
-        </article>
-      </section>
-
-      <section className="panel-glow rounded-[28px] p-5">
-        <h3 className="font-display text-2xl text-white">Подготовка без паника</h3>
-        <p className="mt-2 text-sm text-[var(--text-muted)]">
-          Всеки ден има ясна мисия: кратък урок, няколко задачи и моментална обратна
-          връзка. Така виждаш какво вече владееш и кои теми да повториш преди изпита.
-        </p>
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          <AchievementBadge label="Дневна мисия" unlocked />
-          <AchievementBadge label="XP прогрес" unlocked />
-          <AchievementBadge label="Финален отчет" unlocked />
-        </div>
-      </section>
+            Как работи?
+            <span className="text-lg text-white">⌄</span>
+          </button>
+        </section>
+      </main>
     </div>
   );
 }

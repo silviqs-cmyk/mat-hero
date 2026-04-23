@@ -28,13 +28,13 @@ export function QuestionCard({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -18 }}
       transition={{ duration: 0.24, ease: "easeOut" }}
-      className="panel-glow rounded-[30px] p-5"
+      className="panel-glow rounded-[28px] p-5"
     >
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">
           Въпрос {currentIndex + 1}/{total}
         </p>
-        <span className="rounded-full bg-white/8 px-3 py-1 text-xs font-bold text-fuchsia-300">
+        <span className="badge-pink rounded-full px-3 py-1 text-xs font-bold">
           {question.difficulty}
         </span>
       </div>

@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 
 interface MascotCharacterProps {
-  mood?: "idle" | "happy" | "celebrating";
+  mood?: "idle" | "happy" | "cheering" | "celebrating";
   message: string;
   xpText?: string;
 }
@@ -13,77 +13,101 @@ export function MascotCharacter({
   message,
   xpText,
 }: MascotCharacterProps) {
-  const isHappy = mood === "happy" || mood === "celebrating";
+  const isHappy = mood === "happy" || mood === "cheering" || mood === "celebrating";
+  const isCheering = mood === "cheering" || mood === "celebrating";
 
   return (
     <div className="panel-glow rounded-[30px] p-5">
       <div className="flex items-center gap-4">
         <motion.div
           animate={
-            mood === "celebrating"
+            isCheering
               ? { y: [0, -10, 0], scale: [1, 1.06, 1] }
               : isHappy
                 ? { y: [0, -5, 0] }
                 : { rotate: [0, -2, 2, 0] }
           }
           transition={{
-            duration: mood === "celebrating" ? 1.1 : 2.4,
+            duration: isCheering ? 1 : 2.6,
             repeat: Number.POSITIVE_INFINITY,
             ease: "easeInOut",
           }}
-          className="relative h-28 w-24 shrink-0"
+          className="h-28 w-24 shrink-0"
         >
           <svg viewBox="0 0 120 150" className="h-full w-full overflow-visible">
+            <defs>
+              <filter id="mascotGlow" x="-60%" y="-60%" width="220%" height="220%">
+                <feGaussianBlur stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            {isCheering ? (
+              <>
+                <motion.path
+                  d="M18 25 L25 17 M21 34 L31 34"
+                  stroke="#c9ff00"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY }}
+                />
+                <motion.path
+                  d="M96 22 L103 14 M91 34 L102 36"
+                  stroke="#ff4ed1"
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  animate={{ opacity: [0.4, 1, 0.4] }}
+                  transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY, delay: 0.15 }}
+                />
+              </>
+            ) : null}
             <motion.circle
               cx="60"
               cy="38"
               r="24"
-              fill="rgba(57,215,255,0.08)"
-              stroke="#d8f9ff"
-              strokeWidth="4"
+              fill="rgba(37,221,255,0.04)"
+              stroke="#8ff4ff"
+              strokeWidth="3.5"
               strokeLinecap="round"
-              strokeLinejoin="round"
-              animate={
-                isHappy
-                  ? {
-                      filter: [
-                        "drop-shadow(0 0 0px #39d7ff)",
-                        "drop-shadow(0 0 8px #39d7ff)",
-                        "drop-shadow(0 0 0px #39d7ff)",
-                      ],
-                    }
-                  : undefined
-              }
-              transition={{ duration: 1.8, repeat: Number.POSITIVE_INFINITY }}
+              filter="url(#mascotGlow)"
+              animate={isHappy ? { scale: [1, 1.04, 1] } : undefined}
+              transition={{ duration: 1.4, repeat: Number.POSITIVE_INFINITY }}
             />
             <path
-              d="M41 29 Q53 20 79 26"
-              stroke="#d8f9ff"
-              strokeWidth="4"
+              d="M39 24 Q56 12 81 25"
+              stroke="#b65cff"
+              strokeWidth="3"
+              fill="none"
+              strokeLinecap="round"
+              opacity="0.95"
+            />
+            <circle cx="50" cy="37" r="3.6" fill="#8ff4ff" />
+            <circle cx="70" cy="37" r="3.6" fill="#8ff4ff" />
+            <path
+              d={isHappy ? "M47 49 Q60 60 73 49" : "M49 54 Q60 49 71 54"}
+              stroke="#c9ff00"
+              strokeWidth="3.5"
               fill="none"
               strokeLinecap="round"
             />
-            <circle cx="50" cy="37" r="3.5" fill="#d8f9ff" />
-            <circle cx="69" cy="37" r="3.5" fill="#d8f9ff" />
-            <path
-              d={isHappy ? "M48 49 Q60 59 72 49" : "M49 55 Q60 48 71 55"}
-              stroke="#b8ff3b"
-              strokeWidth="4"
-              fill="none"
+            <path d="M59 63 L59 97" stroke="#8ff4ff" strokeWidth="4.5" strokeLinecap="round" />
+            <motion.path
+              d={isCheering ? "M58 73 L34 54" : "M58 73 L34 90"}
+              stroke="#8ff4ff"
+              strokeWidth="4.5"
               strokeLinecap="round"
             />
-            <path d="M58 62 L58 97" stroke="#d8f9ff" strokeWidth="5" strokeLinecap="round" />
-            <path d="M58 74 L35 92" stroke="#d8f9ff" strokeWidth="5" strokeLinecap="round" />
-            <path d="M58 74 L82 88" stroke="#d8f9ff" strokeWidth="5" strokeLinecap="round" />
-            <path d="M58 96 L43 127" stroke="#d8f9ff" strokeWidth="5" strokeLinecap="round" />
-            <path d="M58 96 L77 126" stroke="#d8f9ff" strokeWidth="5" strokeLinecap="round" />
-            {mood === "celebrating" ? (
-              <>
-                <circle cx="95" cy="26" r="4" fill="#f84ec8" />
-                <circle cx="24" cy="30" r="4" fill="#39d7ff" />
-                <circle cx="88" cy="53" r="4" fill="#b8ff3b" />
-              </>
-            ) : null}
+            <motion.path
+              d={isCheering ? "M60 73 L88 53" : "M60 73 L88 88"}
+              stroke="#8ff4ff"
+              strokeWidth="4.5"
+              strokeLinecap="round"
+            />
+            <path d="M59 96 L43 128" stroke="#8ff4ff" strokeWidth="4.5" strokeLinecap="round" />
+            <path d="M59 96 L78 126" stroke="#8ff4ff" strokeWidth="4.5" strokeLinecap="round" />
           </svg>
         </motion.div>
 
@@ -94,13 +118,12 @@ export function MascotCharacter({
           <h3 className="mt-2 font-display text-2xl text-white">
             {isHappy ? "Супер ход!" : "Хайде, герой!"}
           </h3>
-          <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">{message}</p>
+          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{message}</p>
           {xpText ? (
             <motion.div
-              initial={{ opacity: 0.5, scale: 0.96 }}
-              animate={{ opacity: [0.7, 1, 0.7], scale: [1, 1.04, 1] }}
-              transition={{ duration: 1.7, repeat: Number.POSITIVE_INFINITY }}
-              className="mt-3 inline-flex rounded-full bg-lime-300/12 px-3 py-1 text-xs font-bold text-lime-200"
+              animate={{ opacity: [0.72, 1, 0.72], scale: [1, 1.04, 1] }}
+              transition={{ duration: 1.6, repeat: Number.POSITIVE_INFINITY }}
+              className="badge-lime mt-3 inline-flex rounded-full px-3 py-1.5 text-xs font-bold"
             >
               {xpText}
             </motion.div>

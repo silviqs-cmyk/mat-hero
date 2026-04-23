@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AchievementBadge } from "@/components/AchievementBadge";
-import { MascotCharacter } from "@/components/MascotCharacter";
+import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ScoreCard } from "@/components/ScoreCard";
 import { useAppState } from "@/components/providers/AppStateProvider";
@@ -13,10 +13,10 @@ export default function ResultsPage() {
   if (!latestResult) {
     return (
       <div className="panel rounded-[28px] p-5">
-        <p className="text-sm text-[var(--text-muted)]">Все още няма завършен куиз.</p>
+        <p className="text-sm text-[var(--muted)]">Все още няма завършен тест.</p>
         <Link
           href="/dashboard"
-          className="btn-neon-primary mt-4 inline-flex rounded-full px-5 py-3 text-sm font-semibold"
+          className="btn-neon-primary mt-4 inline-flex rounded-2xl px-5 py-3 text-sm font-semibold"
         >
           Към таблото
         </Link>
@@ -28,22 +28,34 @@ export default function ResultsPage() {
   const mistakeCount = latestResult.incorrectQuestionIds.length;
 
   return (
-    <div className="space-y-5">
-      <MascotCharacter
-        mood={latestResult.score >= 85 ? "celebrating" : goodScore ? "happy" : "idle"}
-        message={
-          goodScore
-            ? "Това беше силен рунд. Натисни нататък и запази темпото."
-            : "Имаш ясни места за подобрение. Прегледай грешките и пробвай отново."
-        }
-        xpText={goodScore ? "+bonus confidence" : "keep going"}
-      />
+    <div className="space-y-5 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-5 lg:space-y-0">
+      <section className="panel-glow rounded-[30px] p-5">
+        <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto]">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">
+              Резултат от днес
+            </p>
+            <h3 className="mt-2 font-display text-2xl text-white">
+              {goodScore ? "Страхотна работа!" : "Продължавай смело!"}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+              {goodScore
+                ? "Продължавай така и обръщай внимание на слабите теми."
+                : "Има какво да повториш, но вече знаеш точно къде да се фокусираш."}
+            </p>
+            <div className="badge-lime mt-3 inline-flex rounded-full px-3 py-1.5 text-xs font-bold">
+              {goodScore ? "+ награда за фокус" : "пробвай пак"}
+            </div>
+          </div>
+          <AnimatedHeroMascot size="sm" />
+        </div>
+      </section>
 
       <section className="grid grid-cols-2 gap-4">
         <ScoreCard
           title="Резултат"
           value={`${latestResult.score}%`}
-          helper={`Ден ${latestResult.dayId} · ${latestResult.totalQuestions} въпроса`}
+          helper={`Ден ${latestResult.dayId}`}
           accent="cyan"
         />
         <ScoreCard
@@ -51,8 +63,8 @@ export default function ResultsPage() {
           value={`${mistakeCount}`}
           helper={
             mistakeCount === 0
-              ? "Без грешки. Страхотен фокус и увереност."
-              : "Точно тук си струва да повториш."
+              ? "Без грешки. Страхотен фокус."
+              : "Тук си струва да повториш."
           }
           accent="pink"
         />
@@ -66,7 +78,7 @@ export default function ResultsPage() {
         accent="lime"
       />
 
-      <section className="panel-glow rounded-[28px] p-5">
+      <section className="panel-glow rounded-[28px] p-5 lg:row-span-2">
         <h2 className="font-display text-2xl text-white">Препоръки</h2>
         <div className="mt-4 space-y-3">
           {latestResult.recommendations.map((recommendation) => (
@@ -78,23 +90,23 @@ export default function ResultsPage() {
       </section>
 
       <section className="grid grid-cols-3 gap-3">
-        <AchievementBadge label="Quiz done" unlocked />
+        <AchievementBadge label="Тест готов" unlocked />
         <AchievementBadge label="70%+" unlocked={goodScore} />
-        <AchievementBadge label="Perfect vibe" unlocked={latestResult.score >= 90} />
+        <AchievementBadge label="90%+" unlocked={latestResult.score >= 90} />
       </section>
 
-      <div className="flex gap-3">
+      <div className="flex gap-3 lg:col-span-2">
         <Link
           href="/roadmap"
-          className="btn-neon-primary flex-1 rounded-full px-5 py-4 text-center text-sm font-semibold"
+          className="btn-neon-primary flex-1 rounded-2xl px-5 py-4 text-center text-sm font-semibold"
         >
           Следващ ден
         </Link>
         <Link
           href="/report"
-          className="btn-neon-outline flex-1 rounded-full px-5 py-4 text-center text-sm font-semibold"
+          className="btn-neon-outline flex-1 rounded-2xl px-5 py-4 text-center text-sm font-semibold"
         >
-          Виж отчет
+          Отчет
         </Link>
       </div>
     </div>

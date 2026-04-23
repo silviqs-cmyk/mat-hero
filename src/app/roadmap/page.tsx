@@ -6,17 +6,18 @@ export default async function RoadmapPage() {
   const { data: days } = await getDays();
 
   return (
-    <div className="space-y-4">
-      <section className="panel-glow rounded-[30px] p-5">
-        <h2 className="font-display text-2xl text-white">10-дневен маршрут</h2>
-        <p className="mt-2 text-sm leading-6 text-[var(--text-muted)]">
-          Само първите 3 дни са отключени, за да имаш ясен ритъм. Бъдещите мисии стоят
-          заключени като mini boss нива и се усещат като награда, а не като претоварване.
+    <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
+      <section className="panel-glow rounded-[30px] p-5 lg:col-span-2">
+        <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">Пътна карта</p>
+        <h2 className="mt-2 font-display text-2xl text-white">10 дни до успеха</h2>
+        <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+          Първите 3 дни са активни. Следващите теми са заключени, за да вървиш спокойно
+          стъпка по стъпка.
         </p>
         <div className="mt-4 grid grid-cols-3 gap-3">
-          <AchievementBadge label="3 active" unlocked />
-          <AchievementBadge label="7 locked" unlocked={false} />
-          <AchievementBadge label="Boss day" unlocked={false} />
+          <AchievementBadge label="3 активни" unlocked />
+          <AchievementBadge label="7 заключени" unlocked={false} />
+          <AchievementBadge label="Финален тест" unlocked={false} />
         </div>
       </section>
 

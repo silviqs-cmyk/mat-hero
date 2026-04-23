@@ -59,7 +59,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   if (!currentQuestion) {
     return (
       <div className="panel rounded-[28px] p-5">
-        <p className="text-sm text-[var(--text-muted)]">Няма налични въпроси за този ден.</p>
+        <p className="text-sm text-[var(--muted)]">Няма налични въпроси за този ден.</p>
       </div>
     );
   }
@@ -72,13 +72,14 @@ export default function QuizPage({ params }: QuizPageProps) {
     setSelectedAnswer(answer);
     setShowFeedback(true);
 
-    const nextAnswer = {
-      questionId: currentQuestion.id,
-      selectedAnswer: answer,
-      isCorrect: answer === currentQuestion.correct_answer,
-    };
-
-    setAnswers((prev) => [...prev, nextAnswer]);
+    setAnswers((prev) => [
+      ...prev,
+      {
+        questionId: currentQuestion.id,
+        selectedAnswer: answer,
+        isCorrect: answer === currentQuestion.correct_answer,
+      },
+    ]);
   };
 
   const handleContinue = async () => {
@@ -100,16 +101,16 @@ export default function QuizPage({ params }: QuizPageProps) {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto max-w-3xl space-y-5">
       <MascotCharacter
         mood={showFeedback && selectedAnswer === currentQuestion.correct_answer ? "happy" : "idle"}
-        message="Един въпрос наведнъж. Избери смело и виж веднага дали си уцелил решението."
+        message="Избери отговор и ще получиш обратна връзка веднага."
       />
       <ProgressBar
-        label="Напредък в куиза"
+        label="Напредък в теста"
         value={currentIndex + 1}
         max={questions.length}
-        helperText="Виждаш обратна връзка веднага след избора."
+        helperText="Един въпрос наведнъж, без излишно напрежение."
         accent="cyan"
       />
 
@@ -134,7 +135,7 @@ export default function QuizPage({ params }: QuizPageProps) {
           <p
             className={`text-sm font-semibold ${
               selectedAnswer === currentQuestion.correct_answer
-                ? "text-emerald-300"
+                ? "text-lime-200"
                 : "text-rose-300"
             }`}
           >
@@ -146,15 +147,15 @@ export default function QuizPage({ params }: QuizPageProps) {
             <button
               type="button"
               onClick={handleContinue}
-              className="btn-neon-primary rounded-full px-5 py-3 text-sm font-semibold"
+              className="btn-neon-primary rounded-2xl px-5 py-3 text-sm font-semibold"
             >
-              {currentIndex < questions.length - 1 ? "Следващ въпрос" : "Виж резултата"}
+              {currentIndex < questions.length - 1 ? "Следващ" : "Резултат"}
             </button>
             <Link
               href={`/explanation/${currentQuestion.id}`}
-              className="btn-neon-outline rounded-full px-5 py-3 text-sm font-semibold"
+              className="btn-neon-outline rounded-2xl px-5 py-3 text-sm font-semibold"
             >
-              Виж обяснение
+              Обяснение
             </Link>
           </div>
         </motion.div>

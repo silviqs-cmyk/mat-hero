@@ -1,34 +1,74 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
+import type { ReactNode } from "react";
 
 interface ScoreCardProps {
   title: string;
   value: string;
   helper: string;
-  accent?: "cyan" | "pink" | "lime";
+  icon?: ReactNode;
+  accent?: "cyan" | "pink" | "lime" | "purple" | "orange";
 }
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0 },
+};
 
 export function ScoreCard({
   title,
   value,
   helper,
+  icon,
   accent = "cyan",
 }: ScoreCardProps) {
-  const accentClass = {
-    cyan: "text-cyan-300 border-cyan-400/20",
-    pink: "text-fuchsia-300 border-fuchsia-400/20",
-    lime: "text-lime-300 border-lime-400/20",
+  const accentConfig = {
+    cyan: {
+      iconWrap: "border-cyan-400/25 bg-cyan-400/10 text-cyan-300",
+      helperColor: "text-cyan-300",
+    },
+    pink: {
+      iconWrap: "border-fuchsia-400/25 bg-fuchsia-400/10 text-fuchsia-300",
+      helperColor: "text-fuchsia-300",
+    },
+    lime: {
+      iconWrap: "border-lime-400/25 bg-lime-300/10 text-lime-200",
+      helperColor: "text-lime-200",
+    },
+    purple: {
+      iconWrap: "border-purple-400/25 bg-purple-400/10 text-purple-300",
+      helperColor: "text-purple-300",
+    },
+    orange: {
+      iconWrap: "border-orange-400/25 bg-orange-400/10 text-orange-300",
+      helperColor: "text-orange-300",
+    },
   };
 
   return (
     <motion.article
-      whileHover={{ y: -3 }}
-      className={`rounded-[26px] border bg-[linear-gradient(180deg,rgba(30,34,48,0.96),rgba(19,22,31,0.98))] p-5 shadow-soft ${accentClass[accent]}`}
+      variants={cardVariants}
+      initial="hidden"
+      animate="visible"
+      whileHover={{ y: -2, scale: 1.01 }}
+      transition={{ duration: 0.22, ease: "easeOut" }}
+      className="rounded-[22px] border border-white/12 bg-[linear-gradient(180deg,rgba(11,15,25,0.98),rgba(7,10,18,0.98))] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.42)]"
     >
-      <p className="text-sm font-semibold text-[var(--text-muted)]">{title}</p>
-      <h3 className="mt-3 font-display text-4xl text-white">{value}</h3>
-      <p className="mt-2 text-sm text-[var(--text-muted)]">{helper}</p>
+      <div className="flex items-start gap-3">
+        {icon ? (
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border ${accentConfig[accent].iconWrap}`}
+          >
+            {icon}
+          </div>
+        ) : null}
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-slate-400">{title}</p>
+          <h3 className="mt-2 font-display text-3xl font-bold text-white">{value}</h3>
+          <p className={`mt-1 text-sm ${accentConfig[accent].helperColor}`}>{helper}</p>
+        </div>
+      </div>
     </motion.article>
   );
 }
