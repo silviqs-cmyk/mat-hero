@@ -26,8 +26,8 @@ interface AppStateContextValue {
   resetProgress: () => void;
 }
 
-const STORAGE_KEY = "maturohero-progress";
-const RESULT_KEY = "maturohero-latest-result";
+const STORAGE_KEY = "maturohero-progress-v2";
+const RESULT_KEY = "maturohero-latest-result-v2";
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
 

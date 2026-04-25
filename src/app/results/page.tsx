@@ -47,7 +47,7 @@ export default function ResultsPage() {
               {goodScore ? "+ награда за фокус" : "пробвай пак"}
             </div>
           </div>
-          <AnimatedHeroMascot size="sm" />
+          <AnimatedHeroMascot size="sm" animated={false} />
         </div>
       </section>
 

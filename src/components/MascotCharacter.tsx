@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 
 interface MascotCharacterProps {
   mood?: "idle" | "happy" | "cheering" | "celebrating";
@@ -32,83 +33,32 @@ export function MascotCharacter({
             repeat: Number.POSITIVE_INFINITY,
             ease: "easeInOut",
           }}
-          className="h-28 w-24 shrink-0"
+          className="relative flex h-28 w-24 shrink-0 items-center justify-center"
         >
-          <svg viewBox="0 0 120 150" className="h-full w-full overflow-visible">
-            <defs>
-              <filter id="mascotGlow" x="-60%" y="-60%" width="220%" height="220%">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            {isCheering ? (
-              <>
-                <motion.path
-                  d="M18 25 L25 17 M21 34 L31 34"
-                  stroke="#c9ff00"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY }}
-                />
-                <motion.path
-                  d="M96 22 L103 14 M91 34 L102 36"
-                  stroke="#ff4ed1"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY, delay: 0.15 }}
-                />
-              </>
-            ) : null}
-            <motion.circle
-              cx="60"
-              cy="38"
-              r="24"
-              fill="rgba(37,221,255,0.04)"
-              stroke="#8ff4ff"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              filter="url(#mascotGlow)"
-              animate={isHappy ? { scale: [1, 1.04, 1] } : undefined}
-              transition={{ duration: 1.4, repeat: Number.POSITIVE_INFINITY }}
-            />
-            <path
-              d="M39 24 Q56 12 81 25"
-              stroke="#b65cff"
-              strokeWidth="3"
-              fill="none"
-              strokeLinecap="round"
-              opacity="0.95"
-            />
-            <circle cx="50" cy="37" r="3.6" fill="#8ff4ff" />
-            <circle cx="70" cy="37" r="3.6" fill="#8ff4ff" />
-            <path
-              d={isHappy ? "M47 49 Q60 60 73 49" : "M49 54 Q60 49 71 54"}
-              stroke="#c9ff00"
-              strokeWidth="3.5"
-              fill="none"
-              strokeLinecap="round"
-            />
-            <path d="M59 63 L59 97" stroke="#8ff4ff" strokeWidth="4.5" strokeLinecap="round" />
-            <motion.path
-              d={isCheering ? "M58 73 L34 54" : "M58 73 L34 90"}
-              stroke="#8ff4ff"
-              strokeWidth="4.5"
-              strokeLinecap="round"
-            />
-            <motion.path
-              d={isCheering ? "M60 73 L88 53" : "M60 73 L88 88"}
-              stroke="#8ff4ff"
-              strokeWidth="4.5"
-              strokeLinecap="round"
-            />
-            <path d="M59 96 L43 128" stroke="#8ff4ff" strokeWidth="4.5" strokeLinecap="round" />
-            <path d="M59 96 L78 126" stroke="#8ff4ff" strokeWidth="4.5" strokeLinecap="round" />
-          </svg>
+          {isCheering ? (
+            <>
+              <motion.span
+                className="absolute left-1 top-2 text-lg text-lime-200"
+                animate={{ opacity: [0.35, 1, 0.35], y: [0, -4, 0] }}
+                transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY }}
+              >
+                ✦
+              </motion.span>
+              <motion.span
+                className="absolute right-1 top-3 text-lg text-pink-200"
+                animate={{ opacity: [0.35, 1, 0.35], y: [0, -4, 0] }}
+                transition={{
+                  duration: 0.7,
+                  repeat: Number.POSITIVE_INFINITY,
+                  delay: 0.15,
+                }}
+              >
+                ✦
+              </motion.span>
+            </>
+          ) : null}
+
+          <AnimatedHeroMascot size="sm" animated />
         </motion.div>
 
         <div>

@@ -353,10 +353,10 @@ export const createInitialProgress = (sessionId: string): UserProgress => ({
   id: 1,
   session_id: sessionId,
   current_day: 1,
-  xp: 120,
-  streak: 2,
+  xp: 0,
+  streak: 0,
   last_quiz_score: 0,
   completed_days: [],
-  weak_topics: ["Геометрични тела", "Еднакви триъгълници"],
+  weak_topics: [],
   topic_scores: { ...defaultTopicScores },
 });

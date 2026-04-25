@@ -110,10 +110,12 @@ button {
 
 .btn-neon-primary {
   background: linear-gradient(135deg, #e4ff4d 0%, var(--lime) 48%, #8dff00 100%);
-  border: 1px solid rgba(236, 255, 141, 0.9);
+  border: 1px solid rgba(236, 255, 141, 1);
   box-shadow:
-    0 0 0 1px rgba(201, 255, 0, 0.28),
-    0 0 30px rgba(201, 255, 0, 0.34),
+    0 0 0 1px rgba(201, 255, 0, 0.42),
+    0 0 0 2px rgba(201, 255, 0, 0.18),
+    0 0 36px rgba(201, 255, 0, 0.42),
+    0 0 54px rgba(201, 255, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.44);
   color: #111804;
   font-weight: 800;
@@ -122,20 +124,31 @@ button {
 .btn-neon-primary:hover {
   filter: brightness(1.08);
   box-shadow:
-    0 0 0 1px rgba(236, 255, 141, 0.58),
-    0 0 40px rgba(201, 255, 0, 0.48),
+    0 0 0 1px rgba(236, 255, 141, 0.75),
+    0 0 0 2px rgba(201, 255, 0, 0.26),
+    0 0 44px rgba(201, 255, 0, 0.56),
+    0 0 68px rgba(201, 255, 0, 0.26),
     inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .btn-neon-outline {
-  background: rgba(37, 221, 255, 0.035);
-  border: 1px solid rgba(37, 221, 255, 0.7);
-  box-shadow: 0 0 0 1px rgba(37, 221, 255, 0.12), 0 0 22px rgba(37, 221, 255, 0.18);
+  background: rgba(37, 221, 255, 0.05);
+  border: 1px solid rgba(37, 221, 255, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(37, 221, 255, 0.22),
+    0 0 0 2px rgba(37, 221, 255, 0.08),
+    0 0 28px rgba(37, 221, 255, 0.26),
+    0 0 44px rgba(37, 221, 255, 0.12);
   color: #c6f8ff;
 }
 
 .btn-neon-outline:hover {
-  background: rgba(37, 221, 255, 0.12);
+  background: rgba(37, 221, 255, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(143, 244, 255, 0.42),
+    0 0 0 2px rgba(37, 221, 255, 0.14),
+    0 0 34px rgba(37, 221, 255, 0.34),
+    0 0 52px rgba(37, 221, 255, 0.18);
   color: white;
 }
 

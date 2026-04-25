@@ -86,6 +86,11 @@ function PercentIcon() {
 export default function DashboardPage() {
   const { progress } = useAppState();
   const currentDay = demoDays.find((day) => day.id === progress.current_day) ?? demoDays[0];
+  const isFirstVisit =
+    progress.current_day === 1 &&
+    progress.completed_days.length === 0 &&
+    progress.xp === 0 &&
+    progress.streak === 0;
   const weakestTopics = Object.entries(progress.topic_scores)
     .sort((a, b) => a[1] - b[1])
     .slice(0, 3);
@@ -119,7 +124,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="justify-self-center md:justify-self-end">
-            <AnimatedHeroMascot size="md" />
+            <AnimatedHeroMascot size="md" animated={false} />
           </div>
         </div>
       </motion.section>
@@ -141,7 +146,7 @@ export default function DashboardPage() {
         />
         <ScoreCard
           title="Успеваемост"
-          value={`${Math.max(progress.last_quiz_score, 68)}%`}
+          value={`${progress.last_quiz_score}%`}
           helper="общ резултат"
           icon={<TargetIcon />}
           accent="cyan"
@@ -180,19 +185,19 @@ export default function DashboardPage() {
           <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto]">
             <div>
               <h3 className="max-w-[220px] font-display text-3xl font-bold leading-tight text-white">
-                Продължи от където си спрял
+                {isFirstVisit ? "Започни своя първи урок" : "Продължи от където си спрял"}
               </h3>
               <p className="mt-4 text-2xl text-slate-300">{currentDay.topic}</p>
               <Link
                 href={`/lesson/${progress.current_day}`}
                 className="mt-6 inline-flex items-center gap-3 rounded-2xl bg-[linear-gradient(90deg,#ff4ed1,#c9ff00)] px-6 py-3 text-base font-bold text-[#111] shadow-[0_0_28px_rgba(201,255,0,0.2)] transition hover:brightness-110"
               >
-                Продължи
+                {isFirstVisit ? "Започни" : "Продължи"}
                 <span className="text-lg">›</span>
               </Link>
             </div>
             <div className="justify-self-center">
-              <AnimatedHeroMascot size="sm" />
+              <AnimatedHeroMascot size="sm" animated={false} />
             </div>
           </div>
         </motion.section>

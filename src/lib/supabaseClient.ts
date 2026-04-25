@@ -23,6 +23,47 @@ function withError<T>(data: T, error: string | null = null): ApiResponse<T> {
   return { data, error };
 }
 
+export async function signInWithEmail(
+  email: string,
+  password: string,
+): Promise<ApiResponse<boolean>> {
+  if (!supabase) {
+    return withError(false, "Supabase не е конфигуриран. Добави env променливите.");
+  }
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  return error ? withError(false, error.message) : withError(true);
+}
+
+export async function signUpWithEmail(
+  email: string,
+  password: string,
+): Promise<ApiResponse<boolean>> {
+  if (!supabase) {
+    return withError(false, "Supabase не е конфигуриран. Добави env променливите.");
+  }
+
+  const { error } = await supabase.auth.signUp({
+    email,
+    password,
+  });
+
+  return error ? withError(false, error.message) : withError(true);
+}
+
+export async function signOutUser(): Promise<ApiResponse<boolean>> {
+  if (!supabase) {
+    return withError(true);
+  }
+
+  const { error } = await supabase.auth.signOut();
+  return error ? withError(false, error.message) : withError(true);
+}
+
 export async function getDays(): Promise<ApiResponse<Day[]>> {
   if (!supabase) {
     return withError(demoDays);

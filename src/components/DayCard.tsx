@@ -17,12 +17,13 @@ export function DayCard({
   isCurrent,
   isUnlocked = day.is_active,
 }: DayCardProps) {
+  const progressValue = isCompleted ? 100 : isCurrent ? 40 : 0;
   const statusLabel = isCompleted
     ? "Завършен"
     : isCurrent
       ? "Днес"
       : isUnlocked
-        ? "Достъпен"
+        ? "Активен"
         : "Заключен";
 
   return (
@@ -32,43 +33,56 @@ export function DayCard({
         className={`block rounded-[24px] border p-4 transition ${
           isCurrent
             ? "panel-lime"
-            : isUnlocked
+            : isCompleted || isUnlocked
               ? "panel-glow"
               : "border-white/10 bg-white/[0.03] opacity-70"
         }`}
       >
-        <div className="flex items-center gap-4">
-          <div
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${
-              isUnlocked ? "badge-lime" : "border-white/12 text-slate-500"
-            }`}
-          >
-            {day.order_index}
-          </div>
-          <div className="min-w-0 flex-1">
-            <h3 className="font-display text-lg font-bold text-white">{day.topic}</h3>
-            <p className="mt-1 text-xs text-[var(--muted)]">{day.title}</p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-display text-xl font-black text-white">Ден {day.order_index}</p>
+            <p className="mt-1 text-xs text-[var(--muted)]">{day.topic}</p>
           </div>
           <span
             className={`rounded-full px-3 py-1 text-xs font-bold ${
-              isUnlocked ? "badge-cyan" : "border border-white/10 bg-white/5 text-slate-500"
+              isUnlocked || isCompleted
+                ? "badge-cyan"
+                : "border border-white/10 bg-white/5 text-slate-500"
             }`}
           >
             {statusLabel}
           </span>
         </div>
 
-        {!isUnlocked ? (
-          <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-            <span className="inline-block h-2 w-2 rounded-full bg-slate-600" />
-            Отключва се след предишните мисии
+        <div className="mt-4 flex items-center gap-3">
+          <div
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${
+              isUnlocked || isCompleted ? "badge-lime" : "border-white/12 text-slate-500"
+            }`}
+          >
+            {day.order_index}
           </div>
-        ) : isCompleted ? (
-          <div className="mt-3 flex items-center gap-2 text-xs text-lime-200">
-            <span className="inline-block h-2 w-2 rounded-full bg-lime-300" />
-            Можеш да се върнеш и да преговориш темата по всяко време
+          <p className="text-sm text-slate-200">{day.title}</p>
+        </div>
+
+        <div className="mt-4">
+          <div className="mb-2 flex items-center justify-between text-xs font-semibold">
+            <span className="text-slate-300">Прогрес за деня</span>
+            <span className={progressValue > 0 ? "text-lime-200" : "text-slate-500"}>
+              {progressValue}%
+            </span>
           </div>
-        ) : null}
+          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progressValue}%` }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className={`h-full rounded-full ${
+                isCompleted ? "progress-cyan" : isCurrent ? "progress-lime" : "bg-white/0"
+              }`}
+            />
+          </div>
+        </div>
       </Link>
     </motion.div>
   );
