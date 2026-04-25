@@ -134,6 +134,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    const authClient = supabase;
     let active = true;
 
     async function syncForSession(nextSessionId: string, isAuthenticated: boolean) {
@@ -166,7 +167,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     async function bootstrapAuthState() {
       const {
         data: { session },
-      } = await supabase.auth.getSession();
+      } = await authClient.auth.getSession();
 
       const authenticatedUserId = session?.user.id ?? null;
       const nextSessionId = authenticatedUserId ?? getOrCreateSessionId();
@@ -177,7 +178,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = authClient.auth.onAuthStateChange((_event, session) => {
       const authenticatedUserId = session?.user.id ?? null;
       const nextSessionId = authenticatedUserId ?? getOrCreateSessionId();
       void syncForSession(nextSessionId, Boolean(authenticatedUserId));
