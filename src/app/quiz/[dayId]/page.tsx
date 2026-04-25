@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MascotCharacter } from "@/components/MascotCharacter";
@@ -77,6 +78,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   const currentQuestion = questions[currentIndex];
   const isBonusMode = mode === "extra";
   const answeredQuestionsCount = answers.length;
+  const isCorrectAnswer = selectedAnswer === currentQuestion.correct_answer;
 
   if (!currentQuestion) {
     return (
@@ -126,7 +128,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <MascotCharacter
-        mood={showFeedback && selectedAnswer === currentQuestion.correct_answer ? "happy" : "idle"}
+        mood={showFeedback && isCorrectAnswer ? "happy" : "idle"}
         message={
           isBonusMode
             ? "Това е бонус тренировка. Натисни още малко и затвърди темата."
@@ -165,15 +167,25 @@ export default function QuizPage({ params }: QuizPageProps) {
         >
           <p
             className={`text-sm font-semibold ${
-              selectedAnswer === currentQuestion.correct_answer
-                ? "text-lime-200"
-                : "text-rose-300"
+              isCorrectAnswer ? "text-lime-200" : "text-rose-300"
             }`}
           >
-            {selectedAnswer === currentQuestion.correct_answer
+            {isCorrectAnswer
               ? "Точно така."
               : `Верният отговор е ${currentQuestion.correct_answer}.`}
           </p>
+          {isCorrectAnswer ? (
+            <div className="mt-4 flex justify-center rounded-[24px] border border-cyan-400/20 bg-[radial-gradient(circle,rgba(32,237,255,0.12),transparent_65%),linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-4 shadow-[0_0_32px_rgba(37,221,255,0.14)]">
+              <Image
+                src="/images/success.gif"
+                alt="MatHero celebrates a correct answer"
+                width={240}
+                height={240}
+                unoptimized
+                className="h-auto w-full max-w-[240px] rounded-[20px]"
+              />
+            </div>
+          ) : null}
           <div className="mt-4 flex gap-3">
             <button
               type="button"

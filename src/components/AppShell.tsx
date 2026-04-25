@@ -47,6 +47,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { title, subtitle } = getRouteTitle(pathname);
   const isLanding = pathname === "/";
+  const showBottomNav = !isLanding;
 
   return (
     <motion.div
@@ -66,13 +67,15 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main
         className={`relative z-10 flex-1 ${
           isLanding ? "p-0" : "px-4 pb-28 pt-4 lg:px-8 lg:pb-10"
-        } lg:pl-64`}
+        } ${showBottomNav ? "lg:pl-64" : ""}`}
       >
         {children}
       </main>
-      <div className="relative z-10">
-        <BottomNav />
-      </div>
+      {showBottomNav ? (
+        <div className="relative z-10">
+          <BottomNav />
+        </div>
+      ) : null}
     </motion.div>
   );
 }
