@@ -16,7 +16,13 @@ import {
   supabase,
   updateUserProgress,
 } from "@/lib/supabaseClient";
-import type { QuizAnswerPayload, QuizResultSummary, TopicName, UserProgress } from "@/types";
+import type {
+  QuizAnswerPayload,
+  QuizMode,
+  QuizResultSummary,
+  TopicName,
+  UserProgress,
+} from "@/types";
 
 interface AppStateContextValue {
   sessionId: string;
@@ -24,6 +30,7 @@ interface AppStateContextValue {
   latestResult: QuizResultSummary | null;
   completeQuiz: (input: {
     dayId: number;
+    mode: QuizMode;
     topic: TopicName;
     totalQuestions: number;
     answers: QuizAnswerPayload[];
@@ -119,10 +126,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
 
     if (latestResult) {
-      window.localStorage.setItem(
-        getResultStorageKey(sessionId),
-        JSON.stringify(latestResult),
-      );
+      window.localStorage.setItem(getResultStorageKey(sessionId), JSON.stringify(latestResult));
       return;
     }
 
@@ -195,7 +199,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sessionId,
       progress,
       latestResult,
-      completeQuiz: async ({ dayId, topic, totalQuestions, answers }) => {
+      completeQuiz: async ({ dayId, mode, topic, totalQuestions, answers }) => {
         const correctCount = answers.filter((answer) => answer.isCorrect).length;
         const score = Math.round((correctCount / totalQuestions) * 100);
         const completedDays = progress.completed_days.includes(dayId)
@@ -217,18 +221,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const recommendations =
           score >= 80
             ? [
-                "Отличен резултат. Продължи към следващия ден.",
-                "Реши още един кратък смесен тест за скорост.",
+                mode === "main"
+                  ? "Отличен резултат. Ако искаш, мини и през бонус задачите за деня."
+                  : "Бонус пакетът е овладян. Спокойно можеш да продължиш към следващия ден.",
+                "Прегледай и обясненията на задачите, за да затвърдиш подхода.",
               ]
             : [
                 `Върни се към урока по ${topic.toLowerCase()} за 5 минути.`,
-                "Прегледай стъпките на грешните задачи.",
+                mode === "main"
+                  ? "След основния тест мини и през бонус задачите, но бавно и с фокус."
+                  : "Прегледай стъпките на грешните задачи и опитай пак по-късно.",
               ];
 
         const nextProgress: UserProgress = {
           ...progress,
           current_day: Math.min(10, Math.max(progress.current_day, dayId + 1)),
-          xp: progress.xp + score + 25,
+          xp: progress.xp + score + (mode === "extra" ? 15 : 25),
           streak: progress.streak + 1,
           last_quiz_score: score,
           completed_days: completedDays.sort((a, b) => a - b),
@@ -238,6 +246,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         const result: QuizResultSummary = {
           dayId,
+          mode,
           score,
           totalQuestions,
           recommendations,

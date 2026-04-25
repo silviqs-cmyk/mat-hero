@@ -358,5 +358,5 @@ export const createInitialProgress = (sessionId: string): UserProgress => ({
   last_quiz_score: 0,
   completed_days: [],
   weak_topics: [],
-  topic_scores: { ...defaultTopicScores },
+  topic_scores: {},
 });

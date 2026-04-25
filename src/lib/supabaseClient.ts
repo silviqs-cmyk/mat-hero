@@ -47,6 +47,24 @@ function getNetworkErrorMessage(error: unknown): string {
   return "Could not reach Supabase. Check your configuration and try again.";
 }
 
+function normalizeAuthErrorMessage(message: string): string {
+  const normalized = message.toLowerCase();
+
+  if (
+    normalized.includes("email rate limit exceeded") ||
+    normalized.includes("rate limit") ||
+    normalized.includes("too many requests")
+  ) {
+    return "Изпращахме твърде много имейли за кратко. Изчакай малко и пробвай пак, или влез ако профилът вече е създаден.";
+  }
+
+  if (normalized.includes("user already registered")) {
+    return "Този имейл вече е регистриран. Опитай да влезеш в профила си.";
+  }
+
+  return message;
+}
+
 function getAuthRedirectUrl(): string | undefined {
   if (typeof window !== "undefined" && window.location.origin) {
     return window.location.origin;
@@ -72,6 +90,10 @@ function withError<T>(data: T, error: string | null = null): ApiResponse<T> {
   return { data, error };
 }
 
+type SignUpResult = {
+  requiresEmailConfirmation: boolean;
+};
+
 export async function signInWithEmail(
   email: string,
   password: string,
@@ -86,7 +108,7 @@ export async function signInWithEmail(
       password,
     });
 
-    return error ? withError(false, error.message) : withError(true);
+    return error ? withError(false, normalizeAuthErrorMessage(error.message)) : withError(true);
   } catch (error) {
     return withError(false, getNetworkErrorMessage(error));
   }
@@ -95,14 +117,14 @@ export async function signInWithEmail(
 export async function signUpWithEmail(
   email: string,
   password: string,
-): Promise<ApiResponse<boolean>> {
+): Promise<ApiResponse<SignUpResult>> {
   if (!supabase) {
-    return withError(false, SUPABASE_CONFIG_ERROR);
+    return withError({ requiresEmailConfirmation: false }, SUPABASE_CONFIG_ERROR);
   }
 
   try {
     const emailRedirectTo = getAuthRedirectUrl();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: emailRedirectTo
@@ -112,9 +134,15 @@ export async function signUpWithEmail(
         : undefined,
     });
 
-    return error ? withError(false, error.message) : withError(true);
+    if (error) {
+      return withError({ requiresEmailConfirmation: false }, normalizeAuthErrorMessage(error.message));
+    }
+
+    return withError({
+      requiresEmailConfirmation: !data.session,
+    });
   } catch (error) {
-    return withError(false, getNetworkErrorMessage(error));
+    return withError({ requiresEmailConfirmation: false }, getNetworkErrorMessage(error));
   }
 }
 

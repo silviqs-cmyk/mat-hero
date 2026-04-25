@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ExplanationSteps } from "@/components/ExplanationSteps";
 import { demoQuestions } from "@/lib/demoData";
+import { getPracticeQuestionById } from "@/lib/practiceQuestions";
 
 interface ExplanationPageProps {
   params: Promise<{ questionId: string }>;
@@ -8,7 +9,11 @@ interface ExplanationPageProps {
 
 export default async function ExplanationPage({ params }: ExplanationPageProps) {
   const { questionId } = await params;
-  const question = demoQuestions.find((item) => item.id === Number(questionId));
+  const numericQuestionId = Number(questionId);
+  const question =
+    getPracticeQuestionById(numericQuestionId) ??
+    demoQuestions.find((item) => item.id === numericQuestionId) ??
+    null;
 
   if (!question) {
     return (

@@ -2,15 +2,16 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MascotCharacter } from "@/components/MascotCharacter";
 import { ProgressBar } from "@/components/ProgressBar";
 import { QuestionCard } from "@/components/QuestionCard";
 import { useAppState } from "@/components/providers/AppStateProvider";
+import { getPracticeQuestionsForDay } from "@/lib/practiceQuestions";
 import { getQuestionsByDay } from "@/lib/supabaseClient";
 import { demoQuestions } from "@/lib/demoData";
-import type { Question, TopicName } from "@/types";
+import type { Question, QuizMode, TopicName } from "@/types";
 
 interface QuizPageProps {
   params: Promise<{ dayId: string }>;
@@ -18,10 +19,12 @@ interface QuizPageProps {
 
 export default function QuizPage({ params }: QuizPageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { completeQuiz } = useAppState();
   const [dayId, setDayId] = useState(1);
+  const [mode, setMode] = useState<QuizMode>("main");
   const [questions, setQuestions] = useState<Question[]>(
-    demoQuestions.filter((q) => q.day_id === 1),
+    getPracticeQuestionsForDay(1, "main"),
   );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -36,11 +39,28 @@ export default function QuizPage({ params }: QuizPageProps) {
     async function load() {
       const resolved = await params;
       const nextDayId = Number(resolved.dayId);
+      const nextMode = searchParams.get("mode") === "extra" ? "extra" : "main";
+      const practiceQuestions = getPracticeQuestionsForDay(nextDayId, nextMode);
+
+      if (!ignore && practiceQuestions.length > 0) {
+        setDayId(nextDayId);
+        setMode(nextMode);
+        setQuestions(practiceQuestions);
+        setCurrentIndex(0);
+        setSelectedAnswer(null);
+        setShowFeedback(false);
+        setAnswers([]);
+        return;
+      }
+
       const { data } = await getQuestionsByDay(nextDayId);
+      const fallbackQuestions =
+        data.length > 0 ? data : demoQuestions.filter((question) => question.day_id === nextDayId);
 
       if (!ignore) {
         setDayId(nextDayId);
-        setQuestions(data);
+        setMode("main");
+        setQuestions(fallbackQuestions);
         setCurrentIndex(0);
         setSelectedAnswer(null);
         setShowFeedback(false);
@@ -52,9 +72,11 @@ export default function QuizPage({ params }: QuizPageProps) {
     return () => {
       ignore = true;
     };
-  }, [params]);
+  }, [params, searchParams]);
 
   const currentQuestion = questions[currentIndex];
+  const isBonusMode = mode === "extra";
+  const answeredQuestionsCount = answers.length;
 
   if (!currentQuestion) {
     return (
@@ -92,6 +114,7 @@ export default function QuizPage({ params }: QuizPageProps) {
 
     await completeQuiz({
       dayId,
+      mode,
       topic: currentQuestion.topic as TopicName,
       totalQuestions: questions.length,
       answers,
@@ -104,14 +127,22 @@ export default function QuizPage({ params }: QuizPageProps) {
     <div className="mx-auto max-w-3xl space-y-5">
       <MascotCharacter
         mood={showFeedback && selectedAnswer === currentQuestion.correct_answer ? "happy" : "idle"}
-        message="Избери отговор и ще получиш обратна връзка веднага."
+        message={
+          isBonusMode
+            ? "Това е бонус тренировка. Натисни още малко и затвърди темата."
+            : "Избери отговор и ще получиш обратна връзка веднага."
+        }
       />
       <ProgressBar
-        label="Напредък в теста"
-        value={currentIndex + 1}
+        label={isBonusMode ? "Бонус тренировка" : "Напредък в теста"}
+        value={answeredQuestionsCount}
         max={questions.length}
-        helperText="Един въпрос наведнъж, без излишно напрежение."
-        accent="cyan"
+        helperText={
+          isBonusMode
+            ? "Допълнителни задачи за по-силен резултат."
+            : "Един въпрос наведнъж, без излишно напрежение."
+        }
+        accent={isBonusMode ? "pink" : "cyan"}
       />
 
       <AnimatePresence mode="wait">

@@ -6,66 +6,101 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LessonCard } from "@/components/LessonCard";
 import { MascotCharacter } from "@/components/MascotCharacter";
-import { SupplementaryMaterialsCard } from "@/components/SupplementaryMaterialsCard";
-import { getLessonsByDay } from "@/lib/supabaseClient";
 import { demoLessons } from "@/lib/demoData";
+import { dayTaskData } from "@/lib/dayTaskData";
+import { getPracticeQuestionsForDay } from "@/lib/practiceQuestions";
+import { getLessonsByDay } from "@/lib/supabaseClient";
 import type { Lesson } from "@/types";
 
-function AnimatedVisualization({ lesson }: { lesson: Lesson }) {
-  if (lesson.animation_type === "fraction-stack") {
-    return (
-      <div className="panel-glow grid grid-cols-4 gap-2 rounded-[28px] p-5">
-        {[1, 2, 3, 4].map((part) => (
-          <motion.div
-            key={part}
-            initial={{ y: 12, opacity: 0 }}
-            animate={{ y: 0, opacity: part <= 3 ? 1 : 0.35 }}
-            transition={{ delay: part * 0.08 }}
-            className="h-18 rounded-2xl bg-[linear-gradient(180deg,var(--cyan),var(--purple))]"
-          />
-        ))}
-      </div>
-    );
-  }
+function LessonOverview({
+  mainTaskCount,
+  extraTaskCount,
+  quizQuestionCount,
+}: {
+  mainTaskCount: number;
+  extraTaskCount: number;
+  quizQuestionCount: number;
+}) {
+  const cards = [
+    {
+      id: "read",
+      eyebrow: "1. Прочети",
+      title: "Урокът",
+      helper: "Теория и пример",
+      accent: "border-cyan-400/30 bg-cyan-400/12 text-cyan-100",
+    },
+    {
+      id: "main",
+      eyebrow: "2. Упражни",
+      title: `${mainTaskCount} основни задачи`,
+      helper: "Задължителният пакет",
+      accent: "border-lime-400/30 bg-lime-400/12 text-lime-100",
+    },
+    {
+      id: "quiz",
+      eyebrow: "3. Провери",
+      title: `${quizQuestionCount} въпроса`,
+      helper: "Тест за деня",
+      accent: "border-pink-400/30 bg-pink-400/12 text-pink-100",
+    },
+  ];
 
-  if (lesson.animation_type === "geometry-pulse") {
-    return (
-      <div className="panel-glow flex items-center justify-center rounded-[28px] p-5">
-        <motion.div
-          initial={{ scale: 0.8, rotate: 0 }}
-          animate={{ scale: [0.9, 1.04, 0.9], rotate: [0, 4, -4, 0] }}
-          transition={{ repeat: Number.POSITIVE_INFINITY, duration: 3 }}
-          className="h-32 w-32 rounded-[2rem] border-[12px] border-cyan-300 bg-cyan-300/10 shadow-[0_0_24px_rgba(37,221,255,0.24)]"
-        />
-      </div>
-    );
+  if (extraTaskCount > 0) {
+    cards.push({
+      id: "extra",
+      eyebrow: "Бонус",
+      title: `${extraTaskCount} допълнителни`,
+      helper: "За още прогрес",
+      accent: "border-white/12 bg-white/8 text-white/85",
+    });
   }
 
   return (
-    <div className="panel-glow space-y-3 rounded-[28px] p-5">
-      {[35, 60, 85].map((value, index) => (
-        <div key={value}>
-          <div className="mb-2 flex justify-between text-sm font-semibold text-slate-300">
-            <span>Стъпка {index + 1}</span>
-            <span>{value}%</span>
-          </div>
-          <div className="h-2 rounded-full bg-white/10">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${value}%` }}
-              transition={{ delay: index * 0.1, duration: 0.6 }}
-              className="progress-cyan h-full rounded-full"
-            />
-          </div>
+    <section className="overflow-hidden rounded-[32px] border border-cyan-400/24 bg-[radial-gradient(circle_at_top_right,rgba(37,221,255,0.18),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(182,92,255,0.16),transparent_24%),linear-gradient(180deg,rgba(10,16,29,0.98),rgba(6,9,17,0.98))] p-5 shadow-[0_0_0_1px_rgba(37,221,255,0.12),0_0_36px_rgba(37,221,255,0.16),0_26px_80px_rgba(0,0,0,0.52)]">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">
+            План за деня
+          </p>
+          <h2 className="mt-2 font-display text-3xl text-white drop-shadow-[0_0_18px_rgba(37,221,255,0.16)]">
+            Как да минеш урока без хаос
+          </h2>
         </div>
-      ))}
-    </div>
+        <div className="rounded-full border border-cyan-400/30 bg-cyan-400/12 px-3 py-1 text-xs font-semibold text-cyan-100 shadow-[0_0_18px_rgba(37,221,255,0.14)]">
+          Ясен ред
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {cards.map((card, index) => (
+          <motion.article
+            key={card.id}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.06 }}
+            className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02))] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
+          >
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
+              {card.eyebrow}
+            </p>
+            <p className="mt-3 font-display text-xl text-white">{card.title}</p>
+            <div
+              className={`mt-3 inline-flex rounded-full border px-3 py-1 text-xs font-semibold shadow-[0_0_18px_rgba(255,255,255,0.06)] ${card.accent}`}
+            >
+              {card.helper}
+            </div>
+          </motion.article>
+        ))}
+      </div>
+    </section>
   );
 }
 
 export default function LessonPage() {
   const params = useParams<{ id: string }>();
   const dayId = Number(params.id);
+  const tasks = dayTaskData[dayId] ?? { main: [], extra: [] };
+  const quizQuestionCount = getPracticeQuestionsForDay(dayId, "main").length;
   const [lesson, setLesson] = useState<Lesson | null>(
     demoLessons.find((item) => item.day_id === dayId) ?? null,
   );
@@ -96,24 +131,38 @@ export default function LessonPage() {
   }
 
   return (
-    <div className="space-y-5 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-5 lg:space-y-0">
-      <MascotCharacter
-        mood="happy"
-        message="Вземи основната идея, виж примера и после провери знанията си."
-        xpText="+25 XP след тест"
+    <div className="mx-auto max-w-6xl space-y-5">
+      <section className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+        <LessonCard lesson={lesson} />
+        <MascotCharacter
+          mood="happy"
+          message="Мини първо през кратката теория, после отвори основните задачи една по една и чак накрая тръгни към теста."
+          xpText="+25 XP след тест"
+        />
+      </section>
+
+      <LessonOverview
+        mainTaskCount={tasks.main.length}
+        extraTaskCount={tasks.extra.length}
+        quizQuestionCount={quizQuestionCount}
       />
-      <AnimatedVisualization lesson={lesson} />
-      <LessonCard lesson={lesson} />
-      <SupplementaryMaterialsCard
-        title="Мини подсказки"
-        description="Тук можеш да добавиш формули, кратко видео или бележки за бърз преговор."
-      />
-      <Link
-        href={`/quiz/${lesson.day_id}`}
-        className="btn-neon-primary block rounded-2xl p-5 text-center text-sm font-semibold lg:col-span-2"
-      >
-        Започни теста
-      </Link>
+
+      <section className="flex flex-wrap gap-3">
+        <Link
+          href={`/quiz/${lesson.day_id}`}
+          className="btn-neon-primary inline-flex rounded-2xl px-6 py-4 text-sm font-semibold"
+        >
+          Започни теста
+        </Link>
+        {tasks.extra.length > 0 ? (
+          <Link
+            href={`/quiz/${lesson.day_id}?mode=extra`}
+            className="btn-neon-outline inline-flex rounded-2xl px-6 py-4 text-sm font-semibold"
+          >
+            Бонус задачи
+          </Link>
+        ) : null}
+      </section>
     </div>
   );
 }

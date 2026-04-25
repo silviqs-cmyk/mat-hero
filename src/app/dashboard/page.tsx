@@ -116,7 +116,7 @@ export default function DashboardPage() {
             <div className="mt-5">
               <ProgressBar
                 label="Прогрес за деня"
-                value={progress.current_day * 10}
+                value={isFirstVisit ? 0 : progress.current_day * 10}
                 max={100}
                 helperText="Поддържай темпото и завърши урока."
                 accent="cyan"
@@ -161,19 +161,26 @@ export default function DashboardPage() {
               Виж отчет
             </Link>
           </div>
-          <div className="space-y-3">
-            {weakestTopics.map(([topic, score], index) => (
-              <WeakTopicCard
-                key={topic}
-                topic={topic}
-                score={score}
-                icon={
-                  index === 0 ? <GeometryIcon /> : index === 1 ? <FractionIcon /> : <PercentIcon />
-                }
-                accent={index === 0 ? "pink" : index === 1 ? "purple" : "lime"}
-              />
-            ))}
-          </div>
+          {isFirstVisit ? (
+            <div className="panel rounded-[24px] p-5 text-sm text-[var(--muted)]">
+              Все още няма натрупан прогрес. Завърши първия тест и тук ще се покажат темите, които
+              имат нужда от още внимание.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {weakestTopics.map(([topic, score], index) => (
+                <WeakTopicCard
+                  key={topic}
+                  topic={topic}
+                  score={score}
+                  icon={
+                    index === 0 ? <GeometryIcon /> : index === 1 ? <FractionIcon /> : <PercentIcon />
+                  }
+                  accent={index === 0 ? "pink" : index === 1 ? "purple" : "lime"}
+                />
+              ))}
+            </div>
+          )}
         </section>
 
         <motion.section

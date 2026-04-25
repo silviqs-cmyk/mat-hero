@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { signInWithEmail, signUpWithEmail, supabase } from "@/lib/supabaseClient";
 
+const SIGN_UP_COOLDOWN_MS = 60_000;
+
 const floatingSymbols = [
   {
     id: "percent-left",
@@ -40,7 +42,7 @@ const floatingSymbols = [
   {
     id: "divide-top",
     type: "text" as const,
-    content: "÷",
+    content: "·",
     className:
       "absolute right-[15%] top-[12%] text-lg font-light text-cyan-200 drop-shadow-[0_0_10px_rgba(37,221,255,0.72)]",
     duration: 8.4,
@@ -77,6 +79,12 @@ export default function LandingPage() {
   const [errorText, setErrorText] = useState("");
   const [successText, setSuccessText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [registerCooldownUntil, setRegisterCooldownUntil] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+
+  const registerCooldownSeconds = registerCooldownUntil
+    ? Math.max(0, Math.ceil((registerCooldownUntil - now) / 1000))
+    : 0;
 
   useEffect(() => {
     async function checkSession() {
@@ -93,6 +101,20 @@ export default function LandingPage() {
     void checkSession();
   }, [router]);
 
+  useEffect(() => {
+    if (!registerCooldownUntil || registerCooldownUntil <= now) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [now, registerCooldownUntil]);
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorText("");
@@ -105,6 +127,11 @@ export default function LandingPage() {
 
     if (mode === "register" && password !== confirmPassword) {
       setErrorText("Паролите не съвпадат.");
+      return;
+    }
+
+    if (mode === "register" && registerCooldownSeconds > 0) {
+      setErrorText(`Изчакай още ${registerCooldownSeconds} сек. преди нов опит за регистрация.`);
       return;
     }
 
@@ -123,18 +150,28 @@ export default function LandingPage() {
         return;
       }
 
-      const { error } = await signUpWithEmail(email, password);
+      const { data, error } = await signUpWithEmail(email, password);
 
       if (error) {
+        if (error.includes("Изпращахме твърде много имейли")) {
+          setRegisterCooldownUntil(Date.now() + SIGN_UP_COOLDOWN_MS);
+        }
+
         setErrorText(error);
         return;
       }
 
-      setSuccessText(
-        "Профилът е създаден. Ако Supabase изисква email потвърждение, провери пощата си.",
-      );
-      setMode("login");
-      setConfirmPassword("");
+      if (data.requiresEmailConfirmation) {
+        setSuccessText(
+          "Профилът е създаден, но Supabase още иска email confirmation. За да няма такива имейли и лимити, изключи Confirm email от Supabase Authentication Settings.",
+        );
+        setRegisterCooldownUntil(Date.now() + SIGN_UP_COOLDOWN_MS);
+        setMode("login");
+        setConfirmPassword("");
+        return;
+      }
+
+      router.push("/dashboard");
     } finally {
       setLoading(false);
     }
@@ -287,11 +324,17 @@ export default function LandingPage() {
                     : "Създай профил"}
                 <span className="text-lg leading-none">›</span>
               </button>
+
+              {mode === "register" && registerCooldownSeconds > 0 ? (
+                <p className="text-center text-xs text-white/55">
+                  Можеш да поискаш нов регистрационен имейл след {registerCooldownSeconds} сек.
+                </p>
+              ) : null}
             </form>
 
             <p className="mt-3 text-center text-xs text-white/55">
-              Реален вход с Supabase Auth. Ако регистрацията изисква потвърждение,
-              провери пощата си.
+              Реален вход със Supabase Auth. Ако искаш вход без confirmation имейли, изключи
+              `Confirm email` в Supabase.
             </p>
           </div>
 

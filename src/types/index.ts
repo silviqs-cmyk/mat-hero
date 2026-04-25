@@ -40,6 +40,20 @@ export interface Question {
   explanation_steps: string[];
 }
 
+export interface PracticeTask {
+  question: string;
+  answers: string[];
+  correctAnswerKey: string;
+  explanation: string;
+}
+
+export interface DailyTaskSet {
+  main: PracticeTask[];
+  extra: PracticeTask[];
+}
+
+export type QuizMode = "main" | "extra";
+
 export interface UserProgress {
   id: number;
   session_id: string;
@@ -78,6 +92,7 @@ export interface QuizAnswerPayload {
 
 export interface QuizResultSummary {
   dayId: number;
+  mode: QuizMode;
   score: number;
   totalQuestions: number;
   recommendations: string[];
