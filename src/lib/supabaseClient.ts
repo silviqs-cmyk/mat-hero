@@ -13,6 +13,7 @@ import type {
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
 const SUPABASE_CONFIG_ERROR =
   "Supabase is not configured. Add a real NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your env file.";
@@ -44,6 +45,22 @@ function getNetworkErrorMessage(error: unknown): string {
   }
 
   return "Could not reach Supabase. Check your configuration and try again.";
+}
+
+function getAuthRedirectUrl(): string | undefined {
+  if (typeof window !== "undefined" && window.location.origin) {
+    return window.location.origin;
+  }
+
+  if (!publicSiteUrl) {
+    return undefined;
+  }
+
+  try {
+    return new URL(publicSiteUrl).toString().replace(/\/$/, "");
+  } catch {
+    return undefined;
+  }
 }
 
 export const supabase: SupabaseClient | null =
@@ -84,9 +101,15 @@ export async function signUpWithEmail(
   }
 
   try {
+    const emailRedirectTo = getAuthRedirectUrl();
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: emailRedirectTo
+        ? {
+            emailRedirectTo,
+          }
+        : undefined,
     });
 
     return error ? withError(false, error.message) : withError(true);
