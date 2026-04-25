@@ -34,7 +34,7 @@ export default function RoadmapPage() {
           преговор.
         </p>
 
-        <div className="mt-4 grid grid-cols-3 gap-3">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
           <AchievementBadge label={`Ден ${progress.current_day}`} unlocked />
           <AchievementBadge label={`${progress.completed_days.length} завършени`} unlocked />
           <AchievementBadge label="Финален тест" unlocked={progress.current_day >= 10} />

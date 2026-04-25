@@ -27,7 +27,7 @@ export function TopBar({ title, subtitle }: TopBarProps) {
             <AnimatedHeroMascot size="sm" animated={false} />
           </div>
           <div className="pt-1">
-            <p className="font-display text-[1.7rem] font-extrabold leading-none text-white">
+            <p className="font-logo text-[1.7rem] font-extrabold leading-none text-white">
               MatHero
             </p>
             <p className="mt-2 max-w-[220px] text-xs leading-5 text-[var(--muted)]">

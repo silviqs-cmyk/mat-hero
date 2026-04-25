@@ -1,17 +1,17 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MascotCharacter } from "@/components/MascotCharacter";
 import { ProgressBar } from "@/components/ProgressBar";
 import { QuestionCard } from "@/components/QuestionCard";
 import { useAppState } from "@/components/providers/AppStateProvider";
+import { demoQuestions } from "@/lib/demoData";
 import { getPracticeQuestionsForDay } from "@/lib/practiceQuestions";
 import { getQuestionsByDay } from "@/lib/supabaseClient";
-import { demoQuestions } from "@/lib/demoData";
 import type { Question, QuizMode, TopicName } from "@/types";
 
 interface QuizPageProps {
@@ -78,7 +78,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   const currentQuestion = questions[currentIndex];
   const isBonusMode = mode === "extra";
   const answeredQuestionsCount = answers.length;
-  const isCorrectAnswer = selectedAnswer === currentQuestion.correct_answer;
+  const isCorrectAnswer = selectedAnswer === currentQuestion?.correct_answer;
 
   if (!currentQuestion) {
     return (
@@ -125,16 +125,21 @@ export default function QuizPage({ params }: QuizPageProps) {
     router.push("/results");
   };
 
+  const mascotMessage =
+    isCorrectAnswer && showFeedback
+      ? "Страхотна работа. Реши задачата вярно и можеш спокойно да продължиш напред."
+      : isBonusMode
+        ? "Това е бонус тренировка. Натисни още малко и затвърди темата."
+        : "Избери отговор и ще получиш обратна връзка веднага.";
+
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
+    <div className="mx-auto max-w-6xl space-y-5">
       <MascotCharacter
-        mood={showFeedback && isCorrectAnswer ? "happy" : "idle"}
-        message={
-          isBonusMode
-            ? "Това е бонус тренировка. Натисни още малко и затвърди темата."
-            : "Избери отговор и ще получиш обратна връзка веднага."
-        }
+        mood={showFeedback && isCorrectAnswer ? "celebrating" : "idle"}
+        title={showFeedback && isCorrectAnswer ? "Страхотна работа!" : undefined}
+        message={mascotMessage}
       />
+
       <ProgressBar
         label={isBonusMode ? "Бонус тренировка" : "Напредък в теста"}
         value={answeredQuestionsCount}
@@ -147,62 +152,97 @@ export default function QuizPage({ params }: QuizPageProps) {
         accent={isBonusMode ? "pink" : "cyan"}
       />
 
-      <AnimatePresence mode="wait">
-        <QuestionCard
-          key={currentQuestion.id}
-          question={currentQuestion}
-          currentIndex={currentIndex}
-          total={questions.length}
-          selectedAnswer={selectedAnswer}
-          showFeedback={showFeedback}
-          onAnswerSelect={handleSelect}
-        />
-      </AnimatePresence>
+      <section className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
+        <AnimatePresence mode="wait">
+          <QuestionCard
+            key={currentQuestion.id}
+            question={currentQuestion}
+            currentIndex={currentIndex}
+            total={questions.length}
+            selectedAnswer={selectedAnswer}
+            showFeedback={showFeedback}
+            onAnswerSelect={handleSelect}
+          />
+        </AnimatePresence>
 
-      {showFeedback ? (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="panel rounded-[28px] p-5"
+        <motion.aside
+          initial={{ opacity: 0, x: 12 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="rounded-[28px] border border-white/10 bg-[rgb(1,1,2)] p-5 shadow-[0_18px_50px_rgba(0,0,0,0.45)] lg:p-6"
         >
-          <p
-            className={`text-sm font-semibold ${
-              isCorrectAnswer ? "text-lime-200" : "text-rose-300"
-            }`}
-          >
-            {isCorrectAnswer
-              ? "Точно така."
-              : `Верният отговор е ${currentQuestion.correct_answer}.`}
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">
+            Обратна връзка
           </p>
-          {isCorrectAnswer ? (
-            <div className="mt-4 flex justify-center rounded-[24px] border border-cyan-400/20 bg-[radial-gradient(circle,rgba(32,237,255,0.12),transparent_65%),linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-4 shadow-[0_0_32px_rgba(37,221,255,0.14)]">
-              <Image
-                src="/images/success.gif"
-                alt="MatHero celebrates a correct answer"
-                width={240}
-                height={240}
-                unoptimized
-                className="h-auto w-full max-w-[240px] rounded-[20px]"
-              />
-            </div>
-          ) : null}
-          <div className="mt-4 flex gap-3">
-            <button
-              type="button"
-              onClick={handleContinue}
-              className="btn-neon-primary rounded-2xl px-5 py-3 text-sm font-semibold"
-            >
-              {currentIndex < questions.length - 1 ? "Следващ" : "Резултат"}
-            </button>
-            <Link
-              href={`/explanation/${currentQuestion.id}`}
-              className="btn-neon-outline rounded-2xl px-5 py-3 text-sm font-semibold"
-            >
-              Обяснение
-            </Link>
-          </div>
-        </motion.div>
-      ) : null}
+
+          {showFeedback ? (
+            <>
+              <div
+                className={`mt-4 ${
+                  isCorrectAnswer
+                    ? "relative overflow-hidden rounded-[24px] border border-cyan-400/20 bg-cyan-400/5 p-4 pt-32 lg:p-5 lg:pt-36"
+                    : ""
+                }`}
+              >
+                <div className={isCorrectAnswer ? "relative z-10" : ""}>
+                  <h3
+                    className={`font-display text-2xl leading-tight lg:text-[1.8rem] ${
+                      isCorrectAnswer ? "text-lime-200" : "text-rose-300"
+                    }`}
+                  >
+                    {isCorrectAnswer ? "Точно така." : "Опитай отново с повече увереност."}
+                  </h3>
+                  <p className="mt-3 text-sm leading-6 text-[var(--muted)] lg:text-[0.95rem]">
+                    {isCorrectAnswer
+                      ? "Избра верния отговор и можеш да продължиш към следващата задача."
+                      : `Верният отговор е ${currentQuestion.correct_answer}. Можеш да отвориш обяснението и да видиш решението стъпка по стъпка.`}
+                  </p>
+                </div>
+
+                {isCorrectAnswer ? (
+                  <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 opacity-95">
+                    <Image
+                      src="/images/success.gif"
+                      alt="MatHero celebrates a correct answer"
+                      width={196}
+                      height={196}
+                      unoptimized
+                      className="h-auto w-full max-w-[196px] rounded-[24px]"
+                    />
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={handleContinue}
+                  className="btn-neon-primary rounded-2xl px-5 py-3 text-sm font-semibold"
+                >
+                  {currentIndex < questions.length - 1 ? "Следващ" : "Резултат"}
+                </button>
+                <Link
+                  href={`/explanation/${currentQuestion.id}`}
+                  className="btn-neon-outline rounded-2xl px-5 py-3 text-sm font-semibold"
+                >
+                  Обяснение
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <h3 className="mt-4 font-display text-2xl leading-tight text-white lg:text-[1.8rem]">
+                Избери отговор
+              </h3>
+              <div className="mt-5 rounded-[22px] border border-white/8 bg-white/[0.03] p-4">
+                <p className="text-xs leading-6 text-slate-300 sm:text-sm">
+                  Съвет: първо огледай всички варианти, после избери този, който можеш да
+                  защитиш с решение.
+                </p>
+              </div>
+            </>
+          )}
+        </motion.aside>
+      </section>
     </div>
   );
 }

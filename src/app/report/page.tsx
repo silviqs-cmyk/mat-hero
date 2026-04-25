@@ -11,7 +11,7 @@ export default function ReportPage() {
 
   return (
     <div className="space-y-5">
-      <section className="grid grid-cols-2 gap-4">
+      <section className="grid gap-4 sm:grid-cols-2">
         <ScoreCard title="Подобрение" value={`+${improvement}%`} helper="спрямо старт" accent="lime" />
         <ScoreCard title="Последен тест" value={`${progress.last_quiz_score}%`} helper="резултат" accent="cyan" />
       </section>
@@ -33,7 +33,7 @@ export default function ReportPage() {
         </p>
       </section>
 
-      <section className="grid grid-cols-3 gap-3">
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <AchievementBadge label="XP герой" unlocked={progress.xp >= 200} />
         <AchievementBadge label="3 дни" unlocked={progress.completed_days.length >= 3} />
         <AchievementBadge label="80%+" unlocked={progress.last_quiz_score >= 80} />

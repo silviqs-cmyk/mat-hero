@@ -218,7 +218,7 @@ export default function LandingPage() {
               <div className="flex h-16 w-16 shrink-0 items-center justify-center">
                 <AnimatedHeroMascot size="sm" animated={false} />
               </div>
-              <span className="font-display text-[2.55rem] font-black leading-none tracking-tight text-white drop-shadow-[0_0_16px_rgba(255,255,255,0.08)]">
+              <span className="font-logo text-[2.55rem] font-black leading-none tracking-tight text-white drop-shadow-[0_0_16px_rgba(255,255,255,0.08)]">
                 MatHero
               </span>
             </div>

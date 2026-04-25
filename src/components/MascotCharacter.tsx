@@ -1,18 +1,25 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 
 interface MascotCharacterProps {
   mood?: "idle" | "happy" | "cheering" | "celebrating";
   message: string;
   xpText?: string;
+  title?: string;
+  imageSrc?: string;
+  imageAlt?: string;
 }
 
 export function MascotCharacter({
   mood = "idle",
   message,
   xpText,
+  title,
+  imageSrc,
+  imageAlt = "MatHero mascot",
 }: MascotCharacterProps) {
   const isHappy = mood === "happy" || mood === "cheering" || mood === "celebrating";
   const isCheering = mood === "cheering" || mood === "celebrating";
@@ -42,7 +49,7 @@ export function MascotCharacter({
                 animate={{ opacity: [0.35, 1, 0.35], y: [0, -4, 0] }}
                 transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY }}
               >
-                ✦
+                *
               </motion.span>
               <motion.span
                 className="absolute right-1 top-3 text-lg text-pink-200"
@@ -53,12 +60,23 @@ export function MascotCharacter({
                   delay: 0.15,
                 }}
               >
-                ✦
+                *
               </motion.span>
             </>
           ) : null}
 
-          <AnimatedHeroMascot size="sm" animated />
+          {imageSrc ? (
+            <Image
+              src={imageSrc}
+              alt={imageAlt}
+              width={96}
+              height={96}
+              unoptimized
+              className="h-auto w-full max-w-[96px] rounded-[18px]"
+            />
+          ) : (
+            <AnimatedHeroMascot size="sm" animated />
+          )}
         </motion.div>
 
         <div>
@@ -66,7 +84,7 @@ export function MascotCharacter({
             Hero Buddy
           </p>
           <h3 className="mt-2 font-display text-2xl text-white">
-            {isHappy ? "Супер ход!" : "Хайде, герой!"}
+            {title ?? (isHappy ? "Супер ход!" : "Хайде, герой!")}
           </h3>
           <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{message}</p>
           {xpText ? (

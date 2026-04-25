@@ -54,7 +54,7 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-2 gap-4">
+      <section className="grid gap-4 sm:grid-cols-2">
         <ScoreCard
           title="Резултат"
           value={`${latestResult.score}%`}
@@ -95,13 +95,13 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-3 gap-3">
+      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <AchievementBadge label="Тест готов" unlocked />
         <AchievementBadge label="70%+" unlocked={goodScore} />
         <AchievementBadge label="90%+" unlocked={latestResult.score >= 90} />
       </section>
 
-      <div className="flex gap-3 lg:col-span-2">
+      <div className="flex flex-col gap-3 sm:flex-row lg:col-span-2">
         {completedMainQuiz && hasExtraTasks ? (
           <Link
             href={`/quiz/${latestResult.dayId}?mode=extra`}

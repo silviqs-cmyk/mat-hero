@@ -29,12 +29,12 @@ export function AnswerOption({
     <button
       type="button"
       onClick={onClick}
-      className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left text-sm font-semibold transition duration-200 ${feedbackClass}`}
+      className={`flex w-full items-start gap-4 rounded-[22px] border px-5 py-4 text-left text-sm font-semibold leading-6 transition duration-200 lg:px-6 lg:py-5 lg:text-base ${feedbackClass}`}
     >
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs text-cyan-200 font-bold border border-cyan-400/20">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-cyan-400/20 bg-white/10 text-xs font-bold text-cyan-200">
         {optionId}
       </span>
-      <span>{optionText}</span>
+      <span className="flex-1">{optionText}</span>
     </button>
   );
 }
