@@ -55,3 +55,96 @@ create table if not exists question_attempts (
   is_correct boolean not null,
   created_at timestamptz not null default now()
 );
+
+alter table days enable row level security;
+alter table lessons enable row level security;
+alter table questions enable row level security;
+alter table user_progress enable row level security;
+alter table quiz_attempts enable row level security;
+alter table question_attempts enable row level security;
+
+drop policy if exists "days are readable by authenticated users" on days;
+drop policy if exists "lessons are readable by authenticated users" on lessons;
+drop policy if exists "questions are readable by authenticated users" on questions;
+drop policy if exists "users can read own progress" on user_progress;
+drop policy if exists "users can insert own progress" on user_progress;
+drop policy if exists "users can update own progress" on user_progress;
+drop policy if exists "users can read own quiz attempts" on quiz_attempts;
+drop policy if exists "users can insert own quiz attempts" on quiz_attempts;
+drop policy if exists "users can read own question attempts" on question_attempts;
+drop policy if exists "users can insert own question attempts" on question_attempts;
+
+create policy "days are readable by authenticated users"
+on days
+for select
+to authenticated
+using (true);
+
+create policy "lessons are readable by authenticated users"
+on lessons
+for select
+to authenticated
+using (true);
+
+create policy "questions are readable by authenticated users"
+on questions
+for select
+to authenticated
+using (true);
+
+create policy "users can read own progress"
+on user_progress
+for select
+to authenticated
+using (session_id = auth.uid()::text);
+
+create policy "users can insert own progress"
+on user_progress
+for insert
+to authenticated
+with check (session_id = auth.uid()::text);
+
+create policy "users can update own progress"
+on user_progress
+for update
+to authenticated
+using (session_id = auth.uid()::text)
+with check (session_id = auth.uid()::text);
+
+create policy "users can read own quiz attempts"
+on quiz_attempts
+for select
+to authenticated
+using (session_id = auth.uid()::text);
+
+create policy "users can insert own quiz attempts"
+on quiz_attempts
+for insert
+to authenticated
+with check (session_id = auth.uid()::text);
+
+create policy "users can read own question attempts"
+on question_attempts
+for select
+to authenticated
+using (
+  exists (
+    select 1
+    from quiz_attempts
+    where quiz_attempts.id = question_attempts.quiz_attempt_id
+      and quiz_attempts.session_id = auth.uid()::text
+  )
+);
+
+create policy "users can insert own question attempts"
+on question_attempts
+for insert
+to authenticated
+with check (
+  exists (
+    select 1
+    from quiz_attempts
+    where quiz_attempts.id = question_attempts.quiz_attempt_id
+      and quiz_attempts.session_id = auth.uid()::text
+  )
+);

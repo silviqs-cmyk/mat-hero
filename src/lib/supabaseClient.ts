@@ -14,8 +14,40 @@ import type {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+const SUPABASE_CONFIG_ERROR =
+  "Supabase is not configured. Add a real NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your env file.";
+
+function isConfiguredSupabaseUrl(value: string | undefined): value is string {
+  if (!value || value.includes("your-project.supabase.co")) {
+    return false;
+  }
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname.length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function isConfiguredSupabaseKey(value: string | undefined): value is string {
+  return Boolean(value && value !== "your-anon-key");
+}
+
+function getNetworkErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message) {
+    if (error.message === "Failed to fetch") {
+      return "Could not reach Supabase. Check NEXT_PUBLIC_SUPABASE_URL, your network connection, and whether the Supabase project is active.";
+    }
+
+    return error.message;
+  }
+
+  return "Could not reach Supabase. Check your configuration and try again.";
+}
+
 export const supabase: SupabaseClient | null =
-  supabaseUrl && supabaseAnonKey
+  isConfiguredSupabaseUrl(supabaseUrl) && isConfiguredSupabaseKey(supabaseAnonKey)
     ? createClient(supabaseUrl, supabaseAnonKey)
     : null;
 
@@ -28,15 +60,19 @@ export async function signInWithEmail(
   password: string,
 ): Promise<ApiResponse<boolean>> {
   if (!supabase) {
-    return withError(false, "Supabase не е конфигуриран. Добави env променливите.");
+    return withError(false, SUPABASE_CONFIG_ERROR);
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  try {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  return error ? withError(false, error.message) : withError(true);
+    return error ? withError(false, error.message) : withError(true);
+  } catch (error) {
+    return withError(false, getNetworkErrorMessage(error));
+  }
 }
 
 export async function signUpWithEmail(
@@ -44,15 +80,19 @@ export async function signUpWithEmail(
   password: string,
 ): Promise<ApiResponse<boolean>> {
   if (!supabase) {
-    return withError(false, "Supabase не е конфигуриран. Добави env променливите.");
+    return withError(false, SUPABASE_CONFIG_ERROR);
   }
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-  });
+  try {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-  return error ? withError(false, error.message) : withError(true);
+    return error ? withError(false, error.message) : withError(true);
+  } catch (error) {
+    return withError(false, getNetworkErrorMessage(error));
+  }
 }
 
 export async function signOutUser(): Promise<ApiResponse<boolean>> {

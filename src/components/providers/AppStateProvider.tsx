@@ -10,7 +10,12 @@ import {
 } from "react";
 import { createInitialProgress } from "@/lib/demoData";
 import { getOrCreateSessionId } from "@/lib/session";
-import { saveQuizAttempt, updateUserProgress } from "@/lib/supabaseClient";
+import {
+  getUserProgress,
+  saveQuizAttempt,
+  supabase,
+  updateUserProgress,
+} from "@/lib/supabaseClient";
 import type { QuizAnswerPayload, QuizResultSummary, TopicName, UserProgress } from "@/types";
 
 interface AppStateContextValue {
@@ -26,10 +31,38 @@ interface AppStateContextValue {
   resetProgress: () => void;
 }
 
-const STORAGE_KEY = "maturohero-progress-v2";
-const RESULT_KEY = "maturohero-latest-result-v2";
+const STORAGE_PREFIX = "maturohero-progress-v3";
+const RESULT_PREFIX = "maturohero-latest-result-v3";
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
+
+function getProgressStorageKey(sessionId: string) {
+  return `${STORAGE_PREFIX}:${sessionId}`;
+}
+
+function getResultStorageKey(sessionId: string) {
+  return `${RESULT_PREFIX}:${sessionId}`;
+}
+
+function readProgressFromStorage(sessionId: string): UserProgress | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const savedProgress = window.localStorage.getItem(getProgressStorageKey(sessionId));
+  return savedProgress
+    ? ({ ...JSON.parse(savedProgress), session_id: sessionId } as UserProgress)
+    : null;
+}
+
+function readLatestResultFromStorage(sessionId: string): QuizResultSummary | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const savedResult = window.localStorage.getItem(getResultStorageKey(sessionId));
+  return savedResult ? (JSON.parse(savedResult) as QuizResultSummary) : null;
+}
 
 function getInitialState() {
   if (typeof window === "undefined") {
@@ -44,17 +77,11 @@ function getInitialState() {
   }
 
   const nextSessionId = getOrCreateSessionId();
-  const savedProgress = window.localStorage.getItem(STORAGE_KEY);
-  const savedResult = window.localStorage.getItem(RESULT_KEY);
 
   return {
     sessionId: nextSessionId,
-    progress: savedProgress
-      ? ({ ...JSON.parse(savedProgress), session_id: nextSessionId } as UserProgress)
-      : createInitialProgress(nextSessionId),
-    latestResult: savedResult
-      ? (JSON.parse(savedResult) as QuizResultSummary)
-      : null,
+    progress: readProgressFromStorage(nextSessionId) ?? createInitialProgress(nextSessionId),
+    latestResult: readLatestResultFromStorage(nextSessionId),
     hydrated: true,
   };
 }
@@ -68,7 +95,7 @@ function computeWeakTopics(topicScores: UserProgress["topic_scores"]): TopicName
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const initialState = getInitialState();
-  const [sessionId] = useState(initialState.sessionId);
+  const [sessionId, setSessionId] = useState(initialState.sessionId);
   const [progress, setProgress] = useState<UserProgress>(initialState.progress);
   const [latestResult, setLatestResult] = useState<QuizResultSummary | null>(
     initialState.latestResult,
@@ -81,7 +108,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
 
     window.localStorage.setItem(
-      STORAGE_KEY,
+      getProgressStorageKey(sessionId),
       JSON.stringify({ ...progress, session_id: sessionId }),
     );
   }, [progress, sessionId, hydrated]);
@@ -92,12 +119,75 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }
 
     if (latestResult) {
-      window.localStorage.setItem(RESULT_KEY, JSON.stringify(latestResult));
+      window.localStorage.setItem(
+        getResultStorageKey(sessionId),
+        JSON.stringify(latestResult),
+      );
       return;
     }
 
-    window.localStorage.removeItem(RESULT_KEY);
-  }, [latestResult, hydrated]);
+    window.localStorage.removeItem(getResultStorageKey(sessionId));
+  }, [latestResult, sessionId, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || !supabase) {
+      return;
+    }
+
+    let active = true;
+
+    async function syncForSession(nextSessionId: string, isAuthenticated: boolean) {
+      const localProgress =
+        readProgressFromStorage(nextSessionId) ?? createInitialProgress(nextSessionId);
+      const localResult = readLatestResultFromStorage(nextSessionId);
+
+      if (!isAuthenticated) {
+        if (!active) {
+          return;
+        }
+
+        setSessionId(nextSessionId);
+        setProgress(localProgress);
+        setLatestResult(localResult);
+        return;
+      }
+
+      const { data } = await getUserProgress(nextSessionId);
+
+      if (!active) {
+        return;
+      }
+
+      setSessionId(nextSessionId);
+      setProgress({ ...data, session_id: nextSessionId });
+      setLatestResult(localResult);
+    }
+
+    async function bootstrapAuthState() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const authenticatedUserId = session?.user.id ?? null;
+      const nextSessionId = authenticatedUserId ?? getOrCreateSessionId();
+      await syncForSession(nextSessionId, Boolean(authenticatedUserId));
+    }
+
+    void bootstrapAuthState();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const authenticatedUserId = session?.user.id ?? null;
+      const nextSessionId = authenticatedUserId ?? getOrCreateSessionId();
+      void syncForSession(nextSessionId, Boolean(authenticatedUserId));
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [hydrated]);
 
   const value = useMemo<AppStateContextValue>(
     () => ({
@@ -191,11 +281,24 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         if (typeof window !== "undefined") {
           window.localStorage.setItem(
-            STORAGE_KEY,
+            getProgressStorageKey(sessionId),
             JSON.stringify({ ...freshProgress, session_id: sessionId }),
           );
-          window.localStorage.removeItem(RESULT_KEY);
+          window.localStorage.removeItem(getResultStorageKey(sessionId));
         }
+
+        void updateUserProgress({
+          sessionId,
+          progress: {
+            current_day: freshProgress.current_day,
+            xp: freshProgress.xp,
+            streak: freshProgress.streak,
+            last_quiz_score: freshProgress.last_quiz_score,
+            completed_days: freshProgress.completed_days,
+            weak_topics: freshProgress.weak_topics,
+            topic_scores: freshProgress.topic_scores,
+          },
+        });
       },
     }),
     [latestResult, progress, sessionId],
