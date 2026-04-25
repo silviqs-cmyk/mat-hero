@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { BackgroundMathSymbols } from "@/components/BackgroundMathSymbols";
 import { BottomNav } from "@/components/BottomNav";
 import { TopBar } from "@/components/TopBar";
 
@@ -57,13 +58,18 @@ export function AppShell({ children }: { children: ReactNode }) {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className={`mx-auto flex min-h-screen w-full max-w-md flex-col border-x border-white/8 bg-[rgba(5,7,13,0.94)] shadow-[0_24px_90px_rgba(0,0,0,0.7)] ${
+      className={`relative mx-auto flex min-h-screen w-full max-w-md flex-col overflow-hidden border-x border-white/8 bg-[rgba(5,7,13,0.94)] shadow-[0_24px_90px_rgba(0,0,0,0.7)] ${
         isLanding ? "lg:max-w-md" : "lg:max-w-7xl"
       }`}
     >
-      {isLanding ? null : <TopBar title={title} subtitle={subtitle} />}
+      <BackgroundMathSymbols />
+      {isLanding ? null : (
+        <div className="relative z-10">
+          <TopBar title={title} subtitle={subtitle} />
+        </div>
+      )}
       <main
-        className={`flex-1 ${
+        className={`relative z-10 flex-1 ${
           isLanding ? "p-0" : "px-4 pb-28 pt-4 lg:px-8 lg:pb-10"
         } ${
           showBottomNav ? "lg:pl-64" : ""
@@ -71,7 +77,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       >
         {children}
       </main>
-      {showBottomNav ? <BottomNav /> : null}
+      {showBottomNav ? (
+        <div className="relative z-10">
+          <BottomNav />
+        </div>
+      ) : null}
     </motion.div>
   );
 }

@@ -8,25 +8,31 @@ interface DayCardProps {
   day: Day;
   isCompleted: boolean;
   isCurrent: boolean;
+  isUnlocked?: boolean;
 }
 
-export function DayCard({ day, isCompleted, isCurrent }: DayCardProps) {
+export function DayCard({
+  day,
+  isCompleted,
+  isCurrent,
+  isUnlocked = day.is_active,
+}: DayCardProps) {
   const statusLabel = isCompleted
     ? "Завършен"
     : isCurrent
       ? "Днес"
-      : day.is_active
-        ? "Активен"
+      : isUnlocked
+        ? "Достъпен"
         : "Заключен";
 
   return (
-    <motion.div whileHover={day.is_active ? { y: -3 } : undefined} whileTap={{ scale: 0.98 }}>
+    <motion.div whileHover={isUnlocked ? { y: -3 } : undefined} whileTap={{ scale: 0.98 }}>
       <Link
-        href={day.is_active ? `/lesson/${day.id}` : "/roadmap"}
+        href={isUnlocked ? `/lesson/${day.id}` : "/roadmap"}
         className={`block rounded-[24px] border p-4 transition ${
           isCurrent
             ? "panel-lime"
-            : day.is_active
+            : isUnlocked
               ? "panel-glow"
               : "border-white/10 bg-white/[0.03] opacity-70"
         }`}
@@ -34,7 +40,7 @@ export function DayCard({ day, isCompleted, isCurrent }: DayCardProps) {
         <div className="flex items-center gap-4">
           <div
             className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${
-              day.is_active ? "badge-lime" : "border-white/12 text-slate-500"
+              isUnlocked ? "badge-lime" : "border-white/12 text-slate-500"
             }`}
           >
             {day.order_index}
@@ -45,16 +51,22 @@ export function DayCard({ day, isCompleted, isCurrent }: DayCardProps) {
           </div>
           <span
             className={`rounded-full px-3 py-1 text-xs font-bold ${
-              day.is_active ? "badge-cyan" : "border border-white/10 bg-white/5 text-slate-500"
+              isUnlocked ? "badge-cyan" : "border border-white/10 bg-white/5 text-slate-500"
             }`}
           >
             {statusLabel}
           </span>
         </div>
-        {!day.is_active ? (
+
+        {!isUnlocked ? (
           <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
             <span className="inline-block h-2 w-2 rounded-full bg-slate-600" />
             Отключва се след предишните мисии
+          </div>
+        ) : isCompleted ? (
+          <div className="mt-3 flex items-center gap-2 text-xs text-lime-200">
+            <span className="inline-block h-2 w-2 rounded-full bg-lime-300" />
+            Можеш да се върнеш и да преговориш темата по всяко време
           </div>
         ) : null}
       </Link>

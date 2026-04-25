@@ -1,4 +1,4 @@
-export type TopicName = "Проценти" | "Дроби" | "Геометрия";
+export type TopicName = string;
 
 export type AnimationType =
   | "percentage-bars"

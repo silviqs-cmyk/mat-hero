@@ -7,6 +7,7 @@ import { ProgressBar } from "@/components/ProgressBar";
 import { ScoreCard } from "@/components/ScoreCard";
 import { WeakTopicCard } from "@/components/WeakTopicCard";
 import { useAppState } from "@/components/providers/AppStateProvider";
+import { demoDays } from "@/lib/demoData";
 
 function CalendarIcon() {
   return (
@@ -84,8 +85,10 @@ function PercentIcon() {
 
 export default function DashboardPage() {
   const { progress } = useAppState();
-  const currentProgress = progress.current_day;
-  const currentTopic = "Проценти";
+  const currentDay = demoDays.find((day) => day.id === progress.current_day) ?? demoDays[0];
+  const weakestTopics = Object.entries(progress.topic_scores)
+    .sort((a, b) => a[1] - b[1])
+    .slice(0, 3);
 
   return (
     <div className="space-y-4 lg:mx-auto lg:max-w-5xl">
@@ -102,13 +105,13 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h2 className="font-display text-3xl font-bold text-white">Ден {progress.current_day} от 10</h2>
-                <p className="mt-1 text-lg text-slate-300">Днес: {currentTopic}</p>
+                <p className="mt-1 text-lg text-slate-300">Днес: {currentDay.topic}</p>
               </div>
             </div>
             <div className="mt-5">
               <ProgressBar
                 label="Прогрес за деня"
-                value={currentProgress * 10}
+                value={progress.current_day * 10}
                 max={100}
                 helperText="Поддържай темпото и завърши урока."
                 accent="cyan"
@@ -154,9 +157,17 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="space-y-3">
-            <WeakTopicCard topic="Геометрия" score={42} icon={<GeometryIcon />} accent="pink" />
-            <WeakTopicCard topic="Дроби" score={61} icon={<FractionIcon />} accent="purple" />
-            <WeakTopicCard topic="Проценти" score={75} icon={<PercentIcon />} accent="lime" />
+            {weakestTopics.map(([topic, score], index) => (
+              <WeakTopicCard
+                key={topic}
+                topic={topic}
+                score={score}
+                icon={
+                  index === 0 ? <GeometryIcon /> : index === 1 ? <FractionIcon /> : <PercentIcon />
+                }
+                accent={index === 0 ? "pink" : index === 1 ? "purple" : "lime"}
+              />
+            ))}
           </div>
         </section>
 
@@ -171,7 +182,7 @@ export default function DashboardPage() {
               <h3 className="max-w-[220px] font-display text-3xl font-bold leading-tight text-white">
                 Продължи от където си спрял
               </h3>
-              <p className="mt-4 text-2xl text-slate-300">Проценти - Въведение</p>
+              <p className="mt-4 text-2xl text-slate-300">{currentDay.topic}</p>
               <Link
                 href={`/lesson/${progress.current_day}`}
                 className="mt-6 inline-flex items-center gap-3 rounded-2xl bg-[linear-gradient(90deg,#ff4ed1,#c9ff00)] px-6 py-3 text-base font-bold text-[#111] shadow-[0_0_28px_rgba(201,255,0,0.2)] transition hover:brightness-110"

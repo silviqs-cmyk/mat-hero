@@ -23,6 +23,7 @@ interface AppStateContextValue {
     totalQuestions: number;
     answers: QuizAnswerPayload[];
   }) => Promise<void>;
+  resetProgress: () => void;
 }
 
 const STORAGE_KEY = "maturohero-progress";
@@ -86,11 +87,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [progress, sessionId, hydrated]);
 
   useEffect(() => {
-    if (!hydrated || !latestResult) {
+    if (!hydrated) {
       return;
     }
 
-    window.localStorage.setItem(RESULT_KEY, JSON.stringify(latestResult));
+    if (latestResult) {
+      window.localStorage.setItem(RESULT_KEY, JSON.stringify(latestResult));
+      return;
+    }
+
+    window.localStorage.removeItem(RESULT_KEY);
   }, [latestResult, hydrated]);
 
   const value = useMemo<AppStateContextValue>(
@@ -105,7 +111,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           ? progress.completed_days
           : [...progress.completed_days, dayId];
 
-        const currentTopicScore = progress.topic_scores[topic];
+        const currentTopicScore = progress.topic_scores[topic] ?? 50;
         const nextTopicScore = Math.min(
           100,
           Math.round(currentTopicScore * 0.55 + score * 0.45),
@@ -121,7 +127,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           score >= 80
             ? [
                 "Отличен резултат. Продължи към следващия ден.",
-                "Реши още 1 смесен тест за скорост.",
+                "Реши още един кратък смесен тест за скорост.",
               ]
             : [
                 `Върни се към урока по ${topic.toLowerCase()} за 5 минути.`,
@@ -176,6 +182,20 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             topic_scores: nextProgress.topic_scores,
           },
         });
+      },
+      resetProgress: () => {
+        const freshProgress = createInitialProgress(sessionId);
+
+        setProgress(freshProgress);
+        setLatestResult(null);
+
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({ ...freshProgress, session_id: sessionId }),
+          );
+          window.localStorage.removeItem(RESULT_KEY);
+        }
       },
     }),
     [latestResult, progress, sessionId],
