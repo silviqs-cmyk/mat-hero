@@ -7,8 +7,6 @@ import { BackgroundMathSymbols } from "@/components/BackgroundMathSymbols";
 import { BottomNav } from "@/components/BottomNav";
 import { TopBar } from "@/components/TopBar";
 
-const hiddenBottomNavRoutes = ["/", "/quiz", "/explanation"];
-
 function getRouteTitle(pathname: string): { title: string; subtitle: string } {
   if (pathname === "/") {
     return { title: "MatHero", subtitle: "Подготовка по математика за 7. клас" };
@@ -49,9 +47,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { title, subtitle } = getRouteTitle(pathname);
   const isLanding = pathname === "/";
-  const showBottomNav = !hiddenBottomNavRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
-  );
 
   return (
     <motion.div
@@ -71,17 +66,13 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main
         className={`relative z-10 flex-1 ${
           isLanding ? "p-0" : "px-4 pb-28 pt-4 lg:px-8 lg:pb-10"
-        } ${
-          showBottomNav ? "lg:pl-64" : ""
-        }`}
+        } lg:pl-64`}
       >
         {children}
       </main>
-      {showBottomNav ? (
-        <div className="relative z-10">
-          <BottomNav />
-        </div>
-      ) : null}
+      <div className="relative z-10">
+        <BottomNav />
+      </div>
     </motion.div>
   );
 }
