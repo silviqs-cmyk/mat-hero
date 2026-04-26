@@ -248,14 +248,17 @@ export default function QuizPage({ params }: QuizPageProps) {
               <div
                 className={`mt-4 ${
                   isCorrectAnswer
-                    ? "relative overflow-hidden rounded-[24px] border border-cyan-400/20 bg-cyan-400/5 p-4 pt-32 lg:p-5 lg:pt-36"
-                    : ""
+                    ? "rounded-[24px] border border-cyan-400/20 bg-cyan-400/5 p-4 lg:p-5"
+                    : "rounded-[24px] border border-rose-400/20 bg-rose-400/5 p-4 lg:p-5"
                 }`}
               >
-                <div className={isCorrectAnswer ? "relative z-10" : ""}>
+                <div className="flex flex-col gap-4">
+                  <div>
                   <h3
                     className={`font-display text-2xl leading-tight lg:text-[1.8rem] ${
-                      isCorrectAnswer ? "text-lime-200" : "text-rose-300"
+                      isCorrectAnswer
+                        ? "bg-gradient-to-r from-cyan-200 via-sky-100 to-fuchsia-200 bg-clip-text text-transparent drop-shadow-[0_0_18px_rgba(34,211,238,0.35)]"
+                        : "text-rose-300"
                     }`}
                   >
                     {isCorrectAnswer ? "Точно така." : "Опитай отново с повече увереност."}
@@ -265,20 +268,24 @@ export default function QuizPage({ params }: QuizPageProps) {
                       ? "Избра верния отговор и можеш да продължиш към следващата задача."
                       : `Верният отговор е ${currentQuestion.correct_answer}. Можеш да отвориш обяснението и да видиш решението стъпка по стъпка.`}
                   </p>
-                </div>
-
-                {isCorrectAnswer ? (
-                  <div className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 opacity-95">
+                  <div className="pointer-events-none mt-4 flex justify-center opacity-95">
                     <Image
-                      src="/images/success.gif"
-                      alt="MatHero celebrates a correct answer"
-                      width={196}
-                      height={196}
+                      src={isCorrectAnswer ? "/images/success.gif" : "/images/error-state.gif"}
+                      alt={
+                        isCorrectAnswer
+                          ? "MatHero celebrates a correct answer"
+                          : "MatHero reacts to an incorrect answer"
+                      }
+                      width={isCorrectAnswer ? 196 : 152}
+                      height={isCorrectAnswer ? 196 : 152}
                       unoptimized
-                      className="h-auto w-full max-w-[196px] mix-blend-screen"
+                      className={`h-auto w-full mix-blend-screen ${
+                        isCorrectAnswer ? "max-w-[196px]" : "max-w-[152px]"
+                      }`}
                     />
                   </div>
-                ) : null}
+                  </div>
+                </div>
               </div>
 
               <div className="mt-5 flex flex-wrap gap-3">
@@ -302,6 +309,16 @@ export default function QuizPage({ params }: QuizPageProps) {
               <h3 className="mt-4 font-display text-2xl leading-tight text-white lg:text-[1.8rem]">
                 Избери отговор
               </h3>
+              <div className="pointer-events-none mt-5 flex justify-center">
+                <Image
+                  src="/images/error-state-alt.gif"
+                  alt="MatHero waits for your answer"
+                  width={188}
+                  height={188}
+                  unoptimized
+                  className="h-auto w-full max-w-[188px] mix-blend-screen"
+                />
+              </div>
               <div className="mt-5 rounded-[22px] border border-white/8 bg-white/[0.03] p-4">
                 <p className="panel-copy text-slate-300">
                   Съвет: първо огледай всички варианти, после избери този, който можеш да

@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
-import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ScoreCard } from "@/components/ScoreCard";
 import { WeakTopicCard } from "@/components/WeakTopicCard";
@@ -124,7 +124,14 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="justify-self-center md:justify-self-end">
-            <AnimatedHeroMascot size="md" animated={false} />
+            <Image
+              src="/images/choose.gif"
+              alt="MatHero thinks about the next lesson"
+              width={180}
+              height={180}
+              unoptimized
+              className="h-auto w-full max-w-[180px] mix-blend-screen"
+            />
           </div>
         </div>
       </motion.section>
