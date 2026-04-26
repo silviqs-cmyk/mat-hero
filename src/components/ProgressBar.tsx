@@ -28,8 +28,8 @@ export function ProgressBar({
   return (
     <div className="panel rounded-[24px] p-4">
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm font-semibold text-white">{label}</p>
-        <p className="text-sm font-bold text-lime-200">{percentage}%</p>
+        <p className="panel-copy font-semibold text-white">{label}</p>
+        <p className="panel-copy font-bold text-lime-200">{percentage}%</p>
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/10">
         <motion.div
@@ -39,7 +39,7 @@ export function ProgressBar({
           transition={{ duration: 0.65, ease: "easeOut" }}
         />
       </div>
-      {helperText ? <p className="mt-3 text-xs text-[var(--muted)]">{helperText}</p> : null}
+      {helperText ? <p className="panel-copy-muted mt-3">{helperText}</p> : null}
     </div>
   );
 }

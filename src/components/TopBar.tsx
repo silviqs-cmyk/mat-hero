@@ -7,11 +7,10 @@ import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { signOutUser } from "@/lib/supabaseClient";
 
 interface TopBarProps {
-  title: string;
   subtitle: string;
 }
 
-export function TopBar({ title, subtitle }: TopBarProps) {
+export function TopBar({ subtitle }: TopBarProps) {
   const router = useRouter();
 
   async function handleSignOut() {
@@ -30,9 +29,11 @@ export function TopBar({ title, subtitle }: TopBarProps) {
             <p className="font-logo text-[1.7rem] font-extrabold leading-none text-white">
               MatHero
             </p>
-            <p className="mt-2 max-w-[220px] text-xs leading-5 text-[var(--muted)]">
-              {subtitle}
-            </p>
+            {subtitle ? (
+              <p className="mt-2 max-w-[220px] text-xs leading-5 text-[var(--muted)]">
+                {subtitle}
+              </p>
+            ) : null}
           </div>
         </div>
 
@@ -57,10 +58,6 @@ export function TopBar({ title, subtitle }: TopBarProps) {
             </button>
           </motion.div>
         </div>
-      </div>
-
-      <div className="mt-2 text-center">
-        <h1 className="font-display text-2xl text-white">{title}</h1>
       </div>
     </header>
   );

@@ -205,6 +205,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         const completedDays = progress.completed_days.includes(dayId)
           ? progress.completed_days
           : [...progress.completed_days, dayId];
+        const shouldAdvanceDay = mode === "main";
 
         const currentTopicScore = progress.topic_scores[topic] ?? 50;
         const nextTopicScore = Math.min(
@@ -235,11 +236,13 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         const nextProgress: UserProgress = {
           ...progress,
-          current_day: Math.min(10, Math.max(progress.current_day, dayId + 1)),
+          current_day: shouldAdvanceDay
+            ? Math.min(10, Math.max(progress.current_day, dayId + 1))
+            : progress.current_day,
           xp: progress.xp + score + (mode === "extra" ? 15 : 25),
-          streak: progress.streak + 1,
+          streak: shouldAdvanceDay ? progress.streak + 1 : progress.streak,
           last_quiz_score: score,
-          completed_days: completedDays.sort((a, b) => a - b),
+          completed_days: shouldAdvanceDay ? completedDays.sort((a, b) => a - b) : progress.completed_days,
           weak_topics: weakTopics,
           topic_scores: topicScores,
         };

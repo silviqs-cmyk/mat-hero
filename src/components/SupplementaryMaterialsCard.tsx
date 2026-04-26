@@ -39,7 +39,7 @@ function TaskAccordion({
       </div>
 
       {tasks.length === 0 ? (
-        <p className="mt-4 text-sm text-[var(--muted)]">{emptyText}</p>
+        <p className="panel-copy-muted mt-4">{emptyText}</p>
       ) : (
         <div className="mt-4 space-y-3">
           {tasks.map((task, index) => {
@@ -73,7 +73,7 @@ function TaskAccordion({
                     return (
                       <div
                         key={`${answer}-${answerIndex}`}
-                        className={`rounded-2xl border px-3 py-2 text-sm ${
+                        className={`panel-copy rounded-2xl border px-3 py-2 ${
                           isCorrect
                             ? `${badgeClassName} border-transparent text-white shadow-[0_0_18px_rgba(37,221,255,0.12)]`
                             : "border-white/10 bg-black/10 text-white/75"
@@ -90,7 +90,7 @@ function TaskAccordion({
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
                     Обяснение
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-slate-200">{task.explanation}</p>
+                  <p className="panel-copy mt-2 text-slate-200">{task.explanation}</p>
                 </div>
               </details>
             );

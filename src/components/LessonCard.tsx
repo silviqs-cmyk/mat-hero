@@ -28,7 +28,7 @@ export function LessonCard({ lesson }: LessonCardProps) {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
             Най-важното
           </p>
-          <p className="mt-3 text-base leading-8 text-slate-200">{lesson.short_theory}</p>
+          <p className="panel-copy mt-3 text-slate-200">{lesson.short_theory}</p>
         </section>
 
         <aside className="rounded-[24px] border border-pink-400/28 bg-[radial-gradient(circle_at_top_right,rgba(255,78,209,0.2),transparent_35%),linear-gradient(180deg,rgba(34,13,36,0.96),rgba(11,11,21,0.96))] p-5 shadow-[0_0_24px_rgba(255,78,209,0.12)]">
@@ -38,11 +38,12 @@ export function LessonCard({ lesson }: LessonCardProps) {
           <p className="mt-3 font-display text-xl leading-8 text-white drop-shadow-[0_0_14px_rgba(255,78,209,0.16)]">
             {lesson.example}
           </p>
-          <p className="mt-4 text-sm leading-6 text-white/65">
+          <p className="panel-copy mt-4 text-white/65">
             Прегледай примера спокойно и после мини към задачите отдолу.
           </p>
         </aside>
       </div>
+
     </article>
   );
 }

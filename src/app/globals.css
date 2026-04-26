@@ -75,6 +75,17 @@ button {
   color: var(--muted);
 }
 
+.panel-copy {
+  font-size: 0.95rem;
+  line-height: 1.65rem;
+}
+
+.panel-copy-muted {
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.65rem;
+}
+
 .panel,
 .panel-glow,
 .card-neon {

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ScoreCard } from "@/components/ScoreCard";
@@ -110,7 +110,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h2 className="font-display text-3xl font-bold text-white">Ден {progress.current_day} от 10</h2>
-                <p className="mt-1 text-lg text-slate-300">Днес: {currentDay.topic}</p>
+                <p className="panel-copy mt-1 text-slate-300">Днес: {currentDay.topic}</p>
               </div>
             </div>
             <div className="mt-5">
@@ -153,7 +153,30 @@ export default function DashboardPage() {
         />
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_1.05fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.05fr_1fr]">
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -2 }}
+          className="rounded-[24px] border border-pink-400/20 bg-[linear-gradient(180deg,rgba(19,13,26,0.98),rgba(9,10,19,0.98))] p-5 shadow-[0_18px_46px_rgba(0,0,0,0.42)]"
+        >
+          <div>
+            <div>
+              <h3 className="max-w-[220px] font-display text-3xl font-bold leading-tight text-white">
+                {isFirstVisit ? "Започни своя първи урок" : "Продължи от където си спрял"}
+              </h3>
+              <p className="panel-copy mt-4 text-slate-300">{currentDay.topic}</p>
+              <Link
+                href={`/lesson/${progress.current_day}`}
+                className="mt-6 inline-flex self-start items-center gap-3 rounded-2xl bg-[linear-gradient(90deg,#ff4ed1,#c9ff00)] px-6 py-3 text-base font-bold text-[#111] shadow-[0_0_28px_rgba(201,255,0,0.2)] transition hover:brightness-110"
+              >
+                {isFirstVisit ? "Започни" : "Продължи"}
+                <span className="text-lg">›</span>
+              </Link>
+            </div>
+          </div>
+        </motion.section>
+
         <section>
           <div className="mb-3 flex items-center justify-between">
             <h3 className="font-display text-2xl font-bold text-white">Слаби теми</h3>
@@ -162,7 +185,7 @@ export default function DashboardPage() {
             </Link>
           </div>
           {isFirstVisit ? (
-            <div className="panel rounded-[24px] p-5 text-sm text-[var(--muted)]">
+            <div className="panel panel-copy-muted rounded-[24px] p-5">
               Все още няма натрупан прогрес. Завърши първия тест и тук ще се покажат темите, които
               имат нужда от още внимание.
             </div>
@@ -182,32 +205,6 @@ export default function DashboardPage() {
             </div>
           )}
         </section>
-
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -2 }}
-          className="rounded-[24px] border border-pink-400/20 bg-[linear-gradient(180deg,rgba(19,13,26,0.98),rgba(9,10,19,0.98))] p-5 shadow-[0_18px_46px_rgba(0,0,0,0.42)]"
-        >
-          <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto]">
-            <div>
-              <h3 className="max-w-[220px] font-display text-3xl font-bold leading-tight text-white">
-                {isFirstVisit ? "Започни своя първи урок" : "Продължи от където си спрял"}
-              </h3>
-              <p className="mt-4 text-2xl text-slate-300">{currentDay.topic}</p>
-              <Link
-                href={`/lesson/${progress.current_day}`}
-                className="mt-6 inline-flex items-center gap-3 rounded-2xl bg-[linear-gradient(90deg,#ff4ed1,#c9ff00)] px-6 py-3 text-base font-bold text-[#111] shadow-[0_0_28px_rgba(201,255,0,0.2)] transition hover:brightness-110"
-              >
-                {isFirstVisit ? "Започни" : "Продължи"}
-                <span className="text-lg">›</span>
-              </Link>
-            </div>
-            <div className="justify-self-center">
-              <AnimatedHeroMascot size="sm" animated={false} />
-            </div>
-          </div>
-        </motion.section>
       </div>
     </div>
   );

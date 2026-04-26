@@ -191,7 +191,7 @@ export default function QuizPage({ params }: QuizPageProps) {
                   >
                     {isCorrectAnswer ? "Точно така." : "Опитай отново с повече увереност."}
                   </h3>
-                  <p className="mt-3 text-sm leading-6 text-[var(--muted)] lg:text-[0.95rem]">
+                  <p className="panel-copy-muted mt-3">
                     {isCorrectAnswer
                       ? "Избра верния отговор и можеш да продължиш към следващата задача."
                       : `Верният отговор е ${currentQuestion.correct_answer}. Можеш да отвориш обяснението и да видиш решението стъпка по стъпка.`}
@@ -221,7 +221,7 @@ export default function QuizPage({ params }: QuizPageProps) {
                   {currentIndex < questions.length - 1 ? "Следващ" : "Резултат"}
                 </button>
                 <Link
-                  href={`/explanation/${currentQuestion.id}`}
+                  href={`/explanation/${currentQuestion.id}?fromDay=${dayId}&mode=${mode}`}
                   className="btn-neon-outline rounded-2xl px-5 py-3 text-sm font-semibold"
                 >
                   Обяснение
@@ -234,7 +234,7 @@ export default function QuizPage({ params }: QuizPageProps) {
                 Избери отговор
               </h3>
               <div className="mt-5 rounded-[22px] border border-white/8 bg-white/[0.03] p-4">
-                <p className="text-xs leading-6 text-slate-300 sm:text-sm">
+                <p className="panel-copy text-slate-300">
                   Съвет: първо огледай всички варианти, после избери този, който можеш да
                   защитиш с решение.
                 </p>

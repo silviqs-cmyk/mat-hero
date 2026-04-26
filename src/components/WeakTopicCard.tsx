@@ -43,8 +43,8 @@ export function WeakTopicCard({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="truncate font-medium text-white">{topic}</h3>
-            <span className="text-sm font-semibold text-slate-300">{score}%</span>
+            <h3 className="panel-copy truncate font-medium text-white">{topic}</h3>
+            <span className="panel-copy font-semibold text-slate-300">{score}%</span>
           </div>
           <div className="mt-2 h-1.5 rounded-full bg-white/10">
             <motion.div

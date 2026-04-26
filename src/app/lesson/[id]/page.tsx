@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LessonCard } from "@/components/LessonCard";
@@ -125,13 +125,19 @@ export default function LessonPage() {
   if (!lesson) {
     return (
       <div className="panel rounded-[28px] p-5">
-        <p className="text-sm text-[var(--muted)]">Няма урок за този ден.</p>
+        <p className="panel-copy-muted">Няма урок за този ден.</p>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
+      <LessonOverview
+        mainTaskCount={tasks.main.length}
+        extraTaskCount={tasks.extra.length}
+        quizQuestionCount={quizQuestionCount}
+      />
+
       <section className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
         <LessonCard lesson={lesson} />
         <MascotCharacter
@@ -141,11 +147,23 @@ export default function LessonPage() {
         />
       </section>
 
-      <LessonOverview
-        mainTaskCount={tasks.main.length}
-        extraTaskCount={tasks.extra.length}
-        quizQuestionCount={quizQuestionCount}
-      />
+      {lesson.extended_theory?.length ? (
+        <section className="rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.02))] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
+            Още теория
+          </p>
+          <div className="mt-4 space-y-3">
+            {lesson.extended_theory.map((item) => (
+              <p
+                key={item}
+                className="panel-copy rounded-[18px] border border-white/8 bg-white/[0.03] px-4 py-3 text-slate-200"
+              >
+                {item}
+              </p>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="flex flex-wrap gap-3">
         <Link

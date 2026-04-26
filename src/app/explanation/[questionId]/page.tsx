@@ -5,10 +5,15 @@ import { getPracticeQuestionById } from "@/lib/practiceQuestions";
 
 interface ExplanationPageProps {
   params: Promise<{ questionId: string }>;
+  searchParams: Promise<{ fromDay?: string; mode?: string }>;
 }
 
-export default async function ExplanationPage({ params }: ExplanationPageProps) {
+export default async function ExplanationPage({
+  params,
+  searchParams,
+}: ExplanationPageProps) {
   const { questionId } = await params;
+  const resolvedSearchParams = await searchParams;
   const numericQuestionId = Number(questionId);
   const question =
     getPracticeQuestionById(numericQuestionId) ??
@@ -23,6 +28,11 @@ export default async function ExplanationPage({ params }: ExplanationPageProps) 
     );
   }
 
+  const fromDay = Number(resolvedSearchParams.fromDay ?? question.day_id);
+  const mode = resolvedSearchParams.mode === "extra" ? "extra" : "main";
+  const backHref =
+    fromDay > 0 ? `/quiz/${fromDay}${mode === "extra" ? "?mode=extra" : ""}` : "/dashboard";
+
   return (
     <div className="space-y-5">
       <section className="panel-glow rounded-[28px] p-5">
@@ -36,7 +46,7 @@ export default async function ExplanationPage({ params }: ExplanationPageProps) 
       <ExplanationSteps steps={question.explanation_steps} />
 
       <Link
-        href={`/quiz/${question.day_id}`}
+        href={backHref}
         className="btn-neon-outline block rounded-2xl px-5 py-4 text-center text-sm font-semibold"
       >
         Обратно към теста

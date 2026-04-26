@@ -64,9 +64,9 @@ export function ScoreCard({
           </div>
         ) : null}
         <div className="min-w-0">
-          <p className="text-sm font-medium text-slate-400">{title}</p>
+          <p className="panel-copy font-medium text-slate-400">{title}</p>
           <h3 className="mt-2 font-display text-3xl font-bold text-white">{value}</h3>
-          <p className={`mt-1 text-sm ${accentConfig[accent].helperColor}`}>{helper}</p>
+          <p className={`panel-copy mt-1 ${accentConfig[accent].helperColor}`}>{helper}</p>
         </div>
       </div>
     </motion.article>

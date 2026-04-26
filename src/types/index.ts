@@ -21,6 +21,7 @@ export interface Lesson {
   title: string;
   short_theory: string;
   example: string;
+  extended_theory?: string[];
   animation_type: AnimationType;
 }
 

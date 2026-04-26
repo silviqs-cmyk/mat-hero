@@ -86,7 +86,7 @@ export function MascotCharacter({
           <h3 className="mt-2 font-display text-2xl text-white">
             {title ?? (isHappy ? "Супер ход!" : "Хайде, герой!")}
           </h3>
-          <p className="mt-2 text-sm leading-6 text-[var(--muted)]">{message}</p>
+          <p className="panel-copy-muted mt-2">{message}</p>
           {xpText ? (
             <motion.div
               animate={{ opacity: [0.72, 1, 0.72], scale: [1, 1.04, 1] }}

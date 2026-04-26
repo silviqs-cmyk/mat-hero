@@ -8,44 +8,53 @@ import { BottomNav } from "@/components/BottomNav";
 import { TopBar } from "@/components/TopBar";
 
 function getRouteTitle(pathname: string): { title: string; subtitle: string } {
+  // Landing screen before the user enters the main app flow.
   if (pathname === "/") {
     return { title: "MatHero", subtitle: "Подготовка по математика за 7. клас" };
   }
 
+  // Main dashboard with today's progress and quick actions.
   if (pathname.startsWith("/dashboard")) {
     return { title: "Табло", subtitle: "XP, серия и днешна мисия" };
   }
 
+  // 10-day roadmap page.
   if (pathname.startsWith("/roadmap")) {
     return { title: "Пътна карта", subtitle: "10 дни до увереност" };
   }
 
+  // Daily lesson screen with theory and examples.
   if (pathname.startsWith("/lesson")) {
     return { title: "Урок", subtitle: "Кратко обяснение и пример" };
   }
 
+  // Quiz/test flow.
   if (pathname.startsWith("/quiz")) {
     return { title: "Тест", subtitle: "Един въпрос наведнъж" };
   }
 
+  // Explanation page for a selected question.
   if (pathname.startsWith("/explanation")) {
     return { title: "Обяснение", subtitle: "Решение стъпка по стъпка" };
   }
 
+  // Results shown after completing a quiz.
   if (pathname.startsWith("/results")) {
     return { title: "Резултати", subtitle: "Как се справи днес" };
   }
 
+  // User profile page.
   if (pathname.startsWith("/report")) {
-    return { title: "Отчет", subtitle: "Слаби теми и напредък" };
+    return { title: "Профил", subtitle: "" };
   }
 
+  // Fallback title for any route outside the main mapped pages.
   return { title: "MatHero", subtitle: "Математика с ритъм" };
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const { title, subtitle } = getRouteTitle(pathname);
+  const { subtitle } = getRouteTitle(pathname);
   const isLanding = pathname === "/";
   const showBottomNav = !isLanding;
 
@@ -61,7 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <BackgroundMathSymbols />
       {isLanding ? null : (
         <div className="relative z-10">
-          <TopBar title={title} subtitle={subtitle} />
+          <TopBar subtitle={subtitle} />
         </div>
       )}
       <main
