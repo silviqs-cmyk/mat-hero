@@ -123,6 +123,30 @@ button {
   box-shadow: var(--shadow);
 }
 
+.btn-neon-primary,
+.btn-neon-outline,
+.btn-neon-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  min-height: 3rem;
+  border-radius: 1rem;
+  font-family: var(--font-sans-app), "Segoe UI", sans-serif;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  text-align: center;
+  text-decoration: none;
+  transition:
+    filter 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
 .btn-neon-primary {
   background: linear-gradient(135deg, #e4ff4d 0%, var(--lime) 48%, #8dff00 100%);
   border: 1px solid rgba(236, 255, 141, 1);
@@ -164,6 +188,23 @@ button {
     0 0 0 2px rgba(37, 221, 255, 0.14),
     0 0 34px rgba(37, 221, 255, 0.34),
     0 0 52px rgba(37, 221, 255, 0.18);
+  color: white;
+}
+
+.btn-neon-danger {
+  background: rgba(255, 78, 209, 0.08);
+  border: 1px solid rgba(255, 78, 209, 0.35);
+  box-shadow:
+    0 0 0 1px rgba(255, 78, 209, 0.16),
+    0 0 20px rgba(255, 78, 209, 0.12);
+  color: #ffd4f5;
+}
+
+.btn-neon-danger:hover {
+  background: rgba(255, 78, 209, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(255, 154, 226, 0.26),
+    0 0 26px rgba(255, 78, 209, 0.2);
   color: white;
 }
 

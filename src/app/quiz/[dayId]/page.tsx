@@ -34,6 +34,7 @@ export default function QuizPage({ params }: QuizPageProps) {
     Array<{ questionId: number; selectedAnswer: string; isCorrect: boolean }>
   >([]);
   const [awardedQuestionXp, setAwardedQuestionXp] = useState(0);
+  const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
 
   useEffect(() => {
     let ignore = false;
@@ -55,6 +56,7 @@ export default function QuizPage({ params }: QuizPageProps) {
         setShowFeedback(false);
         setAnswers([]);
         setAwardedQuestionXp(0);
+        setShowCompletionOverlay(false);
         return;
       }
 
@@ -71,6 +73,7 @@ export default function QuizPage({ params }: QuizPageProps) {
         setShowFeedback(false);
         setAnswers([]);
         setAwardedQuestionXp(0);
+        setShowCompletionOverlay(false);
       }
     }
 
@@ -139,6 +142,17 @@ export default function QuizPage({ params }: QuizPageProps) {
       awardedQuestionXp,
     });
 
+    if (mode === "main") {
+      const nextDay = Math.min(10, dayId + 1);
+      const nextHref = dayId < 10 ? `/lesson/${nextDay}` : "/roadmap";
+
+      setShowCompletionOverlay(true);
+      window.setTimeout(() => {
+        router.push(nextHref);
+      }, 5000);
+      return;
+    }
+
     router.push("/results");
   };
 
@@ -151,6 +165,29 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
+      {showCompletionOverlay ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgb(1,1,2)] px-6">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center text-center"
+          >
+            <Image
+              src="/images/success.gif"
+              alt="MatHero celebrates a completed test"
+              width={320}
+              height={320}
+              unoptimized
+              className="h-auto w-full max-w-[320px] mix-blend-screen shadow-[0_0_48px_rgba(37,221,255,0.18)]"
+            />
+            <h2 className="mt-6 font-display text-4xl text-white">Страхотна работа!</h2>
+            <p className="panel-copy-muted mt-3 max-w-md">
+              Тестът е завършен. Зареждам следващия ден.
+            </p>
+          </motion.div>
+        </div>
+      ) : null}
+
       <section className="panel-glow rounded-[28px] p-5">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -238,7 +275,7 @@ export default function QuizPage({ params }: QuizPageProps) {
                       width={196}
                       height={196}
                       unoptimized
-                      className="h-auto w-full max-w-[196px] rounded-[24px]"
+                      className="h-auto w-full max-w-[196px] mix-blend-screen"
                     />
                   </div>
                 ) : null}

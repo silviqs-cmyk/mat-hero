@@ -214,13 +214,21 @@ export default function LandingPage() {
       <main className="relative z-10 flex min-h-[calc(100vh-4.5rem)] flex-col items-center text-center">
         <section className="mt-[76px] w-full max-w-[360px]">
           <header className="relative mb-7 flex items-center justify-center">
-            <div className="flex w-full items-center justify-center gap-3 rounded-[28px] px-4 py-3">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center">
-                <AnimatedHeroMascot size="sm" animated={false} />
+            <div className="w-full rounded-[28px] px-4 py-4">
+              <div className="mx-auto flex max-w-[348px] items-center justify-center gap-4 text-left">
+                <div className="flex h-24 w-24 shrink-0 items-center justify-center">
+                  <AnimatedHeroMascot size="sm" animated={false} />
+                </div>
+                <div className="min-w-0 text-left">
+                  <span className="font-logo text-[2.95rem] font-black leading-none tracking-tight text-white drop-shadow-[0_0_16px_rgba(255,255,255,0.08)] sm:text-[3.2rem]">
+                    MatHero
+                  </span>
+                  <p className="mt-3 w-[220px] text-[1.24rem] font-semibold leading-6 text-white/88 sm:w-[236px] sm:text-[1.28rem]">
+                    <span className="block whitespace-nowrap">10 дни. Ясна стратегия.</span>
+                    <span className="block">Реални резултати.</span>
+                  </p>
+                </div>
               </div>
-              <span className="font-logo text-[2.55rem] font-black leading-none tracking-tight text-white drop-shadow-[0_0_16px_rgba(255,255,255,0.08)]">
-                MatHero
-              </span>
             </div>
           </header>
 
@@ -332,17 +340,8 @@ export default function LandingPage() {
               ) : null}
             </form>
 
-            <p className="mt-3 text-center text-xs text-white/55">
-              Реален вход със Supabase Auth. Ако искаш вход без confirmation имейли, изключи
-              `Confirm email` в Supabase.
-            </p>
           </div>
 
-          <p className="mx-auto mt-5 max-w-[310px] text-center text-sm leading-5 text-white/78">
-            10 дни. Ясна стратегия. Реални резултати.
-            <br />
-            Подготви се уверено и постигни отличен резултат.
-          </p>
         </section>
       </main>
     </div>

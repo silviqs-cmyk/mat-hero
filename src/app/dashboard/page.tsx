@@ -168,7 +168,7 @@ export default function DashboardPage() {
               <p className="panel-copy mt-4 text-slate-300">{currentDay.topic}</p>
               <Link
                 href={`/lesson/${progress.current_day}`}
-                className="mt-6 inline-flex self-start items-center gap-3 rounded-2xl bg-[linear-gradient(90deg,#ff4ed1,#c9ff00)] px-6 py-3 text-base font-bold text-[#111] shadow-[0_0_28px_rgba(201,255,0,0.2)] transition hover:brightness-110"
+                className="btn-neon-primary mt-6 self-start px-6 py-3 text-sm"
               >
                 {isFirstVisit ? "Започни" : "Продължи"}
                 <span className="text-lg">›</span>

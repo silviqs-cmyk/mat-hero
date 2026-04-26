@@ -41,7 +41,7 @@ export function TopBar({ subtitle }: TopBarProps) {
           <motion.div whileTap={{ scale: 0.96 }} whileHover={{ y: -1 }}>
             <Link
               href="/report"
-              className="btn-neon-outline rounded-xl px-3 py-2 text-sm font-semibold transition"
+              className="btn-neon-outline rounded-xl px-3 py-2 text-sm"
             >
               Профил
             </Link>
@@ -52,7 +52,7 @@ export function TopBar({ subtitle }: TopBarProps) {
               onClick={() => {
                 void handleSignOut();
               }}
-              className="rounded-xl border border-pink-400/35 bg-pink-400/8 px-3 py-2 text-sm font-semibold text-pink-100 shadow-[0_0_18px_rgba(255,78,209,0.12)] transition hover:bg-pink-400/12"
+              className="btn-neon-danger rounded-xl px-3 py-2 text-sm"
             >
               Изход
             </button>
