@@ -28,18 +28,24 @@ interface AppStateContextValue {
   sessionId: string;
   progress: UserProgress;
   latestResult: QuizResultSummary | null;
+  recordQuestionProgress: (input: {
+    topic: TopicName;
+    isCorrect: boolean;
+  }) => Promise<void>;
   completeQuiz: (input: {
     dayId: number;
     mode: QuizMode;
     topic: TopicName;
     totalQuestions: number;
     answers: QuizAnswerPayload[];
+    awardedQuestionXp: number;
   }) => Promise<void>;
   resetProgress: () => void;
 }
 
 const STORAGE_PREFIX = "maturohero-progress-v3";
 const RESULT_PREFIX = "maturohero-latest-result-v3";
+const QUESTION_CORRECT_XP = 10;
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
 
@@ -199,7 +205,40 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sessionId,
       progress,
       latestResult,
-      completeQuiz: async ({ dayId, mode, topic, totalQuestions, answers }) => {
+      recordQuestionProgress: async ({ topic, isCorrect }) => {
+        if (!isCorrect) {
+          return;
+        }
+
+        const nextTopicScore = Math.min(100, (progress.topic_scores[topic] ?? 50) + 2);
+        const topicScores = {
+          ...progress.topic_scores,
+          [topic]: nextTopicScore,
+        };
+        const weakTopics = computeWeakTopics(topicScores);
+        const nextProgress: UserProgress = {
+          ...progress,
+          xp: progress.xp + QUESTION_CORRECT_XP,
+          weak_topics: weakTopics,
+          topic_scores: topicScores,
+        };
+
+        setProgress(nextProgress);
+
+        await updateUserProgress({
+          sessionId,
+          progress: {
+            current_day: nextProgress.current_day,
+            xp: nextProgress.xp,
+            streak: nextProgress.streak,
+            last_quiz_score: nextProgress.last_quiz_score,
+            completed_days: nextProgress.completed_days,
+            weak_topics: nextProgress.weak_topics,
+            topic_scores: nextProgress.topic_scores,
+          },
+        });
+      },
+      completeQuiz: async ({ dayId, mode, topic, totalQuestions, answers, awardedQuestionXp }) => {
         const correctCount = answers.filter((answer) => answer.isCorrect).length;
         const score = Math.round((correctCount / totalQuestions) * 100);
         const completedDays = progress.completed_days.includes(dayId)
@@ -239,7 +278,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           current_day: shouldAdvanceDay
             ? Math.min(10, Math.max(progress.current_day, dayId + 1))
             : progress.current_day,
-          xp: progress.xp + score + (mode === "extra" ? 15 : 25),
+          xp:
+            progress.xp +
+            score +
+            (mode === "extra" ? 15 : 25) -
+            awardedQuestionXp,
           streak: shouldAdvanceDay ? progress.streak + 1 : progress.streak,
           last_quiz_score: score,
           completed_days: shouldAdvanceDay ? completedDays.sort((a, b) => a - b) : progress.completed_days,
@@ -265,26 +308,27 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setProgress(nextProgress);
         setLatestResult(result);
 
-        void saveQuizAttempt({
-          sessionId,
-          dayId,
-          score,
-          totalQuestions,
-          answers,
-        });
-
-        void updateUserProgress({
-          sessionId,
-          progress: {
-            current_day: nextProgress.current_day,
-            xp: nextProgress.xp,
-            streak: nextProgress.streak,
-            last_quiz_score: nextProgress.last_quiz_score,
-            completed_days: nextProgress.completed_days,
-            weak_topics: nextProgress.weak_topics,
-            topic_scores: nextProgress.topic_scores,
-          },
-        });
+        await Promise.all([
+          saveQuizAttempt({
+            sessionId,
+            dayId,
+            score,
+            totalQuestions,
+            answers,
+          }),
+          updateUserProgress({
+            sessionId,
+            progress: {
+              current_day: nextProgress.current_day,
+              xp: nextProgress.xp,
+              streak: nextProgress.streak,
+              last_quiz_score: nextProgress.last_quiz_score,
+              completed_days: nextProgress.completed_days,
+              weak_topics: nextProgress.weak_topics,
+              topic_scores: nextProgress.topic_scores,
+            },
+          }),
+        ]);
       },
       resetProgress: () => {
         const freshProgress = createInitialProgress(sessionId);

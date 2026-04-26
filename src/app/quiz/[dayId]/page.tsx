@@ -21,7 +21,7 @@ interface QuizPageProps {
 export default function QuizPage({ params }: QuizPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { completeQuiz } = useAppState();
+  const { completeQuiz, recordQuestionProgress } = useAppState();
   const [dayId, setDayId] = useState(1);
   const [mode, setMode] = useState<QuizMode>("main");
   const [questions, setQuestions] = useState<Question[]>(
@@ -33,6 +33,7 @@ export default function QuizPage({ params }: QuizPageProps) {
   const [answers, setAnswers] = useState<
     Array<{ questionId: number; selectedAnswer: string; isCorrect: boolean }>
   >([]);
+  const [awardedQuestionXp, setAwardedQuestionXp] = useState(0);
 
   useEffect(() => {
     let ignore = false;
@@ -41,16 +42,19 @@ export default function QuizPage({ params }: QuizPageProps) {
       const resolved = await params;
       const nextDayId = Number(resolved.dayId);
       const nextMode = searchParams.get("mode") === "extra" ? "extra" : "main";
+      const requestedIndex = Number(searchParams.get("questionIndex") ?? "0");
       const practiceQuestions = getPracticeQuestionsForDay(nextDayId, nextMode);
+      const nextIndex = Number.isFinite(requestedIndex) ? Math.max(0, requestedIndex) : 0;
 
       if (!ignore && practiceQuestions.length > 0) {
         setDayId(nextDayId);
         setMode(nextMode);
         setQuestions(practiceQuestions);
-        setCurrentIndex(0);
+        setCurrentIndex(Math.min(nextIndex, Math.max(0, practiceQuestions.length - 1)));
         setSelectedAnswer(null);
         setShowFeedback(false);
         setAnswers([]);
+        setAwardedQuestionXp(0);
         return;
       }
 
@@ -62,10 +66,11 @@ export default function QuizPage({ params }: QuizPageProps) {
         setDayId(nextDayId);
         setMode("main");
         setQuestions(fallbackQuestions);
-        setCurrentIndex(0);
+        setCurrentIndex(Math.min(nextIndex, Math.max(0, fallbackQuestions.length - 1)));
         setSelectedAnswer(null);
         setShowFeedback(false);
         setAnswers([]);
+        setAwardedQuestionXp(0);
       }
     }
 
@@ -79,19 +84,22 @@ export default function QuizPage({ params }: QuizPageProps) {
   const isBonusMode = mode === "extra";
   const answeredQuestionsCount = answers.length;
   const isCorrectAnswer = selectedAnswer === currentQuestion?.correct_answer;
+  const topicLabel = currentQuestion?.topic ?? `Ден ${dayId}`;
 
   if (!currentQuestion) {
     return (
       <div className="panel rounded-[28px] p-5">
-        <p className="text-sm text-[var(--muted)]">Няма налични въпроси за този ден.</p>
+        <p className="panel-copy-muted">Няма налични въпроси за този ден.</p>
       </div>
     );
   }
 
-  const handleSelect = (answer: string) => {
+  const handleSelect = async (answer: string) => {
     if (showFeedback) {
       return;
     }
+
+    const isCorrect = answer === currentQuestion.correct_answer;
 
     setSelectedAnswer(answer);
     setShowFeedback(true);
@@ -101,9 +109,17 @@ export default function QuizPage({ params }: QuizPageProps) {
       {
         questionId: currentQuestion.id,
         selectedAnswer: answer,
-        isCorrect: answer === currentQuestion.correct_answer,
+        isCorrect,
       },
     ]);
+
+    if (isCorrect) {
+      setAwardedQuestionXp((prev) => prev + 10);
+      await recordQuestionProgress({
+        topic: currentQuestion.topic as TopicName,
+        isCorrect: true,
+      });
+    }
   };
 
   const handleContinue = async () => {
@@ -120,6 +136,7 @@ export default function QuizPage({ params }: QuizPageProps) {
       topic: currentQuestion.topic as TopicName,
       totalQuestions: questions.length,
       answers,
+      awardedQuestionXp,
     });
 
     router.push("/results");
@@ -134,6 +151,21 @@ export default function QuizPage({ params }: QuizPageProps) {
 
   return (
     <div className="mx-auto max-w-6xl space-y-5">
+      <section className="panel-glow rounded-[28px] p-5">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">
+              {isBonusMode ? "Бонус тренировка" : "Тест за деня"}
+            </p>
+            <h2 className="mt-2 font-display text-3xl text-white">Ден {dayId}</h2>
+            <p className="panel-copy-muted mt-2">Тема: {topicLabel}</p>
+          </div>
+          <div className="badge-cyan inline-flex rounded-full px-3 py-1.5 text-xs font-bold">
+            {currentIndex + 1} / {questions.length} въпроса
+          </div>
+        </div>
+      </section>
+
       <MascotCharacter
         mood={showFeedback && isCorrectAnswer ? "celebrating" : "idle"}
         title={showFeedback && isCorrectAnswer ? "Страхотна работа!" : undefined}
@@ -221,7 +253,7 @@ export default function QuizPage({ params }: QuizPageProps) {
                   {currentIndex < questions.length - 1 ? "Следващ" : "Резултат"}
                 </button>
                 <Link
-                  href={`/explanation/${currentQuestion.id}?fromDay=${dayId}&mode=${mode}`}
+                  href={`/explanation/${currentQuestion.id}?fromDay=${dayId}&mode=${mode}&questionIndex=${currentIndex}`}
                   className="btn-neon-outline rounded-2xl px-5 py-3 text-sm font-semibold"
                 >
                   Обяснение

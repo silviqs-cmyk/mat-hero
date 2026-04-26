@@ -21,7 +21,7 @@ export function ExplanationSteps({ steps }: ExplanationStepsProps) {
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-400/15 font-bold text-cyan-200">
               {index + 1}
             </div>
-            <p className="text-sm leading-6 text-slate-200">{step}</p>
+            <p className="panel-copy text-slate-200">{step}</p>
           </div>
         </motion.div>
       ))}

@@ -7,6 +7,10 @@ import { demoDays } from "@/lib/demoData";
 
 export default function RoadmapPage() {
   const { progress, resetProgress } = useAppState();
+  const maxUnlockedDay = Math.min(
+    10,
+    Math.max(progress.current_day, ...progress.completed_days.map((dayId) => dayId + 1)),
+  );
 
   return (
     <div className="space-y-4">
@@ -27,11 +31,10 @@ export default function RoadmapPage() {
       </section>
 
       <section className="panel-glow rounded-[30px] p-5">
-        <h2 className="font-display text-2xl text-white">План ти за този цикъл</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">
-          Всеки следващ ден се отключва едва след като завършиш текущия. Предишните
-          дни остават видими като завършени и можеш да се върнеш към тях за
-          преговор.
+        <h2 className="font-display text-2xl text-white">Планът ти за този цикъл</h2>
+        <p className="panel-copy-muted mt-2 max-w-3xl">
+          Всеки следващ ден се отключва, след като завършиш текущия. Предишните дни
+          остават видими като завършени и можеш да се върнеш към тях за преговор.
         </p>
 
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -41,11 +44,11 @@ export default function RoadmapPage() {
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3 lg:gap-4">
+      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-4 xl:grid-cols-3">
         {demoDays.map((day) => {
           const isCompleted = progress.completed_days.includes(day.id);
           const isCurrent = day.id === progress.current_day;
-          const isUnlocked = isCurrent || isCompleted;
+          const isUnlocked = day.id <= maxUnlockedDay || isCurrent || isCompleted;
 
           return (
             <DayCard

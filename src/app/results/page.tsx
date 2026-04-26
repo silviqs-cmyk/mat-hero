@@ -9,12 +9,12 @@ import { useAppState } from "@/components/providers/AppStateProvider";
 import { dayTaskData } from "@/lib/dayTaskData";
 
 export default function ResultsPage() {
-  const { latestResult } = useAppState();
+  const { latestResult, progress } = useAppState();
 
   if (!latestResult) {
     return (
       <div className="panel rounded-[28px] p-5">
-        <p className="text-sm text-[var(--muted)]">Все още няма завършен тест.</p>
+        <p className="panel-copy-muted">Все още няма завършен тест.</p>
         <Link
           href="/dashboard"
           className="btn-neon-primary mt-4 inline-flex rounded-2xl px-5 py-3 text-sm font-semibold"
@@ -29,6 +29,13 @@ export default function ResultsPage() {
   const mistakeCount = latestResult.incorrectQuestionIds.length;
   const hasExtraTasks = (dayTaskData[latestResult.dayId]?.extra.length ?? 0) > 0;
   const completedMainQuiz = latestResult.mode === "main";
+  const lessonReviewHref = `/lesson/${latestResult.dayId}`;
+  const earnedXp = latestResult.score + (completedMainQuiz ? 25 : 15);
+  const nextDayId =
+    completedMainQuiz && progress.current_day > latestResult.dayId
+      ? progress.current_day
+      : Math.min(10, latestResult.dayId + 1);
+  const nextDayHref = `/lesson/${nextDayId}`;
 
   return (
     <div className="space-y-5 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-5 lg:space-y-0">
@@ -41,7 +48,7 @@ export default function ResultsPage() {
             <h3 className="mt-2 font-display text-2xl text-white">
               {goodScore ? "Страхотна работа!" : "Продължавай смело!"}
             </h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+            <p className="panel-copy-muted mt-2">
               {goodScore
                 ? "Поддържаш добро темпо. Използвай и следващите задачи, за да го затвърдиш."
                 : "Вече е ясно къде да натиснем още малко. Това е най-полезната част от тренировката."}
@@ -54,7 +61,7 @@ export default function ResultsPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2">
+      <section className="grid gap-4 sm:grid-cols-3">
         <ScoreCard
           title="Резултат"
           value={`${latestResult.score}%`}
@@ -71,6 +78,12 @@ export default function ResultsPage() {
           }
           accent="pink"
         />
+        <ScoreCard
+          title="XP"
+          value={`+${earnedXp}`}
+          helper={`Общо XP: ${progress.xp}`}
+          accent="lime"
+        />
       </section>
 
       <ProgressBar
@@ -84,14 +97,29 @@ export default function ResultsPage() {
       <section className="panel-glow rounded-[28px] p-5 lg:row-span-2">
         <h2 className="font-display text-2xl text-white">Препоръки</h2>
         <div className="mt-4 space-y-3">
-          {latestResult.recommendations.map((recommendation) => (
-            <p
-              key={recommendation}
-              className="rounded-2xl border border-white/8 bg-white/5 p-4 text-sm text-slate-200"
-            >
-              {recommendation}
-            </p>
-          ))}
+          {latestResult.recommendations.map((recommendation) =>
+            recommendation.toLowerCase().includes("урок") ? (
+              <div
+                key={recommendation}
+                className="rounded-2xl border border-cyan-400/20 bg-cyan-400/8 p-4"
+              >
+                <p className="panel-copy text-slate-200">{recommendation}</p>
+                <Link
+                  href={lessonReviewHref}
+                  className="btn-neon-outline mt-4 inline-flex rounded-2xl px-4 py-3 text-sm font-semibold"
+                >
+                  Върни се към урока
+                </Link>
+              </div>
+            ) : (
+              <p
+                key={recommendation}
+                className="panel-copy rounded-2xl border border-white/8 bg-white/5 p-4 text-slate-200"
+              >
+                {recommendation}
+              </p>
+            ),
+          )}
         </div>
       </section>
 
@@ -102,12 +130,12 @@ export default function ResultsPage() {
       </section>
 
       <div className="flex flex-col gap-3 sm:flex-row lg:col-span-2">
-        {completedMainQuiz && hasExtraTasks ? (
+        {completedMainQuiz ? (
           <Link
-            href={`/quiz/${latestResult.dayId}?mode=extra`}
+            href={nextDayHref}
             className="btn-neon-primary flex-1 rounded-2xl px-5 py-4 text-center text-sm font-semibold"
           >
-            Бонус задачи
+            {nextDayId > latestResult.dayId ? `Към ден ${nextDayId}` : "Следващ ден"}
           </Link>
         ) : (
           <Link
@@ -117,6 +145,14 @@ export default function ResultsPage() {
             Следващ ден
           </Link>
         )}
+        {completedMainQuiz && hasExtraTasks ? (
+          <Link
+            href={`/quiz/${latestResult.dayId}?mode=extra`}
+            className="btn-neon-outline flex-1 rounded-2xl px-5 py-4 text-center text-sm font-semibold"
+          >
+            Бонус задачи
+          </Link>
+        ) : null}
         <Link
           href="/report"
           className="btn-neon-outline flex-1 rounded-2xl px-5 py-4 text-center text-sm font-semibold"

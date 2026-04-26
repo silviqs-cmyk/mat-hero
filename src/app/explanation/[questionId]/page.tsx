@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { ExplanationSteps } from "@/components/ExplanationSteps";
 import { demoQuestions } from "@/lib/demoData";
+import { formatExplanationSteps } from "@/lib/explanations";
 import { getPracticeQuestionById } from "@/lib/practiceQuestions";
 
 interface ExplanationPageProps {
   params: Promise<{ questionId: string }>;
-  searchParams: Promise<{ fromDay?: string; mode?: string }>;
+  searchParams: Promise<{ fromDay?: string; mode?: string; questionIndex?: string }>;
 }
 
 export default async function ExplanationPage({
@@ -23,15 +24,24 @@ export default async function ExplanationPage({
   if (!question) {
     return (
       <div className="panel rounded-[28px] p-5">
-        <p className="text-sm text-[var(--muted)]">Няма обяснение за този въпрос.</p>
+        <p className="panel-copy-muted">Няма обяснение за този въпрос.</p>
       </div>
     );
   }
 
   const fromDay = Number(resolvedSearchParams.fromDay ?? question.day_id);
   const mode = resolvedSearchParams.mode === "extra" ? "extra" : "main";
+  const questionIndex = Number(resolvedSearchParams.questionIndex ?? "0");
+  const questionIndexParam = Number.isFinite(questionIndex) && questionIndex > 0
+    ? `&questionIndex=${questionIndex}`
+    : questionIndex === 0
+      ? "&questionIndex=0"
+      : "";
   const backHref =
-    fromDay > 0 ? `/quiz/${fromDay}${mode === "extra" ? "?mode=extra" : ""}` : "/dashboard";
+    fromDay > 0
+      ? `/quiz/${fromDay}?mode=${mode}${questionIndexParam}`
+      : "/dashboard";
+  const formattedSteps = formatExplanationSteps(question.explanation_steps);
 
   return (
     <div className="space-y-5">
@@ -40,10 +50,10 @@ export default async function ExplanationPage({
           Задача
         </p>
         <h2 className="mt-3 font-display text-3xl text-white">{question.question_text}</h2>
-        <p className="mt-3 text-sm text-[var(--muted)]">Тема: {question.topic}</p>
+        <p className="panel-copy-muted mt-3">Тема: {question.topic}</p>
       </section>
 
-      <ExplanationSteps steps={question.explanation_steps} />
+      <ExplanationSteps steps={formattedSteps} />
 
       <Link
         href={backHref}
