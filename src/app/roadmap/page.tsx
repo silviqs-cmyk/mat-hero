@@ -1,8 +1,13 @@
 "use client";
 
+import { Target, Zap } from "lucide-react";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { DayCard } from "@/components/DayCard";
 import { useAppState } from "@/components/providers/AppStateProvider";
+import { NeonButton } from "@/components/ui/NeonButton";
+import { NeonCard } from "@/components/ui/NeonCard";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { StatCard } from "@/components/ui/StatCard";
 import { demoDays } from "@/lib/demoData";
 
 export default function RoadmapPage() {
@@ -13,38 +18,42 @@ export default function RoadmapPage() {
   );
 
   return (
-    <div className="space-y-4">
-      <section className="panel-glow rounded-[30px] p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm uppercase tracking-[0.24em] text-cyan-300">Пътна карта</p>
-            <h2 className="mt-2 font-display text-2xl text-white">10 дни до успеха</h2>
-          </div>
-          <button
-            type="button"
-            onClick={resetProgress}
-            className="btn-neon-outline rounded-2xl px-3 py-2 text-xs font-semibold"
-          >
-            Рестарт
-          </button>
-        </div>
-      </section>
-
-      <section className="panel-glow rounded-[30px] p-5">
-        <h2 className="font-display text-2xl text-white">Планът ти за този цикъл</h2>
-        <p className="panel-copy-muted mt-2 max-w-3xl">
-          Всеки следващ ден се отключва, след като завършиш текущия. Предишните дни
-          остават видими като завършени и можеш да се върнеш към тях за преговор.
+    <div className="space-y-6">
+      <NeonCard padding="md">
+        <SectionHeader
+          label="Пътна карта"
+          title={<h2 className="mh-heading-xl">10 дни до увереност</h2>}
+          action={
+            <NeonButton type="button" onClick={resetProgress} variant="secondary" className="min-h-0 px-4 py-2 text-sm">
+              Рестарт
+            </NeonButton>
+          }
+        />
+        <p className="mh-copy-muted mt-3 max-w-3xl text-[1rem]">
+          Всеки ден отключва следващия. Пази ритъма, мини през урока, задачите и теста и ще виждаш как целият план се затваря стъпка по стъпка.
         </p>
+      </NeonCard>
 
-        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <AchievementBadge label={`Ден ${progress.current_day}`} unlocked />
-          <AchievementBadge label={`${progress.completed_days.length} завършени`} unlocked />
-          <AchievementBadge label="Финален тест" unlocked={progress.current_day >= 10} />
-        </div>
+      <section className="grid gap-4 lg:grid-cols-3">
+        <NeonCard padding="sm" className="rounded-[26px]">
+          <StatCard icon={Zap} value={progress.current_day} label="Текущ ден" tone="cyan" />
+        </NeonCard>
+
+        <NeonCard padding="sm" className="rounded-[26px]">
+          <StatCard icon={Target} value={`${progress.completed_days.length}/10`} label="Завършени дни" tone="gold" />
+        </NeonCard>
+
+        <NeonCard padding="sm" className="rounded-[26px]">
+          <p className="text-sm text-slate-400">Планът ти</p>
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <AchievementBadge label={`Ден ${progress.current_day}`} unlocked />
+            <AchievementBadge label={`${progress.completed_days.length} готови`} unlocked />
+            <AchievementBadge label="Финал" unlocked={progress.current_day >= 10} />
+          </div>
+        </NeonCard>
       </section>
 
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:gap-4 xl:grid-cols-3">
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {demoDays.map((day) => {
           const isCompleted = progress.completed_days.includes(day.id);
           const isCurrent = day.id === progress.current_day;

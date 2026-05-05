@@ -1,5 +1,7 @@
-import Link from "next/link";
 import { ExplanationSteps } from "@/components/ExplanationSteps";
+import { NeonButton } from "@/components/ui/NeonButton";
+import { NeonCard } from "@/components/ui/NeonCard";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { demoQuestions } from "@/lib/demoData";
 import { formatExplanationSteps } from "@/lib/explanations";
 import { getPracticeQuestionById } from "@/lib/practiceQuestions";
@@ -23,44 +25,39 @@ export default async function ExplanationPage({
 
   if (!question) {
     return (
-      <div className="panel rounded-[28px] p-5">
-        <p className="panel-copy-muted">Няма обяснение за този въпрос.</p>
-      </div>
+      <NeonCard padding="sm">
+        <p className="mh-copy-muted">Няма обяснение за този въпрос.</p>
+      </NeonCard>
     );
   }
 
   const fromDay = Number(resolvedSearchParams.fromDay ?? question.day_id);
   const mode = resolvedSearchParams.mode === "extra" ? "extra" : "main";
   const questionIndex = Number(resolvedSearchParams.questionIndex ?? "0");
-  const questionIndexParam = Number.isFinite(questionIndex) && questionIndex > 0
-    ? `&questionIndex=${questionIndex}`
-    : questionIndex === 0
-      ? "&questionIndex=0"
-      : "";
-  const backHref =
-    fromDay > 0
-      ? `/quiz/${fromDay}?mode=${mode}${questionIndexParam}`
-      : "/dashboard";
+  const questionIndexParam =
+    Number.isFinite(questionIndex) && questionIndex > 0
+      ? `&questionIndex=${questionIndex}`
+      : questionIndex === 0
+        ? "&questionIndex=0"
+        : "";
+  const backHref = fromDay > 0 ? `/quiz/${fromDay}?mode=${mode}${questionIndexParam}` : "/dashboard";
   const formattedSteps = formatExplanationSteps(question.explanation_steps);
 
   return (
-    <div className="space-y-5">
-      <section className="panel-glow rounded-[28px] p-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">
-          Задача
-        </p>
-        <h2 className="mt-3 font-display text-3xl text-white">{question.question_text}</h2>
-        <p className="panel-copy-muted mt-3">Тема: {question.topic}</p>
-      </section>
+    <div className="space-y-6">
+      <NeonCard padding="md">
+        <SectionHeader
+          label="Задача"
+          title={<h2 className="mh-heading-lg">{question.question_text}</h2>}
+        />
+        <p className="mt-3 text-[1rem] text-slate-400">Тема: {question.topic}</p>
+      </NeonCard>
 
       <ExplanationSteps steps={formattedSteps} />
 
-      <Link
-        href={backHref}
-        className="btn-neon-outline block rounded-2xl px-5 py-4 text-center text-sm font-semibold"
-      >
+      <NeonButton href={backHref} variant="secondary">
         Обратно към теста
-      </Link>
+      </NeonButton>
     </div>
   );
 }

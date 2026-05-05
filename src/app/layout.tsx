@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import { Exo_2 } from "next/font/google";
-import { Jost } from "next/font/google";
+import { Inter } from "next/font/google";
+import { Manrope } from "next/font/google";
 import { AppShell } from "@/components/AppShell";
 import { AppStateProvider } from "@/components/providers/AppStateProvider";
 import "./globals.css";
 
-const jost = Jost({
+const inter = Inter({
   subsets: ["latin", "cyrillic"],
   variable: "--font-sans-app",
   display: "swap",
 });
 
-const jostDisplay = Jost({
+const manrope = Manrope({
   subsets: ["latin", "cyrillic"],
   variable: "--font-display-app",
   display: "swap",
@@ -49,7 +50,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="bg">
-      <body className={`${jost.variable} ${jostDisplay.variable} ${exo2Logo.variable}`}>
+      <body className={`${inter.variable} ${manrope.variable} ${exo2Logo.variable}`}>
         <AppStateProvider>
           <AppShell>{children}</AppShell>
         </AppStateProvider>

@@ -17,6 +17,7 @@ import {
   updateUserProgress,
 } from "@/lib/supabaseClient";
 import type {
+  AuthUserProfile,
   QuizAnswerPayload,
   QuizMode,
   QuizResultSummary,
@@ -28,6 +29,7 @@ interface AppStateContextValue {
   sessionId: string;
   progress: UserProgress;
   latestResult: QuizResultSummary | null;
+  authUser: AuthUserProfile;
   recordQuestionProgress: (input: {
     topic: TopicName;
     isCorrect: boolean;
@@ -46,6 +48,14 @@ interface AppStateContextValue {
 const STORAGE_PREFIX = "maturohero-progress-v3";
 const RESULT_PREFIX = "maturohero-latest-result-v3";
 const QUESTION_CORRECT_XP = 10;
+const GUEST_USER: AuthUserProfile = {
+  id: null,
+  email: null,
+  displayName: "Гост",
+  gradeLabel: null,
+  isGuest: true,
+  isReady: false,
+};
 
 const AppStateContext = createContext<AppStateContextValue | null>(null);
 
@@ -106,6 +116,42 @@ function computeWeakTopics(topicScores: UserProgress["topic_scores"]): TopicName
     .map(([topic]) => topic);
 }
 
+function toDisplayName(email: string | null, metadata: Record<string, unknown> | undefined) {
+  const metadataName =
+    typeof metadata?.full_name === "string"
+      ? metadata.full_name
+      : typeof metadata?.display_name === "string"
+        ? metadata.display_name
+        : typeof metadata?.name === "string"
+          ? metadata.name
+          : null;
+
+  if (metadataName && metadataName.trim().length > 0) {
+    return metadataName.trim();
+  }
+
+  if (email) {
+    const localPart = email.split("@")[0]?.trim();
+    if (localPart) {
+      return localPart.charAt(0).toUpperCase() + localPart.slice(1);
+    }
+  }
+
+  return "Гост";
+}
+
+function toGradeLabel(metadata: Record<string, unknown> | undefined) {
+  if (typeof metadata?.grade_label === "string" && metadata.grade_label.trim().length > 0) {
+    return metadata.grade_label.trim();
+  }
+
+  if (typeof metadata?.grade === "string" && metadata.grade.trim().length > 0) {
+    return metadata.grade.trim();
+  }
+
+  return null;
+}
+
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const initialState = getInitialState();
   const [sessionId, setSessionId] = useState(initialState.sessionId);
@@ -113,6 +159,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [latestResult, setLatestResult] = useState<QuizResultSummary | null>(
     initialState.latestResult,
   );
+  const [authUser, setAuthUser] = useState<AuthUserProfile>(GUEST_USER);
   const [hydrated] = useState(initialState.hydrated);
 
   useEffect(() => {
@@ -160,10 +207,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setSessionId(nextSessionId);
         setProgress(localProgress);
         setLatestResult(localResult);
+        setAuthUser({ ...GUEST_USER, isReady: true });
         return;
       }
 
       const { data } = await getUserProgress(nextSessionId);
+      const {
+        data: { user },
+      } = await authClient.auth.getUser();
 
       if (!active) {
         return;
@@ -172,6 +223,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setSessionId(nextSessionId);
       setProgress({ ...data, session_id: nextSessionId });
       setLatestResult(localResult);
+      setAuthUser({
+        id: user?.id ?? nextSessionId,
+        email: user?.email ?? null,
+        displayName: toDisplayName(user?.email ?? null, user?.user_metadata),
+        gradeLabel: toGradeLabel(user?.user_metadata),
+        isGuest: false,
+        isReady: true,
+      });
     }
 
     async function bootstrapAuthState() {
@@ -205,6 +264,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       sessionId,
       progress,
       latestResult,
+      authUser,
       recordQuestionProgress: async ({ topic, isCorrect }) => {
         if (!isCorrect) {
           return;
@@ -358,7 +418,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         });
       },
     }),
-    [latestResult, progress, sessionId],
+    [authUser, latestResult, progress, sessionId],
   );
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

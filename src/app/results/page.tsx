@@ -1,11 +1,15 @@
 "use client";
 
-import Link from "next/link";
+import { Star, Target, TriangleAlert } from "lucide-react";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ScoreCard } from "@/components/ScoreCard";
 import { useAppState } from "@/components/providers/AppStateProvider";
+import { Badge } from "@/components/ui/Badge";
+import { NeonButton } from "@/components/ui/NeonButton";
+import { NeonCard } from "@/components/ui/NeonCard";
+import { SectionHeader } from "@/components/ui/SectionHeader";
 import { dayTaskData } from "@/lib/dayTaskData";
 
 export default function ResultsPage() {
@@ -13,15 +17,12 @@ export default function ResultsPage() {
 
   if (!latestResult) {
     return (
-      <div className="panel rounded-[28px] p-5">
-        <p className="panel-copy-muted">Все още няма завършен тест.</p>
-        <Link
-          href="/dashboard"
-          className="btn-neon-primary mt-4 inline-flex rounded-2xl px-5 py-3 text-sm font-semibold"
-        >
+      <NeonCard padding="md">
+        <p className="mh-copy-muted">Все още няма завършен тест.</p>
+        <NeonButton href="/dashboard" variant="secondary" className="mt-4">
           Към таблото
-        </Link>
-      </div>
+        </NeonButton>
+      </NeonCard>
     );
   }
 
@@ -38,52 +39,36 @@ export default function ResultsPage() {
   const nextDayHref = `/lesson/${nextDayId}`;
 
   return (
-    <div className="space-y-5 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:gap-5 lg:space-y-0">
-      <section className="panel-glow rounded-[30px] p-5">
-        <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto]">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">
-              {completedMainQuiz ? "Резултат от теста" : "Резултат от бонус тренировка"}
-            </p>
-            <h3 className="mt-2 font-display text-2xl text-white">
-              {goodScore ? "Страхотна работа!" : "Продължавай смело!"}
-            </h3>
-            <p className="panel-copy-muted mt-2">
-              {goodScore
-                ? "Поддържаш добро темпо. Използвай и следващите задачи, за да го затвърдиш."
-                : "Вече е ясно къде да натиснем още малко. Това е най-полезната част от тренировката."}
-            </p>
-            <div className="badge-lime mt-3 inline-flex rounded-full px-3 py-1.5 text-xs font-bold">
-              {completedMainQuiz ? "основен пакет" : "бонус пакет"}
-            </div>
+    <div className="space-y-6">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <NeonCard padding="md">
+          <SectionHeader
+            label={completedMainQuiz ? "Резултат от теста" : "Резултат от бонус тренировка"}
+            title={<h1 className="mh-heading-xl">{goodScore ? "Страхотна работа!" : "Продължавай смело!"}</h1>}
+            action={<Badge tone="green">{completedMainQuiz ? "основен пакет" : "бонус пакет"}</Badge>}
+          />
+          <p className="mh-copy-muted mt-3 max-w-3xl text-[1rem]">
+            {goodScore
+              ? "Поддържаш добро темпо. Използвай следващите задачи, за да затвърдиш ритъма."
+              : "Вече е ясно къде да натиснем още малко. Това е най-полезната част от тренировката."}
+          </p>
+        </NeonCard>
+
+        <NeonCard padding="md">
+          <div className="flex justify-center">
+            <AnimatedHeroMascot size="md" animated={false} />
           </div>
-          <AnimatedHeroMascot size="sm" animated={false} />
-        </div>
+          <div className="mt-3 flex items-center justify-center gap-2 text-lime-100">
+            <Star className="h-4 w-4" />
+            <span className="text-sm font-semibold">+{earnedXp} XP от този рунд</span>
+          </div>
+        </NeonCard>
       </section>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <ScoreCard
-          title="Резултат"
-          value={`${latestResult.score}%`}
-          helper={`Ден ${latestResult.dayId}`}
-          accent="cyan"
-        />
-        <ScoreCard
-          title="Грешки"
-          value={`${mistakeCount}`}
-          helper={
-            mistakeCount === 0
-              ? "Без грешки. Страхотен фокус."
-              : "Тук си струва да повториш."
-          }
-          accent="pink"
-        />
-        <ScoreCard
-          title="XP"
-          value={`+${earnedXp}`}
-          helper={`Общо XP: ${progress.xp}`}
-          accent="lime"
-        />
+        <ScoreCard title="Резултат" value={`${latestResult.score}%`} helper={`Ден ${latestResult.dayId}`} accent="cyan" icon={<Target className="h-5 w-5" />} />
+        <ScoreCard title="Грешки" value={`${mistakeCount}`} helper={mistakeCount === 0 ? "Без грешки" : "Тук си струва повторение"} accent="pink" icon={<TriangleAlert className="h-5 w-5" />} />
+        <ScoreCard title="XP" value={`+${earnedXp}`} helper={`Общо XP: ${progress.xp}`} accent="lime" icon={<Star className="h-5 w-5" />} />
       </section>
 
       <ProgressBar
@@ -94,71 +79,49 @@ export default function ResultsPage() {
         accent="lime"
       />
 
-      <section className="panel-glow rounded-[28px] p-5 lg:row-span-2">
-        <h2 className="font-display text-2xl text-white">Препоръки</h2>
-        <div className="mt-4 space-y-3">
-          {latestResult.recommendations.map((recommendation) =>
-            recommendation.toLowerCase().includes("урок") ? (
-              <div
-                key={recommendation}
-                className="rounded-2xl border border-cyan-400/20 bg-cyan-400/8 p-4"
-              >
-                <p className="panel-copy text-slate-200">{recommendation}</p>
-                <Link
-                  href={lessonReviewHref}
-                  className="btn-neon-outline mt-4 inline-flex rounded-2xl px-4 py-3 text-sm font-semibold"
-                >
-                  Върни се към урока
-                </Link>
-              </div>
-            ) : (
-              <p
-                key={recommendation}
-                className="panel-copy rounded-2xl border border-white/8 bg-white/5 p-4 text-slate-200"
-              >
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <NeonCard padding="md">
+          <h2 className="mh-heading-lg">Препоръки</h2>
+          <div className="mt-5 space-y-3">
+            {latestResult.recommendations.map((recommendation) => (
+              <p key={recommendation} className="rounded-[24px] border border-white/8 bg-white/5 p-5 text-[1rem] leading-7 text-slate-200">
                 {recommendation}
               </p>
-            ),
-          )}
-        </div>
+            ))}
+            <NeonButton href={lessonReviewHref} variant="secondary" className="mt-2">
+              Върни се към урока
+            </NeonButton>
+          </div>
+        </NeonCard>
+
+        <NeonCard padding="sm" className="rounded-[26px]">
+          <p className="text-sm text-slate-400">Баджове</p>
+          <div className="mt-4 grid grid-cols-1 gap-3">
+            <AchievementBadge label="Тест готов" unlocked />
+            <AchievementBadge label="70%+" unlocked={goodScore} />
+            <AchievementBadge label="90%+" unlocked={latestResult.score >= 90} />
+          </div>
+        </NeonCard>
       </section>
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <AchievementBadge label="Тест готов" unlocked />
-        <AchievementBadge label="70%+" unlocked={goodScore} />
-        <AchievementBadge label="90%+" unlocked={latestResult.score >= 90} />
-      </section>
-
-      <div className="flex flex-col gap-3 sm:flex-row lg:col-span-2">
+      <div className="flex flex-col gap-3 sm:flex-row">
         {completedMainQuiz ? (
-          <Link
-            href={nextDayHref}
-            className="btn-neon-primary flex-1 rounded-2xl px-5 py-4 text-center text-sm font-semibold"
-          >
+          <NeonButton href={nextDayHref} className="flex-1">
             {nextDayId > latestResult.dayId ? `Към ден ${nextDayId}` : "Следващ ден"}
-          </Link>
+          </NeonButton>
         ) : (
-          <Link
-            href="/roadmap"
-            className="btn-neon-primary flex-1 rounded-2xl px-5 py-4 text-center text-sm font-semibold"
-          >
+          <NeonButton href="/roadmap" className="flex-1">
             Следващ ден
-          </Link>
+          </NeonButton>
         )}
         {completedMainQuiz && hasExtraTasks ? (
-          <Link
-            href={`/quiz/${latestResult.dayId}?mode=extra`}
-            className="btn-neon-outline flex-1 rounded-2xl px-5 py-4 text-center text-sm font-semibold"
-          >
+          <NeonButton href={`/quiz/${latestResult.dayId}?mode=extra`} variant="secondary" className="flex-1">
             Бонус задачи
-          </Link>
+          </NeonButton>
         ) : null}
-        <Link
-          href="/report"
-          className="btn-neon-outline flex-1 rounded-2xl px-5 py-4 text-center text-sm font-semibold"
-        >
+        <NeonButton href="/report" variant="ghost" className="flex-1">
           Отчет
-        </Link>
+        </NeonButton>
       </div>
     </div>
   );

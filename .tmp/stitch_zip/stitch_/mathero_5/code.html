@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="bg"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#a2eeff",
+                    "on-primary-fixed-variant": "#5a00c6",
+                    "on-secondary-container": "#00515d",
+                    "primary": "#d2bbff",
+                    "on-surface": "#e0e3e5",
+                    "secondary": "#5de6ff",
+                    "on-secondary-fixed": "#001f25",
+                    "background": "#101415",
+                    "surface-container-highest": "#323537",
+                    "on-tertiary-container": "#ffdde7",
+                    "primary-fixed-dim": "#d2bbff",
+                    "on-tertiary-fixed-variant": "#8c0053",
+                    "on-primary-container": "#ede0ff",
+                    "inverse-primary": "#732ee4",
+                    "surface-tint": "#d2bbff",
+                    "secondary-container": "#00cbe6",
+                    "surface-container-high": "#272a2c",
+                    "primary-fixed": "#eaddff",
+                    "on-primary-fixed": "#25005a",
+                    "surface-variant": "#323537",
+                    "surface-container-lowest": "#0b0f10",
+                    "on-primary": "#3f008e",
+                    "surface-bright": "#363a3b",
+                    "on-error-container": "#ffdad6",
+                    "on-error": "#690005",
+                    "on-tertiary-fixed": "#3e0022",
+                    "surface-container": "#1d2022",
+                    "outline-variant": "#4a4455",
+                    "secondary-fixed-dim": "#2fd9f4",
+                    "tertiary": "#ffb0cd",
+                    "error-container": "#93000a",
+                    "on-tertiary": "#640039",
+                    "error": "#ffb4ab",
+                    "on-secondary": "#00363e",
+                    "surface-dim": "#101415",
+                    "inverse-on-surface": "#2d3133",
+                    "tertiary-container": "#bf2076",
+                    "primary-container": "#7c3aed",
+                    "on-secondary-fixed-variant": "#004e5a",
+                    "tertiary-fixed": "#ffd9e4",
+                    "surface-container-low": "#191c1e",
+                    "on-background": "#e0e3e5",
+                    "surface": "#101415",
+                    "outline": "#958da1",
+                    "inverse-surface": "#e0e3e5",
+                    "tertiary-fixed-dim": "#ffb0cd",
+                    "on-surface-variant": "#ccc3d8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "8px",
+                    "sm": "12px",
+                    "md": "16px",
+                    "xl": "32px",
+                    "gutter": "16px",
+                    "lg": "24px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "h1-hero": ["Manrope"],
+                    "body-main": ["Inter"],
+                    "h2-section": ["Manrope"],
+                    "button-text": ["Inter"],
+                    "body-small": ["Inter"],
+                    "label-eyebrow": ["Inter"]
+            },
+            "fontSize": {
+                    "h1-hero": ["36px", {"lineHeight": "42px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-main": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "h2-section": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "button-text": ["16px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "body-small": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "label-eyebrow": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0B0F1A;
+            color: #e0e3e5;
+        }
+        .neon-glow-purple {
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.3);
+        }
+        .neon-glow-cyan {
+            box-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+        }
+        .glass-panel {
+            background: rgba(21, 26, 46, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(124, 58, 237, 0.1);
+        }
+        .math-pattern {
+            background-image: radial-gradient(circle at 2px 2px, rgba(34, 211, 238, 0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+    </style>
+</head>
+<body class="font-body-main text-body-main antialiased selection:bg-primary-container selection:text-on-primary-container">
+<main class="min-h-screen grid grid-cols-1 md:grid-cols-2 math-pattern">
+<section class="hidden md:flex flex-col items-center justify-center relative overflow-hidden px-xl">
+<div class="absolute inset-0 bg-gradient-to-br from-[#0B0F1A] via-[#151A2E] to-[#0B0F1A] z-0"></div>
+<div class="relative z-10 text-center space-y-lg">
+<div class="relative inline-block">
+<div class="absolute -inset-4 bg-[#7C3AED] opacity-20 blur-2xl rounded-full"></div>
+<img class="w-64 h-64 mx-auto drop-shadow-[0_0_30px_rgba(34,211,238,0.4)]" data-alt="A friendly and sleek glowing robot mascot named MatHero Buddy, floating in a futuristic digital void. The robot is designed with smooth white plating and neon cyan accents, holding a glowing geometric cube. Behind it, complex mathematical formulas and equations float like holographic data in a deep obsidian space illuminated by soft purple and cyan ambient light. The style is high-performance gaming aesthetic with professional educational clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAuzAYXQeuAHcqCtfEY8-c6p37WdbGk2kEVeX45csclFAw7xH-wI_zEstzCR_lw5vM8IeYRuPvfNw5L96hK8cF7KKvYHsft9LoM9FswPzjabkLfsiOVAUvcOoiwBQC5WukWOd9pmC8p0TaCZJ0IID6ijNdCMGqMP1MRyfKPyy3pgq629O95XbDZuDrwF8_yQZPvTloEeBPbDwR2iAQB28Oup3VeQgVsvCDQD3R2oVC5gYlU0zMYz8aGTNF9cI0bVyliTHdxZ1MM2XZ"/>
+</div>
+<div class="space-y-sm">
+<h2 class="font-h1-hero text-h1-hero text-on-surface">Твоят път към математическото майсторство</h2>
+<p class="text-on-surface-variant max-w-md mx-auto">Превърни ученето в приключение с персонален AI ментор и геймифицирани куестове.</p>
+</div>
+<div class="flex gap-md justify-center mt-xl opacity-60">
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-secondary-container">functions</span>
+<span class="text-body-small font-label-eyebrow mt-xs uppercase">АЛГЕБРА</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-primary-container">change_history</span>
+<span class="text-body-small font-label-eyebrow mt-xs uppercase">ГЕОМЕТРИЯ</span>
+</div>
+<div class="flex flex-col items-center">
+<span class="material-symbols-outlined text-tertiary-container">analytics</span>
+<span class="text-body-small font-label-eyebrow mt-xs uppercase">АНАЛИЗ</span>
+</div>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-1/3 bg-gradient-to-t from-background to-transparent z-5 pointer-events-none"></div>
+</section>
+<section class="flex items-center justify-center px-gutter py-xl relative z-20">
+<div class="w-full max-w-[440px] glass-panel rounded-xl p-lg md:p-xl shadow-2xl flex flex-col gap-xl">
+<header class="flex flex-col items-center space-y-sm">
+<div class="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#7C3AED] to-[#22D3EE] font-h1-hero">MatHero</div>
+<h1 class="font-h2-section text-h2-section text-on-surface">Влез в профила си</h1>
+</header>
+<form class="flex flex-col gap-md">
+<div class="space-y-xs">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase" for="email">Имейл</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-secondary">mail</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-3 pl-12 pr-4 text-on-surface placeholder:text-outline/50 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all duration-300" id="email" placeholder="example@mathero.com" type="email"/>
+</div>
+</div>
+<div class="space-y-xs">
+<div class="flex justify-between items-center">
+<label class="font-label-eyebrow text-label-eyebrow text-on-surface-variant uppercase" for="password">Парола</label>
+<a class="text-body-small text-secondary hover:text-secondary-fixed transition-colors" href="#">Забравена парола?</a>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-secondary">lock</span>
+<input class="w-full bg-surface-container-lowest border border-outline-variant rounded-lg py-3 pl-12 pr-4 text-on-surface placeholder:text-outline/50 focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/30 transition-all duration-300" id="password" placeholder="••••••••" type="password"/>
+</div>
+</div>
+<div class="flex items-center gap-xs">
+<input class="w-4 h-4 rounded bg-surface-container-lowest border-outline-variant text-primary-container focus:ring-primary-container focus:ring-offset-background" id="remember" type="checkbox"/>
+<label class="text-body-small text-on-surface-variant" for="remember">Запомни ме</label>
+</div>
+<button class="mt-sm w-full bg-gradient-to-r from-[#7C3AED] to-[#5a00c6] text-white font-button-text text-button-text py-4 rounded-lg flex items-center justify-center gap-xs neon-glow-purple hover:scale-[1.02] active:scale-95 transition-all duration-200" type="submit">
+                        Вход
+                        <span class="material-symbols-outlined">chevron_right</span>
+</button>
+</form>
+<div class="relative">
+<div class="absolute inset-0 flex items-center"><div class="w-full border-t border-outline-variant/30"></div></div>
+<div class="relative flex justify-center text-xs uppercase"><span class="bg-[#151A2E] px-2 text-outline font-label-eyebrow">Или влез чрез</span></div>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<button class="flex items-center justify-center gap-sm bg-surface-container-low border border-outline-variant rounded-lg py-3 hover:bg-surface-container transition-colors font-button-text text-sm">
+<img alt="Google" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYmwwIOaaXxEXuDgCi9voyhDvOEl1wJYQAuj5VRODs4UAaPUJz-EbqCNU4c4VPH1yUWsH2VXPL8K_VL8iUpFeyBu1EXR8qFYEY_1_zGYmaRo1rnrAYU32SBxIUdPMODzwzsf68IFprpVfYO-jXsuMxZhdmnBQO6TNzZ3P5d7QGBzOzX6rCG8qdog7Iecz4LKh0-Jlnkc60YyMOxOR1l-l8dRAUtTy0Pqdyhw-8O5phk2-H5yC9vCl44jPcNvI5k9gTLYb8yNe02iEJ"/>
+                        Google
+                    </button>
+<button class="flex items-center justify-center gap-sm bg-surface-container-low border border-outline-variant rounded-lg py-3 hover:bg-surface-container transition-colors font-button-text text-sm">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">ios</span>
+                        Apple
+                    </button>
+</div>
+<footer class="text-center pt-md">
+<p class="text-on-surface-variant text-body-main">
+                        Нямаш профил? 
+                        <a class="text-secondary font-semibold hover:underline transition-all" href="#">Регистрирай се</a>
+</p>
+</footer>
+</div>
+</section>
+</main>
+<div class="fixed top-8 right-8 flex items-center gap-md z-50">
+<div class="flex items-center gap-xs px-md py-xs rounded-full bg-surface-container-high border border-[#22D3EE]/20 neon-glow-cyan">
+<span class="material-symbols-outlined text-[#22D3EE]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-h2-section text-body-small text-[#22D3EE]">5 Day Streak</span>
+</div>
+</div>
+</body></html>

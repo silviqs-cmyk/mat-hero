@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { AnswerOption } from "@/components/AnswerOption";
+import { Badge } from "@/components/ui/Badge";
+import { NeonCard } from "@/components/ui/NeonCard";
 import type { Question } from "@/types";
 
 interface QuestionCardProps {
@@ -28,36 +30,35 @@ export function QuestionCard({
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -18 }}
       transition={{ duration: 0.24, ease: "easeOut" }}
-      className="panel-glow rounded-[28px] p-6 lg:p-7"
     >
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300">
-            Въпрос {currentIndex + 1}/{total}
-          </p>
-          <span className="badge-pink mt-3 inline-flex rounded-full px-3 py-1 text-xs font-bold">
-            {question.difficulty}
-          </span>
+      <NeonCard as="article" padding="md" className="lg:p-7">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="mh-label">Въпрос {currentIndex + 1}/{total}</p>
+            <Badge tone="purple" className="mt-3">
+              {question.difficulty}
+            </Badge>
+          </div>
         </div>
-      </div>
 
-      <h2 className="mt-4 font-display text-[1.55rem] leading-8 text-white lg:text-[1.8rem] lg:leading-9">
-        {question.question_text}
-      </h2>
+        <h2 className="mt-5 font-display text-[1.7rem] leading-8 text-white lg:text-[2rem] lg:leading-10">
+          {question.question_text}
+        </h2>
 
-      <div className="mt-6 space-y-4">
-        {question.options.map((option) => (
-          <AnswerOption
-            key={option.id}
-            optionId={option.id}
-            optionText={option.text}
-            isSelected={selectedAnswer === option.text}
-            isCorrect={question.correct_answer === option.text}
-            showFeedback={showFeedback}
-            onClick={() => onAnswerSelect(option.text)}
-          />
-        ))}
-      </div>
+        <div className="mt-6 space-y-4">
+          {question.options.map((option) => (
+            <AnswerOption
+              key={option.id}
+              optionId={option.id}
+              optionText={option.text}
+              isSelected={selectedAnswer === option.text}
+              isCorrect={question.correct_answer === option.text}
+              showFeedback={showFeedback}
+              onClick={() => onAnswerSelect(option.text)}
+            />
+          ))}
+        </div>
+      </NeonCard>
     </motion.article>
   );
 }

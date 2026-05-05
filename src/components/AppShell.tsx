@@ -8,75 +8,106 @@ import { BottomNav } from "@/components/BottomNav";
 import { TopBar } from "@/components/TopBar";
 
 function getRouteTitle(pathname: string): { title: string; subtitle: string } {
-  // Landing screen before the user enters the main app flow.
   if (pathname === "/") {
     return { title: "MatHero", subtitle: "Подготовка по математика за 7. клас" };
   }
 
-  // Main dashboard with today's progress and quick actions.
   if (pathname.startsWith("/dashboard")) {
-    return { title: "Табло", subtitle: "XP, серия и днешна мисия" };
+    return { title: "Табло", subtitle: "XP, серия и дневна мисия" };
   }
 
-  // 10-day roadmap page.
+  if (pathname.startsWith("/design-system")) {
+    return { title: "Design System", subtitle: "MatHero UI board и tokens" };
+  }
+
+  if (pathname.startsWith("/admin")) {
+    return { title: "Admin Studio", subtitle: "Курсове, дни, уроци и preview" };
+  }
+
   if (pathname.startsWith("/roadmap")) {
     return { title: "Пътна карта", subtitle: "10 дни до увереност" };
   }
 
-  // Daily lesson screen with theory and examples.
+  if (pathname.startsWith("/course/") && pathname.includes("/results")) {
+    return { title: "Резултат", subtitle: "Реалният резултат от деня" };
+  }
+
+  if (pathname.startsWith("/course/") && pathname.includes("/quiz")) {
+    return { title: "Тест", subtitle: "Завърши деня и запази резултата си" };
+  }
+
+  if (pathname.startsWith("/course/") && pathname.includes("/practice")) {
+    return { title: "Задачи", subtitle: "Тренирай с реалните въпроси от деня" };
+  }
+
+  if (pathname.startsWith("/course/") && pathname.includes("/lesson")) {
+    return { title: "Урок", subtitle: "Теория, пример и кратко видео" };
+  }
+
+  if (pathname.startsWith("/course/")) {
+    return { title: "Дневен план", subtitle: "Текущият ден от твоя 10-дневен курс" };
+  }
+
   if (pathname.startsWith("/lesson")) {
     return { title: "Урок", subtitle: "Кратко обяснение и пример" };
   }
 
-  // Quiz/test flow.
   if (pathname.startsWith("/quiz")) {
     return { title: "Тест", subtitle: "Един въпрос наведнъж" };
   }
 
-  // Explanation page for a selected question.
   if (pathname.startsWith("/explanation")) {
     return { title: "Обяснение", subtitle: "Решение стъпка по стъпка" };
   }
 
-  // Results shown after completing a quiz.
   if (pathname.startsWith("/results")) {
     return { title: "Резултати", subtitle: "Как се справи днес" };
   }
 
-  // User profile page.
   if (pathname.startsWith("/report")) {
-    return { title: "Профил", subtitle: "" };
+    return { title: "Профил", subtitle: "Твоят напредък и силни теми" };
   }
 
-  // Fallback title for any route outside the main mapped pages.
   return { title: "MatHero", subtitle: "Математика с ритъм" };
+}
+
+function isAuthRoute(pathname: string) {
+  return (
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password" ||
+    pathname === "/admin/login"
+  );
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { subtitle } = getRouteTitle(pathname);
-  const isLanding = pathname === "/";
-  const showBottomNav = !isLanding;
+  const landing = pathname === "/";
+  const admin = pathname.startsWith("/admin");
+  const auth = isAuthRoute(pathname);
+  const showTopBar = !landing && !admin && !auth;
+  const showBottomNav = !landing && !admin && !auth;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className={`relative mx-auto flex min-h-screen w-full max-w-md flex-col overflow-hidden border-x border-white/8 bg-[rgba(5,7,13,0.94)] shadow-[0_24px_90px_rgba(0,0,0,0.7)] ${
-        isLanding ? "lg:max-w-md" : "lg:max-w-7xl"
+      className={`relative mx-auto flex min-h-screen w-full max-w-md flex-col overflow-x-hidden overflow-y-visible border-x border-white/8 bg-[rgba(8,11,22,0.88)] shadow-[0_24px_90px_rgba(0,0,0,0.7)] ${
+        landing ? "lg:max-w-[1440px]" : admin ? "lg:max-w-[1680px]" : auth ? "lg:max-w-full" : "lg:max-w-7xl"
       }`}
     >
       <BackgroundMathSymbols />
-      {isLanding ? null : (
+      {showTopBar ? (
         <div className="relative z-10">
           <TopBar subtitle={subtitle} />
         </div>
-      )}
+      ) : null}
       <main
         className={`relative z-10 flex-1 ${
-          isLanding ? "p-0" : "px-4 pb-28 pt-4 lg:px-8 lg:pb-10"
-        } ${showBottomNav ? "lg:pl-64" : ""}`}
+          landing ? "p-0" : admin ? "p-0" : auth ? "p-0" : "px-4 pb-36 pt-5 sm:pb-32 lg:px-8 lg:pb-12 lg:pt-6"
+        } ${showBottomNav ? "lg:pl-[17.5rem]" : ""}`}
       >
         {children}
       </main>

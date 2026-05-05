@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { NeonCard } from "@/components/ui/NeonCard";
 
 interface AchievementBadgeProps {
   label: string;
@@ -9,15 +10,17 @@ interface AchievementBadgeProps {
 
 export function AchievementBadge({ label, unlocked }: AchievementBadgeProps) {
   return (
-    <motion.div
-      whileHover={{ y: -2, scale: 1.01 }}
-      className={`rounded-2xl border px-4 py-3 text-center text-sm font-semibold ${
-        unlocked
-          ? "border-lime-300/30 bg-lime-300/10 text-lime-200 shadow-[0_0_24px_rgba(184,255,59,0.12)]"
-          : "border-white/8 bg-white/5 text-slate-500"
-      }`}
-    >
-      {label}
+    <motion.div whileHover={{ y: -2, scale: 1.01 }}>
+      <NeonCard
+        as="div"
+        tone={unlocked ? "green" : "muted"}
+        padding="sm"
+        className={`rounded-[20px] px-4 py-3 text-center text-sm font-semibold ${
+          unlocked ? "text-lime-100" : "text-slate-500"
+        }`}
+      >
+        {label}
+      </NeonCard>
     </motion.div>
   );
 }

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="bg"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800;900&amp;family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffd9e4",
+                    "outline": "#958da1",
+                    "on-secondary-fixed": "#001f25",
+                    "tertiary": "#ffb0cd",
+                    "on-background": "#e0e3e5",
+                    "on-secondary-container": "#00515d",
+                    "on-primary-container": "#ede0ff",
+                    "on-tertiary-fixed": "#3e0022",
+                    "background": "#101415",
+                    "on-tertiary-fixed-variant": "#8c0053",
+                    "secondary-fixed-dim": "#2fd9f4",
+                    "inverse-on-surface": "#2d3133",
+                    "primary": "#d2bbff",
+                    "on-primary-fixed": "#25005a",
+                    "surface-dim": "#101415",
+                    "tertiary-fixed-dim": "#ffb0cd",
+                    "on-primary-fixed-variant": "#5a00c6",
+                    "error": "#ffb4ab",
+                    "on-tertiary": "#640039",
+                    "primary-fixed-dim": "#d2bbff",
+                    "surface-tint": "#d2bbff",
+                    "surface-container": "#1d2022",
+                    "surface-bright": "#363a3b",
+                    "surface-variant": "#323537",
+                    "on-surface": "#e0e3e5",
+                    "secondary-container": "#00cbe6",
+                    "on-tertiary-container": "#ffdde7",
+                    "on-error-container": "#ffdad6",
+                    "secondary-fixed": "#a2eeff",
+                    "secondary": "#5de6ff",
+                    "on-surface-variant": "#ccc3d8",
+                    "error-container": "#93000a",
+                    "on-error": "#690005",
+                    "inverse-surface": "#e0e3e5",
+                    "primary-fixed": "#eaddff",
+                    "primary-container": "#7c3aed",
+                    "inverse-primary": "#732ee4",
+                    "tertiary-container": "#bf2076",
+                    "on-secondary": "#00363e",
+                    "surface": "#101415",
+                    "surface-container-high": "#272a2c",
+                    "surface-container-low": "#191c1e",
+                    "outline-variant": "#4a4455",
+                    "on-primary": "#3f008e",
+                    "on-secondary-fixed-variant": "#004e5a",
+                    "surface-container-highest": "#323537",
+                    "surface-container-lowest": "#0b0f10"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "lg": "24px",
+                    "xs": "8px",
+                    "gutter": "16px",
+                    "xl": "32px",
+                    "base": "4px",
+                    "md": "16px",
+                    "sm": "12px"
+            },
+            "fontFamily": {
+                    "h1-hero": ["Manrope"],
+                    "body-main": ["Inter"],
+                    "label-eyebrow": ["Inter"],
+                    "h2-section": ["Manrope"],
+                    "body-small": ["Inter"],
+                    "button-text": ["Inter"]
+            },
+            "fontSize": {
+                    "h1-hero": ["36px", {"lineHeight": "42px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-main": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-eyebrow": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "h2-section": ["22px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "body-small": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "button-text": ["16px", {"lineHeight": "20px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { background-color: #0B0F1A; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .neon-glow-cyan { box-shadow: 0 0 15px rgba(34, 211, 238, 0.2); }
+        .neon-glow-purple { box-shadow: 0 0 20px rgba(124, 58, 237, 0.1); }
+        .glass-card {
+            background: rgba(21, 26, 46, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(34, 211, 238, 0.1);
+        }
+    </style>
+</head>
+<body class="font-body-main text-on-background antialiased overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#0B0F1A]/80 backdrop-blur-xl border-b border-[#1B2140] shadow-[0_0_20px_rgba(124,58,237,0.1)]">
+<div class="flex items-center gap-4">
+<span class="text-2xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#7C3AED] to-[#22D3EE] font-['Manrope']">MatHero</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex items-center gap-4">
+<div class="flex items-center gap-2 bg-[#1B2140] px-3 py-1 rounded-full border border-[#7C3AED]/30">
+<span class="material-symbols-outlined text-yellow-400 text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-sm font-bold text-on-primary-container">125 XP</span>
+</div>
+<div class="flex items-center gap-2 bg-[#1B2140] px-3 py-1 rounded-full border border-[#22D3EE]/30">
+<span class="material-symbols-outlined text-orange-500 text-sm" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+<span class="text-sm font-bold text-[#22D3EE]">5 Day Streak</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-slate-400 hover:text-[#22D3EE] transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full border-2 border-[#7C3AED] overflow-hidden">
+<img alt="User avatar" data-alt="A high-quality 3D digital avatar of a young, heroic student wearing futuristic tech-wear goggles and a sleek purple and cyan suit. The character is set against a dark, neon-lit background with floating mathematical symbols, rendered in a modern cinematic animation style with soft glow effects." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPIHm8NJhqt9Kgf1bX6-7ciojAXMX-AJFTx8C5xgmWWFX6Sx7TZ0EMYgIDS0i52dzkIdunOTtDcJCF4xxbzvVhdZOnY0Mf5F54NLrLZf2AHxluVM4sL-vAV1VjHzZOogowDntABg83S9GWvlakLFCj_YJXZFd9waZvx4X3GmW2dbh3pR510FgmU_QK14CDtMPIjZIbYAngvkneX0YZg0cjfc9yVh_I-f60Z5W53q5RYX5BY3hUx8o3LM16PxqEQ0FUwlpLYSDIObTG"/>
+</div>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen z-40 pt-20 flex flex-col bg-[#0B0F1A]/90 backdrop-blur-xl border-r border-[#1B2140] w-64 shadow-xl">
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 bg-[#1B2140] text-[#22D3EE] rounded-lg px-4 py-3 border-l-4 border-[#22D3EE] shadow-[0_0_15px_rgba(34,211,238,0.2)] font-['Manrope'] text-sm font-semibold transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 text-slate-500 px-4 py-3 hover:bg-[#1B2140] hover:text-slate-200 transition-all duration-300 font-['Manrope'] text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+                Lessons
+            </a>
+<a class="flex items-center gap-3 text-slate-500 px-4 py-3 hover:bg-[#1B2140] hover:text-slate-200 transition-all duration-300 font-['Manrope'] text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="task_alt">task_alt</span>
+                Tasks
+            </a>
+<a class="flex items-center gap-3 text-slate-500 px-4 py-3 hover:bg-[#1B2140] hover:text-slate-200 transition-all duration-300 font-['Manrope'] text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="emoji_events">emoji_events</span>
+                Rewards
+            </a>
+</nav>
+<div class="p-4 mt-auto space-y-2 border-t border-[#1B2140]">
+<a class="flex items-center gap-3 text-slate-500 px-4 py-3 hover:bg-[#1B2140] hover:text-slate-200 transition-all duration-300 font-['Manrope'] text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 text-slate-500 px-4 py-3 hover:bg-[#1B2140] hover:text-slate-200 transition-all duration-300 font-['Manrope'] text-sm font-semibold" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+                Help
+            </a>
+<button class="w-full mt-4 bg-gradient-to-r from-[#7C3AED] to-[#5a2ab3] text-white py-3 rounded-xl font-bold shadow-lg shadow-primary-container/20 flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all">
+                Start Quest
+                <span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 pt-20 h-screen overflow-y-auto px-lg pb-xl bg-[#0B0F1A]">
+<div class="max-w-7xl mx-auto space-y-xl">
+<!-- Hero Section -->
+<section class="relative overflow-hidden rounded-xl bg-[#151A2E] border border-[#7C3AED]/20 p-xl">
+<div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-lg">
+<div class="space-y-sm">
+<h1 class="font-h1-hero text-h1-hero text-white mb-2">Добре дошъл отново, Герой!</h1>
+<p class="text-slate-400 max-w-lg font-body-main">Продължи своето пътешествие в света на математиката. Твоят прогрес те очаква!</p>
+<div class="mt-lg pt-md">
+<div class="flex justify-between items-center mb-xs">
+<span class="text-sm font-semibold text-[#22D3EE]">Текущ прогрес: Ден 1</span>
+<span class="text-sm font-bold text-white">10%</span>
+</div>
+<div class="w-full h-3 bg-[#0F1324] rounded-full overflow-hidden border border-[#1B2140]">
+<div class="h-full bg-[#22D3EE] rounded-full w-[10%] relative">
+<div class="absolute right-0 top-0 bottom-0 w-4 bg-white/30 blur-sm"></div>
+</div>
+</div>
+</div>
+<div class="pt-lg">
+<button class="bg-primary-container text-white px-xl py-md rounded-xl font-button-text text-button-text flex items-center gap-2 shadow-[0_0_20px_rgba(124,58,237,0.3)] hover:scale-105 transition-transform">
+                                Продължи Ден 1: Числа и действия
+                                <span class="material-symbols-outlined">play_circle</span>
+</button>
+</div>
+</div>
+<div class="hidden lg:block w-72 h-72">
+<img alt="Mascot" class="w-full h-full object-contain" data-alt="A stylized, futuristic robotic math assistant mascot with glowing cyan electronic eyes and purple metallic plating. It floats in a dark void filled with shimmering mathematical equations and fractal patterns, captured with a shallow depth of field and vibrant neon lighting highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-eW4zedK1T_Krf0mVZWvUshoZm76Fl6ICRAqWvCx2ab1qpZEPf2y4C3Xb-9aKBBPTZYS3iITAbdyPAa-aScGTinG-oiUxGzs5QmZ2T9pezkjgxMUsCMIqABZSO_I2PNXxeV3wfn_ZsAAXdIUZiDPTZ2xvGCsvtIDzPuaVxhD37XqQM2pZWyKRrOX47pgeKXcKRM_UxaXN4ICD2-SnnGXre20CVo1aufm9EoevjfyCjukPbXYf3aUwqtxyrlTYMJC5DdAt82ddKPvQ"/>
+</div>
+</div>
+<!-- Background Decorative Gradients -->
+<div class="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-[#7C3AED]/10 to-transparent pointer-events-none"></div>
+<div class="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-[#22D3EE]/5 blur-[100px] rounded-full pointer-events-none"></div>
+</section>
+<!-- Statistics Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+<div class="glass-card p-lg rounded-xl flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center border border-green-500/30">
+<span class="material-symbols-outlined text-green-500" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<div>
+<p class="text-label-eyebrow font-label-eyebrow text-slate-500">XP ТОЧКИ</p>
+<p class="text-h2-section font-h2-section text-white">125</p>
+</div>
+</div>
+<div class="glass-card p-lg rounded-xl flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center border border-orange-500/30">
+<span class="material-symbols-outlined text-orange-500" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<div>
+<p class="text-label-eyebrow font-label-eyebrow text-slate-500">ПОРЕДНИ ДНИ</p>
+<p class="text-h2-section font-h2-section text-white">5</p>
+</div>
+</div>
+<div class="glass-card p-lg rounded-xl flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-[#22D3EE]/10 flex items-center justify-center border border-[#22D3EE]/30">
+<span class="material-symbols-outlined text-[#22D3EE]" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+</div>
+<div>
+<p class="text-label-eyebrow font-label-eyebrow text-slate-500">ЗАВЪРШЕНИ ЗАДАЧИ</p>
+<p class="text-h2-section font-h2-section text-white">12</p>
+</div>
+</div>
+<div class="glass-card p-lg rounded-xl flex items-center gap-md border-[#7C3AED]/40 neon-glow-purple">
+<div class="w-12 h-12 rounded-lg bg-[#7C3AED]/10 flex items-center justify-center border border-[#7C3AED]/30">
+<span class="material-symbols-outlined text-[#7C3AED]" style="font-variation-settings: 'FILL' 1;">leaderboard</span>
+</div>
+<div>
+<p class="text-label-eyebrow font-label-eyebrow text-slate-500">МЯСТО В КЛАСАЦИЯТА</p>
+<p class="text-h2-section font-h2-section text-white">#4</p>
+</div>
+</div>
+</section>
+<!-- Main Split Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+<!-- Today's Plan -->
+<section class="lg:col-span-1 space-y-lg">
+<h2 class="font-h2-section text-h2-section text-white">План за днес</h2>
+<div class="relative space-y-md before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-[2px] before:bg-[#1B2140]">
+<!-- Completed Item -->
+<div class="relative pl-12 flex items-center">
+<div class="absolute left-0 w-10 h-10 rounded-full bg-green-500/20 border-2 border-green-500 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-green-500 text-base">check</span>
+</div>
+<div class="glass-card p-md rounded-xl w-full flex justify-between items-center opacity-60">
+<div>
+<h4 class="font-bold text-white">Видео урок: Основи</h4>
+<span class="text-xs text-green-500">Завършено</span>
+</div>
+<span class="material-symbols-outlined text-slate-500">ondemand_video</span>
+</div>
+</div>
+<!-- Active Item -->
+<div class="relative pl-12 flex items-center">
+<div class="absolute left-0 w-10 h-10 rounded-full bg-[#22D3EE]/20 border-2 border-[#22D3EE] flex items-center justify-center z-10 neon-glow-cyan">
+<div class="w-3 h-3 rounded-full bg-[#22D3EE] animate-pulse"></div>
+</div>
+<div class="bg-[#1B2140] border border-[#22D3EE] p-md rounded-xl w-full flex justify-between items-center shadow-[0_0_15px_rgba(34,211,238,0.1)] scale-[1.02]">
+<div>
+<h4 class="font-bold text-[#22D3EE]">Упражнение: Събиране</h4>
+<span class="text-xs text-[#22D3EE]/80">В процес</span>
+</div>
+<span class="material-symbols-outlined text-[#22D3EE]">edit_note</span>
+</div>
+</div>
+<!-- Locked Item -->
+<div class="relative pl-12 flex items-center">
+<div class="absolute left-0 w-10 h-10 rounded-full bg-[#0F1324] border-2 border-[#1B2140] flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-slate-600 text-base">lock</span>
+</div>
+<div class="glass-card p-md rounded-xl w-full flex justify-between items-center opacity-40">
+<div>
+<h4 class="font-bold text-slate-400">Тест за деня</h4>
+<span class="text-xs text-slate-500">Заключено</span>
+</div>
+<span class="material-symbols-outlined text-slate-600">quiz</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Recommended Lessons -->
+<section class="lg:col-span-2 space-y-lg">
+<div class="flex justify-between items-center">
+<h2 class="font-h2-section text-h2-section text-white">Препоръчани уроци</h2>
+<button class="text-[#22D3EE] text-sm font-semibold hover:underline">Виж всички</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Card 1 -->
+<div class="glass-card rounded-xl overflow-hidden group hover:border-[#7C3AED]/50 transition-all">
+<div class="h-32 bg-gradient-to-br from-[#7C3AED] to-[#22D3EE] relative overflow-hidden">
+<img alt="Geometry" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50" data-alt="A complex geometric abstract pattern featuring nested platonic solids, wireframe spheres, and golden ratio spirals. The visual style is highly technical and modern, with glowing neon purple lines against a dark obsidian background, creating a sense of deep mathematical structure and futuristic learning." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFIiTnVaOUtwepoRT073nqJx0jdf2J2NeOoyX3jMIuxlCB-CQvD4oydZzTA0zkXppTl2lQAF68Bn-Zy2TFJhUcBid058rYde9zMz2PR9PK5C85-4BdIdKaXtExO_Id1pYO5IXlr6pvFuO6nbz5bol0f3sd-UOrX4vXRF3vshAwF7f9SZSBJiYGVwkVd0Ka9nzdvqP2Roh2B8qazPrB49HtSpkfGYKdiAb2GdubADoGuVrc4t1bK4kxni8pQmIjRmv7suKvw6XRgEgV"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#151A2E] to-transparent"></div>
+<div class="absolute bottom-3 left-4">
+<span class="px-2 py-1 bg-[#1B2140]/80 rounded text-[10px] text-white font-bold uppercase tracking-wider">Ниво 2</span>
+</div>
+</div>
+<div class="p-lg">
+<h3 class="text-lg font-bold text-white mb-2 group-hover:text-[#22D3EE] transition-colors">Геометрия</h3>
+<p class="text-sm text-slate-400 mb-lg">Овладей фигурите и техните свойства в триизмерното пространство.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-xs text-slate-500">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        15 мин
+                                    </div>
+<button class="p-2 rounded-full bg-[#1B2140] text-[#22D3EE] border border-[#22D3EE]/20 hover:bg-[#22D3EE] hover:text-[#0B0F1A] transition-all">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-card rounded-xl overflow-hidden group hover:border-[#22D3EE]/50 transition-all">
+<div class="h-32 bg-gradient-to-br from-[#22D3EE] to-[#00515d] relative overflow-hidden">
+<img alt="Algebra" class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50" data-alt="Dynamic algebraic equations and floating variables rendered in a high-contrast neon cyan and deep space black environment. The scene is illuminated by glowing digital particles that follow the curve of mathematical functions, creating a futuristic and energetic educational atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCW_rSqSSb5RwE-iNEJmWGGJvAoeuLy-GVKF4rXNGhCX7eplQZqgEFQN-ER_DnqeCPVGkhrX6QTjTsGnGQKuW_W4PaqzinQGZE8X1chvVbx5sU30RF_AphZUCMJCvuQVEDOz3OVxMKWOY4sDfroTVqYXfB5uaFwuks0wyJLrbE9pJ_o_KBUhjb0btI6ARvKyrZFd8mCFW2Wzwq51UNz3_d8a2CuD25NIaw4AxofLvZds2OwVYh3_DYxCY1XJ-1cf7jcbK1cX5hLem4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#151A2E] to-transparent"></div>
+<div class="absolute bottom-3 left-4">
+<span class="px-2 py-1 bg-[#1B2140]/80 rounded text-[10px] text-white font-bold uppercase tracking-wider">Ниво 1</span>
+</div>
+</div>
+<div class="p-lg">
+<h3 class="text-lg font-bold text-white mb-2 group-hover:text-[#22D3EE] transition-colors">Алгебра</h3>
+<p class="text-sm text-slate-400 mb-lg">Открий тайните на уравненията и функциите в забавна форма.</p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-xs text-slate-500">
+<span class="material-symbols-outlined text-sm">schedule</span>
+                                        12 мин
+                                    </div>
+<button class="p-2 rounded-full bg-[#1B2140] text-[#22D3EE] border border-[#22D3EE]/20 hover:bg-[#22D3EE] hover:text-[#0B0F1A] transition-all">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="glass-card rounded-xl overflow-hidden group hover:border-[#7C3AED]/50 transition-all md:col-span-2">
+<div class="h-32 bg-gradient-to-r from-[#0B0F1A] via-[#151A2E] to-[#7C3AED]/30 relative overflow-hidden flex items-center px-lg">
+<div class="z-10">
+<h3 class="text-xl font-bold text-white group-hover:text-[#22D3EE] transition-colors">Логика и Пъзели</h3>
+<p class="text-sm text-slate-400 max-w-md">Развий критично мислене с нашите ежедневни предизвикателства.</p>
+</div>
+<img alt="Logic" class="absolute right-0 top-0 h-full opacity-30 group-hover:opacity-60 transition-opacity" data-alt="A minimalist yet striking digital representation of a logical circuit and brain network, rendered with glowing purple nodes and sharp cyan connections. The composition is sleek and technical, suggesting high-level cognitive processing in a dark, professional gaming-inspired interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfyENGHJgcQxKnzlZmewKT3_P7Y1EmtiSWabgmWukHmghDJBhoACw2xBmM9ou_yq1eV8J2bufueQcRYsqnpv6CFX-jgQi5XEXo0FGWWu-rg08eEYmbIq8X281WT_7RdpGo8fFlod4gPf8HCowmKPG43iP3oh6FLt1lMuWbhK3oZ2-AsduWCWC2_TIJjX0a3H6Qxs3qc94ZXgi1opdRdcfXwCrWx85jxu6fUBn8C9JsdZxOIBbcM_fAK0sGH1o_j5pb8nBAFbsOkYMZ"/>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

@@ -1,5 +1,6 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createInitialProgress, demoDays, demoLessons, demoQuestions } from "@/lib/demoData";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type {
   ApiResponse,
   Day,
@@ -11,28 +12,19 @@ import type {
   UserProgress,
 } from "@/types";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const publicSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+let supabaseConfigError: string | null = null;
 
-const SUPABASE_CONFIG_ERROR =
-  "Supabase is not configured. Add a real NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in your env file.";
-
-function isConfiguredSupabaseUrl(value: string | undefined): value is string {
-  if (!value || value.includes("your-project.supabase.co")) {
-    return false;
-  }
-
+function getLegacySupabaseClient() {
   try {
-    const url = new URL(value);
-    return url.protocol === "https:" && url.hostname.length > 0;
-  } catch {
-    return false;
+    return getSupabaseBrowserClient();
+  } catch (error) {
+    supabaseConfigError =
+      error instanceof Error
+        ? error.message
+        : "Supabase не е конфигуриран. Добави NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY.";
+    return null;
   }
-}
-
-function isConfiguredSupabaseKey(value: string | undefined): value is string {
-  return Boolean(value && value !== "your-anon-key");
 }
 
 function getNetworkErrorMessage(error: unknown): string {
@@ -81,10 +73,7 @@ function getAuthRedirectUrl(): string | undefined {
   }
 }
 
-export const supabase: SupabaseClient | null =
-  isConfiguredSupabaseUrl(supabaseUrl) && isConfiguredSupabaseKey(supabaseAnonKey)
-    ? createClient(supabaseUrl, supabaseAnonKey)
-    : null;
+export const supabase: SupabaseClient | null = getLegacySupabaseClient();
 
 function withError<T>(data: T, error: string | null = null): ApiResponse<T> {
   return { data, error };
@@ -99,7 +88,7 @@ export async function signInWithEmail(
   password: string,
 ): Promise<ApiResponse<boolean>> {
   if (!supabase) {
-    return withError(false, SUPABASE_CONFIG_ERROR);
+    return withError(false, supabaseConfigError ?? "Supabase не е конфигуриран.");
   }
 
   try {
@@ -119,7 +108,10 @@ export async function signUpWithEmail(
   password: string,
 ): Promise<ApiResponse<SignUpResult>> {
   if (!supabase) {
-    return withError({ requiresEmailConfirmation: false }, SUPABASE_CONFIG_ERROR);
+    return withError(
+      { requiresEmailConfirmation: false },
+      supabaseConfigError ?? "Supabase не е конфигуриран.",
+    );
   }
 
   try {

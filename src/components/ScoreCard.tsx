@@ -2,6 +2,7 @@
 
 import { motion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
+import { NeonCard } from "@/components/ui/NeonCard";
 
 interface ScoreCardProps {
   title: string;
@@ -25,24 +26,29 @@ export function ScoreCard({
 }: ScoreCardProps) {
   const accentConfig = {
     cyan: {
-      iconWrap: "border-cyan-400/25 bg-cyan-400/10 text-cyan-300",
-      helperColor: "text-cyan-300",
+      iconWrap: "border-cyan-400/28 bg-cyan-400/12 text-cyan-200 shadow-[0_0_24px_rgba(34,211,238,0.16)]",
+      helperColor: "text-cyan-200/90",
+      edgeGlow: "before:bg-cyan-400/25",
     },
     pink: {
-      iconWrap: "border-fuchsia-400/25 bg-fuchsia-400/10 text-fuchsia-300",
-      helperColor: "text-fuchsia-300",
+      iconWrap: "border-fuchsia-400/28 bg-fuchsia-400/12 text-fuchsia-200 shadow-[0_0_24px_rgba(217,70,239,0.16)]",
+      helperColor: "text-fuchsia-200/90",
+      edgeGlow: "before:bg-fuchsia-400/25",
     },
     lime: {
-      iconWrap: "border-lime-400/25 bg-lime-300/10 text-lime-200",
-      helperColor: "text-lime-200",
+      iconWrap: "border-lime-400/28 bg-lime-300/10 text-lime-100 shadow-[0_0_24px_rgba(163,230,53,0.14)]",
+      helperColor: "text-lime-100/90",
+      edgeGlow: "before:bg-lime-300/25",
     },
     purple: {
-      iconWrap: "border-purple-400/25 bg-purple-400/10 text-purple-300",
-      helperColor: "text-purple-300",
+      iconWrap: "border-violet-400/28 bg-violet-400/12 text-violet-200 shadow-[0_0_24px_rgba(167,139,250,0.16)]",
+      helperColor: "text-violet-200/90",
+      edgeGlow: "before:bg-violet-400/25",
     },
     orange: {
-      iconWrap: "border-orange-400/25 bg-orange-400/10 text-orange-300",
-      helperColor: "text-orange-300",
+      iconWrap: "border-amber-400/28 bg-amber-400/12 text-amber-200 shadow-[0_0_24px_rgba(251,191,36,0.16)]",
+      helperColor: "text-amber-200/90",
+      edgeGlow: "before:bg-amber-400/25",
     },
   };
 
@@ -53,22 +59,28 @@ export function ScoreCard({
       animate="visible"
       whileHover={{ y: -2, scale: 1.01 }}
       transition={{ duration: 0.22, ease: "easeOut" }}
-      className="rounded-[22px] border border-white/12 bg-[linear-gradient(180deg,rgba(11,15,25,0.98),rgba(7,10,18,0.98))] p-4 shadow-[0_16px_40px_rgba(0,0,0,0.42)]"
     >
-      <div className="flex items-start gap-3">
-        {icon ? (
-          <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border ${accentConfig[accent].iconWrap}`}
-          >
-            {icon}
+      <NeonCard
+        as="article"
+        padding="sm"
+        className={`relative overflow-hidden rounded-[24px] before:absolute before:left-0 before:top-0 before:h-full before:w-px ${accentConfig[accent].edgeGlow}`}
+      >
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent_26%)]" />
+        <div className="flex items-start gap-3">
+          {icon ? (
+            <div
+              className={`relative z-[1] flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border ${accentConfig[accent].iconWrap}`}
+            >
+              {icon}
+            </div>
+          ) : null}
+          <div className="relative z-[1] min-w-0">
+            <p className="text-[0.95rem] font-medium text-slate-400">{title}</p>
+            <h3 className="mt-2 font-display text-[2rem] font-bold leading-none text-white">{value}</h3>
+            <p className={`mt-2 text-[0.95rem] leading-6 ${accentConfig[accent].helperColor}`}>{helper}</p>
           </div>
-        ) : null}
-        <div className="min-w-0">
-          <p className="panel-copy font-medium text-slate-400">{title}</p>
-          <h3 className="mt-2 font-display text-3xl font-bold text-white">{value}</h3>
-          <p className={`panel-copy mt-1 ${accentConfig[accent].helperColor}`}>{helper}</p>
         </div>
-      </div>
+      </NeonCard>
     </motion.article>
   );
 }

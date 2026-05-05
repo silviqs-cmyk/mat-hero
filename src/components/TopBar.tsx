@@ -1,62 +1,57 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { Bell, ChevronRight } from "lucide-react";
 import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
-import { signOutUser } from "@/lib/supabaseClient";
+import { useAppState } from "@/components/providers/AppStateProvider";
 
 interface TopBarProps {
   subtitle: string;
 }
 
 export function TopBar({ subtitle }: TopBarProps) {
-  const router = useRouter();
-
-  async function handleSignOut() {
-    await signOutUser();
-    router.push("/");
-  }
+  const { authUser } = useAppState();
+  const userLabel = authUser.isReady ? authUser.displayName : "Зареждане...";
+  const secondaryLabel = authUser.isReady
+    ? authUser.gradeLabel ?? (authUser.isGuest ? "Гост режим" : "MatHero профил")
+    : "Профил";
+  const avatarLetter = userLabel.charAt(0).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-20 border-b border-white/8 bg-[rgba(5,7,13,0.9)] px-4 py-4 backdrop-blur-xl">
-      <div className="flex min-h-[88px] items-start justify-between gap-4">
-        <div className="flex items-start gap-3 text-left">
-          <div className="mt-0.5 flex h-10 w-10 items-center justify-center">
+    <header className="sticky top-0 z-50 border-b border-white/8 bg-[rgba(7,11,22,0.82)] px-4 py-4 backdrop-blur-xl lg:px-8">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="mh-card-muted flex h-12 w-12 items-center justify-center rounded-2xl p-2">
             <AnimatedHeroMascot size="sm" animated={false} />
           </div>
-          <div className="pt-1">
-            <p className="font-logo text-[1.7rem] font-extrabold leading-none text-white">
-              MatHero
-            </p>
-            {subtitle ? (
-              <p className="mt-2 max-w-[220px] text-xs leading-5 text-[var(--muted)]">
-                {subtitle}
-              </p>
-            ) : null}
+          <div className="min-w-0">
+            <p className="font-logo text-[1.9rem] font-extrabold leading-none text-white">MatHero</p>
+            {subtitle ? <p className="mt-1 truncate text-sm leading-6 text-[var(--mh-text-muted)]">{subtitle}</p> : null}
           </div>
         </div>
 
-        <div className="flex items-center gap-2 pt-1">
-          <motion.div whileTap={{ scale: 0.96 }} whileHover={{ y: -1 }}>
-            <Link
-              href="/report"
-              className="btn-neon-outline rounded-xl px-3 py-2 text-sm"
-            >
-              Профил
-            </Link>
-          </motion.div>
-          <motion.div whileTap={{ scale: 0.96 }} whileHover={{ y: -1 }}>
-            <button
-              type="button"
-              onClick={() => {
-                void handleSignOut();
-              }}
-              className="btn-neon-danger rounded-xl px-3 py-2 text-sm"
-            >
-              Изход
-            </button>
-          </motion.div>
+        <div className="flex items-center gap-3">
+          <button type="button" className="mh-icon-button relative h-11 w-11" aria-label="Известия">
+            <Bell className="h-5 w-5" />
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-400 px-1 text-[10px] font-bold text-white">
+              3
+            </span>
+          </button>
+
+          <Link
+            href="/report"
+            className="flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-2 py-2 transition hover:border-cyan-300/20 hover:bg-white/[0.05] sm:gap-3 sm:px-3"
+            aria-label="Към профила"
+          >
+            <div className="mh-avatar flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold text-white">
+              {avatarLetter}
+            </div>
+            <div className="hidden text-left sm:block">
+              <p className="text-sm font-semibold text-white">{userLabel}</p>
+              <p className="text-xs text-[var(--mh-text-muted)]">{secondaryLabel}</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-white/70" />
+          </Link>
         </div>
       </div>
     </header>

@@ -1,218 +1,61 @@
 "use client";
 
-import { motion } from "framer-motion";
-import Image from "next/image";
-import Link from "next/link";
-import { ProgressBar } from "@/components/ProgressBar";
-import { ScoreCard } from "@/components/ScoreCard";
-import { WeakTopicCard } from "@/components/WeakTopicCard";
-import { useAppState } from "@/components/providers/AppStateProvider";
-import { demoDays } from "@/lib/demoData";
-
-function CalendarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <rect x="4" y="6" width="16" height="14" rx="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M8 4v4M16 4v4M4 10h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <circle cx="9" cy="14" r="1.2" fill="currentColor" />
-      <circle cx="13" cy="14" r="1.2" fill="currentColor" />
-    </svg>
-  );
-}
-
-function TrophyIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <path d="M8 4h8v3a4 4 0 1 1-8 0V4Z" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M12 11v4M9 19h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function FireIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <path
-        d="M12 3c1 3-1 4 1 6 1 1 3 2 3 5a4 4 0 1 1-8 0c0-2 1-3 2-4 1-1 1-2 2-4Z"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function TargetIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M15 9l5-5M15 4h5v5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function GeometryIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <path d="M5 18 9 6l10 10Z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
-      <circle cx="9" cy="6" r="1.2" fill="currentColor" />
-    </svg>
-  );
-}
-
-function FractionIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <circle cx="8" cy="8" r="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="16" cy="16" r="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M17 7 7 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function PercentIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
-      <circle cx="7" cy="7" r="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <circle cx="17" cy="17" r="2" fill="none" stroke="currentColor" strokeWidth="1.8" />
-      <path d="M18 6 6 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { NeonButton } from "@/components/ui/NeonButton";
+import { StudentDayOverview } from "@/components/student/StudentDayOverview";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useCourse } from "@/hooks/useCourse";
+import { useDayContentBundle } from "@/hooks/useDayContentBundle";
+import { usePublishedCourse } from "@/hooks/usePublishedCourse";
+import { useUserProgress } from "@/hooks/useUserProgress";
+import { getCurrentDayNumber } from "@/lib/studentFlow";
 
 export default function DashboardPage() {
-  const { progress } = useAppState();
-  const currentDay = demoDays.find((day) => day.id === progress.current_day) ?? demoDays[0];
-  const isFirstVisit =
-    progress.current_day === 1 &&
-    progress.completed_days.length === 0 &&
-    progress.xp === 0 &&
-    progress.streak === 0;
-  const weakestTopics = Object.entries(progress.topic_scores)
-    .sort((a, b) => a[1] - b[1])
-    .slice(0, 3);
+  const { profile, isAuthenticated, isLoading: userLoading } = useCurrentUser();
+  const { data: publishedCourse, isLoading: publishedCourseLoading, error: publishedCourseError } = usePublishedCourse();
+  const { data: course, isLoading: courseLoading, error: courseError } = useCourse(publishedCourse?.slug ?? "");
+  const {
+    data: progress,
+    isLoading: progressLoading,
+    error: progressError,
+  } = useUserProgress(profile?.id ?? null, course?.id ?? null);
+  const activeDayNumber = getCurrentDayNumber(progress, course?.duration_days ?? 10);
+  const { data: bundle, isLoading: bundleLoading, error: bundleError } = useDayContentBundle(course?.slug ?? null, activeDayNumber);
 
-  return (
-    <div className="space-y-4 lg:mx-auto lg:max-w-5xl">
-      <motion.section
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="panel-glow overflow-hidden rounded-[28px] p-4"
-      >
-        <div className="grid items-center gap-4 md:grid-cols-[1fr_auto]">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-pink-400/35 bg-pink-400/10 text-pink-300 shadow-[0_0_18px_rgba(255,78,209,0.18)]">
-                <CalendarIcon />
-              </div>
-              <div>
-                <h2 className="font-display text-3xl font-bold text-white">Ден {progress.current_day} от 10</h2>
-                <p className="panel-copy mt-1 text-slate-300">Днес: {currentDay.topic}</p>
-              </div>
-            </div>
-            <div className="mt-5">
-              <ProgressBar
-                label="Прогрес за деня"
-                value={isFirstVisit ? 0 : progress.current_day * 10}
-                max={100}
-                helperText="Поддържай темпото и завърши урока."
-                accent="cyan"
-              />
-            </div>
-          </div>
-          <div className="justify-self-center md:justify-self-end">
-            <Image
-              src="/images/choose.gif"
-              alt="MatHero thinks about the next lesson"
-              width={180}
-              height={180}
-              unoptimized
-              className="h-auto w-full max-w-[180px] mix-blend-screen"
-            />
-          </div>
-        </div>
-      </motion.section>
+  if (userLoading || publishedCourseLoading || courseLoading || progressLoading || bundleLoading) {
+    return <LoadingState title="Зареждам таблото" lines={5} />;
+  }
 
-      <section className="grid gap-3 md:grid-cols-3">
-        <ScoreCard
-          title="XP"
-          value={`${progress.xp}`}
-          helper="натрупани точки"
-          icon={<TrophyIcon />}
-          accent="pink"
-        />
-        <ScoreCard
-          title="Серия"
-          value={`${progress.streak} дни`}
-          helper="без прекъсване"
-          icon={<FireIcon />}
-          accent="orange"
-        />
-        <ScoreCard
-          title="Успеваемост"
-          value={`${progress.last_quiz_score}%`}
-          helper="общ резултат"
-          icon={<TargetIcon />}
-          accent="cyan"
-        />
-      </section>
+  if (!isAuthenticated) {
+    return (
+      <EmptyState
+        title="Нужен е вход"
+        description="Влез в MatHero, за да видиш личния си 10-дневен план и напредък."
+        action={<NeonButton href="/">Към входа</NeonButton>}
+      />
+    );
+  }
 
-      <div className="grid gap-4 lg:grid-cols-[1.05fr_1fr]">
-        <motion.section
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -2 }}
-          className="rounded-[24px] border border-pink-400/20 bg-[linear-gradient(180deg,rgba(19,13,26,0.98),rgba(9,10,19,0.98))] p-5 shadow-[0_18px_46px_rgba(0,0,0,0.42)]"
-        >
-          <div>
-            <div>
-              <h3 className="max-w-[220px] font-display text-3xl font-bold leading-tight text-white">
-                {isFirstVisit ? "Започни своя първи урок" : "Продължи от където си спрял"}
-              </h3>
-              <p className="panel-copy mt-4 text-slate-300">{currentDay.topic}</p>
-              <Link
-                href={`/lesson/${progress.current_day}`}
-                className="btn-neon-primary mt-6 self-start px-6 py-3 text-sm"
-              >
-                {isFirstVisit ? "Започни" : "Продължи"}
-                <span className="text-lg">›</span>
-              </Link>
-            </div>
-          </div>
-        </motion.section>
+  if (publishedCourseError || courseError || progressError || bundleError) {
+    return (
+      <ErrorState
+        title="Не успях да заредя таблото"
+        description={publishedCourseError ?? courseError ?? progressError ?? bundleError ?? "Възникна неочаквана грешка."}
+        action={<NeonButton href="/dashboard">Опитай отново</NeonButton>}
+      />
+    );
+  }
 
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-display text-2xl font-bold text-white">Слаби теми</h3>
-            <Link href="/report" className="text-sm font-semibold text-cyan-300">
-              Виж отчет
-            </Link>
-          </div>
-          {isFirstVisit ? (
-            <div className="panel panel-copy-muted rounded-[24px] p-5">
-              Все още няма натрупан прогрес. Завърши първия тест и тук ще се покажат темите, които
-              имат нужда от още внимание.
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {weakestTopics.map(([topic, score], index) => (
-                <WeakTopicCard
-                  key={topic}
-                  topic={topic}
-                  score={score}
-                  icon={
-                    index === 0 ? <GeometryIcon /> : index === 1 ? <FractionIcon /> : <PercentIcon />
-                  }
-                  accent={index === 0 ? "pink" : index === 1 ? "purple" : "lime"}
-                />
-              ))}
-            </div>
-          )}
-        </section>
-      </div>
-    </div>
-  );
+  if (!course || !bundle) {
+    return (
+      <EmptyState
+        title="Още няма активен курс"
+        description="Когато публикуваш курс в Supabase CMS-а, таблото ще се появи тук."
+      />
+    );
+  }
+
+  return <StudentDayOverview course={course} bundle={bundle} progress={progress} profile={profile} />;
 }
