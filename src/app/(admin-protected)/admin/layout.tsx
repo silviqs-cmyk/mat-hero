@@ -1,13 +1,13 @@
 import type { ReactNode } from "react";
 import { AdminRouteShell } from "@/components/admin/AdminRouteShell";
-import { requireAdmin } from "@/lib/auth/server";
+import { requireAdminAccess } from "@/lib/auth/adminAccess";
 
 export default async function AdminProtectedLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  await requireAdmin();
+  await requireAdminAccess();
 
   return <AdminRouteShell>{children}</AdminRouteShell>;
 }

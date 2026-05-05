@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { useAppState } from "@/components/providers/AppStateProvider";
 
@@ -11,10 +11,10 @@ interface TopBarProps {
 
 export function TopBar({ subtitle }: TopBarProps) {
   const { authUser } = useAppState();
-  const userLabel = authUser.isReady ? authUser.displayName : "Зареждане...";
+  const userLabel = authUser.isReady ? authUser.displayName : "Р—Р°СЂРµР¶РґР°РЅРµ...";
   const secondaryLabel = authUser.isReady
-    ? authUser.gradeLabel ?? (authUser.isGuest ? "Гост режим" : "MatHero профил")
-    : "Профил";
+    ? authUser.gradeLabel ?? (authUser.isGuest ? "Р“РѕСЃС‚ СЂРµР¶РёРј" : "MatHero РїСЂРѕС„РёР»")
+    : "РџСЂРѕС„РёР»";
   const avatarLetter = userLabel.charAt(0).toUpperCase();
 
   return (
@@ -31,17 +31,10 @@ export function TopBar({ subtitle }: TopBarProps) {
         </div>
 
         <div className="flex items-center gap-3">
-          <button type="button" className="mh-icon-button relative h-11 w-11" aria-label="Известия">
-            <Bell className="h-5 w-5" />
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-400 px-1 text-[10px] font-bold text-white">
-              3
-            </span>
-          </button>
-
           <Link
             href="/report"
             className="flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-2 py-2 transition hover:border-cyan-300/20 hover:bg-white/[0.05] sm:gap-3 sm:px-3"
-            aria-label="Към профила"
+            aria-label="РљСЉРј РїСЂРѕС„РёР»Р°"
           >
             <div className="mh-avatar flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold text-white">
               {avatarLetter}

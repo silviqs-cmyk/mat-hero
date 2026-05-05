@@ -29,6 +29,21 @@ export default function AdminLoginPage() {
           return;
         }
 
+        const accessResponse = await fetch("/api/admin/allowed-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: session.user.email ?? "" }),
+        });
+        const accessData = (await accessResponse.json()) as { allowed?: boolean };
+
+        if (accessData.allowed !== true) {
+          await signOut();
+          setErrorText("Нямаш достъп до админ панела.");
+          return;
+        }
+
         const profile = await getClientProfile(session.user.id);
 
         if (profile?.role === "admin") {
@@ -37,6 +52,7 @@ export default function AdminLoginPage() {
         }
 
         await signOut();
+        setErrorText("Нямаш администраторска роля.");
       } catch (error) {
         setErrorText(getNetworkErrorMessage(error));
       }
@@ -48,6 +64,17 @@ export default function AdminLoginPage() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorText("");
+
+    if (!email.trim()) {
+      setErrorText("Имейлът е задължителен.");
+      return;
+    }
+
+    if (!password) {
+      setErrorText("Паролата е задължителна.");
+      return;
+    }
+
     setLoading(true);
 
     try {

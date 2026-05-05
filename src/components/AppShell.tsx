@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { BackgroundMathSymbols } from "@/components/BackgroundMathSymbols";
 import { BottomNav } from "@/components/BottomNav";
+import { useAppState } from "@/components/providers/AppStateProvider";
 import { TopBar } from "@/components/TopBar";
 
 function getRouteTitle(pathname: string): { title: string; subtitle: string } {
@@ -80,14 +81,25 @@ function isAuthRoute(pathname: string) {
   );
 }
 
+function isProtectedStudentRoute(pathname: string) {
+  return (
+    pathname === "/dashboard" ||
+    pathname === "/report" ||
+    pathname.startsWith("/course/")
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const { authUser } = useAppState();
   const { subtitle } = getRouteTitle(pathname);
   const landing = pathname === "/";
   const admin = pathname.startsWith("/admin");
   const auth = isAuthRoute(pathname);
-  const showTopBar = !landing && !admin && !auth;
-  const showBottomNav = !landing && !admin && !auth;
+  const protectedStudentRoute = isProtectedStudentRoute(pathname);
+  const canShowProtectedChrome = !protectedStudentRoute || (authUser.isReady && !authUser.isGuest);
+  const showTopBar = !landing && !admin && !auth && canShowProtectedChrome;
+  const showBottomNav = !landing && !admin && !auth && canShowProtectedChrome;
 
   return (
     <motion.div

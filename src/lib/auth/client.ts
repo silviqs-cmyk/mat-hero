@@ -21,6 +21,23 @@ interface AuthResult {
   requiresEmailConfirmation?: boolean;
 }
 
+async function checkAllowedAdminEmail(email: string) {
+  const response = await fetch("/api/admin/allowed-email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Could not verify admin access.");
+  }
+
+  const data = (await response.json()) as { allowed?: boolean };
+  return data.allowed === true;
+}
+
 function getSupabaseHostname(): string | null {
   try {
     const { url } = getPublicSupabaseEnv();
@@ -65,7 +82,7 @@ function getFriendlyInvalidCredentialsMessage() {
 }
 
 function getFriendlyUnconfirmedEmailMessage() {
-  return "Профилът не е потвърден. Провери имейла си или се свържи с администратор.";
+  return "Профилът не е потвърден. Провери имейла си или се свържи с администратора.";
 }
 
 function normalizeAuthErrorMessage(message: string) {
@@ -238,9 +255,19 @@ export async function signInAdmin({
   password,
 }: StudentAuthInput): Promise<AuthResult> {
   try {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!(await checkAllowedAdminEmail(normalizedEmail))) {
+      return {
+        error: "Нямаш достъп до админ панела.",
+        redirectTo: null,
+        profile: null,
+      };
+    }
+
     const supabase = getSupabaseBrowserClient();
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password,
     });
 
@@ -262,6 +289,15 @@ export async function signInAdmin({
       };
     }
 
+    if (!(await checkAllowedAdminEmail(authUser.email ?? normalizedEmail))) {
+      await supabase.auth.signOut();
+      return {
+        error: "Нямаш достъп до админ панела.",
+        redirectTo: null,
+        profile: null,
+      };
+    }
+
     const profile = await getClientProfile(authUser.id);
 
     if (!profile) {
@@ -276,7 +312,7 @@ export async function signInAdmin({
     if (profile.role !== "admin") {
       await supabase.auth.signOut();
       return {
-        error: "Нямаш администраторски достъп.",
+        error: "Нямаш администраторска роля.",
         redirectTo: null,
         profile,
       };
