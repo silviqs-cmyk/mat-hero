@@ -230,6 +230,7 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
   const [videoUpload, setVideoUpload] = useState<LessonVideoUploadState>(getEmptyVideoUploadState());
   const currentQuestionGroup: AdminQuestionGroup =
     mode === "quiz" ? "quiz" : mode === "bonus" ? "bonus" : "practice";
+  const isValidDayNumber = Number.isInteger(dayNumber) && dayNumber >= 1 && dayNumber <= ADMIN_PLAN_TOTAL_DAYS;
 
   const showToast = useCallback((tone: "success" | "error", message: string) => {
     const nextToast = {
@@ -744,6 +745,16 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
     );
   }
 
+  if (!isValidDayNumber) {
+    return (
+      <EmptyState
+        title="Невалиден ден"
+        description={`Избери ден между 1 и ${ADMIN_PLAN_TOTAL_DAYS}.`}
+        action={<NeonButton href="/admin/plan">Към 10-дневния план</NeonButton>}
+      />
+    );
+  }
+
   const previewVideo = lessonForm.video_url ? resolveLessonVideo(lessonForm.video_url) : null;
   const previewLessonSections = activeSections.length > 0 ? activeSections : [];
 
@@ -788,7 +799,10 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           <FormSelect
             label="Тип задача"
             value={questionForm.question_type}
-            onChange={(event) => updateQuestionType(event.currentTarget.value as QuestionInput["question_type"])}
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "multiple_choice";
+              updateQuestionType(value as QuestionInput["question_type"]);
+            }}
           >
             <option value="multiple_choice">multiple_choice</option>
             <option value="true_false">true_false</option>
@@ -797,12 +811,13 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           <FormSelect
             label="Трудност"
             value={questionForm.difficulty}
-            onChange={(event) =>
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "medium";
               setQuestionForm((current) => ({
                 ...current,
-                difficulty: event.currentTarget.value as QuestionInput["difficulty"],
-              }))
-            }
+                difficulty: value as QuestionInput["difficulty"],
+              }));
+            }}
           >
             <option value="easy">easy</option>
             <option value="medium">medium</option>
@@ -811,25 +826,30 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           <FormInput
             label="Тема"
             value={questionForm.topic}
-            onChange={(event) => setQuestionForm((current) => ({ ...current, topic: event.currentTarget.value }))}
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "";
+              setQuestionForm((current) => ({ ...current, topic: value }));
+            }}
           />
           <FormInput
             label="Точки"
             type="number"
             min={0}
             value={questionForm.points}
-            onChange={(event) =>
-              setQuestionForm((current) => ({ ...current, points: Number(event.currentTarget.value) || 0 }))
-            }
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "0";
+              setQuestionForm((current) => ({ ...current, points: Number(value) || 0 }));
+            }}
           />
           <FormInput
             label="Sort order"
             type="number"
             min={1}
             value={questionForm.sort_order}
-            onChange={(event) =>
-              setQuestionForm((current) => ({ ...current, sort_order: Number(event.currentTarget.value) || 1 }))
-            }
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "1";
+              setQuestionForm((current) => ({ ...current, sort_order: Number(value) || 1 }));
+            }}
           />
           <div className="lg:col-span-2">
             <FormSwitch
@@ -844,21 +864,28 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           label="Въпрос"
           rows={4}
           value={questionForm.prompt}
-          onChange={(event) => setQuestionForm((current) => ({ ...current, prompt: event.currentTarget.value }))}
+          onChange={(event) => {
+            const value = event.currentTarget?.value ?? "";
+            setQuestionForm((current) => ({ ...current, prompt: value }));
+          }}
         />
         <FormTextarea
           label="Обяснение"
           rows={4}
           value={questionForm.explanation}
-          onChange={(event) => setQuestionForm((current) => ({ ...current, explanation: event.currentTarget.value }))}
+          onChange={(event) => {
+            const value = event.currentTarget?.value ?? "";
+            setQuestionForm((current) => ({ ...current, explanation: value }));
+          }}
         />
         {questionForm.question_type === "open_answer" ? (
           <FormInput
             label="Очакван отговор"
             value={questionForm.expected_answer ?? ""}
-            onChange={(event) =>
-              setQuestionForm((current) => ({ ...current, expected_answer: event.currentTarget.value }))
-            }
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "";
+              setQuestionForm((current) => ({ ...current, expected_answer: value }));
+            }}
           />
         ) : (
           <div className="space-y-3 rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
@@ -898,16 +925,15 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                   <FormInput
                     label={`Опция ${index + 1}`}
                     value={option.option_text}
-                    onChange={(event) =>
+                    onChange={(event) => {
+                      const value = event.currentTarget?.value ?? "";
                       setQuestionForm((current) => ({
                         ...current,
                         options: (current.options ?? []).map((candidate, candidateIndex) =>
-                          candidateIndex === index
-                            ? { ...candidate, option_text: event.currentTarget.value }
-                            : candidate,
+                          candidateIndex === index ? { ...candidate, option_text: value } : candidate,
                         ),
-                      }))
-                    }
+                      }));
+                    }}
                   />
                   <FormSwitch
                     checked={option.is_correct}
@@ -1103,21 +1129,28 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             <FormInput
               label="Заглавие"
               value={dayForm.title}
-              onChange={(event) => setDayForm((current) => ({ ...current, title: event.currentTarget.value }))}
+              onChange={(event) => {
+                const value = event.currentTarget?.value ?? "";
+                setDayForm((current) => ({ ...current, title: value }));
+              }}
             />
             <FormInput
               label="Подзаглавие"
               value={dayForm.subtitle}
-              onChange={(event) => setDayForm((current) => ({ ...current, subtitle: event.currentTarget.value }))}
+              onChange={(event) => {
+                const value = event.currentTarget?.value ?? "";
+                setDayForm((current) => ({ ...current, subtitle: value }));
+              }}
             />
             <FormInput
               label="Estimated minutes"
               type="number"
               min={0}
               value={dayForm.estimated_minutes}
-              onChange={(event) =>
-                setDayForm((current) => ({ ...current, estimated_minutes: Number(event.currentTarget.value) || 0 }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget?.value ?? "0";
+                setDayForm((current) => ({ ...current, estimated_minutes: Number(value) || 0 }));
+              }}
             />
             <div className="lg:col-span-2">
               <FormSwitch
@@ -1132,7 +1165,10 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             label="Описание"
             rows={6}
             value={dayForm.description}
-            onChange={(event) => setDayForm((current) => ({ ...current, description: event.currentTarget.value }))}
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "";
+              setDayForm((current) => ({ ...current, description: value }));
+            }}
           />
           <div className="flex flex-wrap gap-3">
             <NeonButton type="button" onClick={() => void handleSaveDay()} disabled={isSaving}>
@@ -1157,16 +1193,20 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             <FormInput
               label="Lesson title"
               value={lessonForm.title}
-              onChange={(event) => setLessonForm((current) => ({ ...current, title: event.currentTarget.value }))}
+              onChange={(event) => {
+                const value = event.currentTarget?.value ?? "";
+                setLessonForm((current) => ({ ...current, title: value }));
+              }}
             />
             <FormInput
               label="Estimated minutes"
               type="number"
               min={0}
               value={lessonForm.estimated_minutes}
-              onChange={(event) =>
-                setLessonForm((current) => ({ ...current, estimated_minutes: Number(event.currentTarget.value) || 0 }))
-              }
+              onChange={(event) => {
+                const value = event.currentTarget?.value ?? "0";
+                setLessonForm((current) => ({ ...current, estimated_minutes: Number(value) || 0 }));
+              }}
             />
             <div className="lg:col-span-2">
               <FormSwitch
@@ -1181,7 +1221,10 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             label="Intro / content"
             rows={8}
             value={lessonForm.content}
-            onChange={(event) => setLessonForm((current) => ({ ...current, content: event.currentTarget.value }))}
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "";
+              setLessonForm((current) => ({ ...current, content: value }));
+            }}
           />
           <NeonButton type="button" onClick={() => void handleSaveLesson()} disabled={isSaving}>
             <Save className="h-4 w-4" />
@@ -1260,14 +1303,18 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                 <FormInput
                   label="Заглавие"
                   value={sectionForm.title}
-                  onChange={(event) => setSectionForm((current) => ({ ...current, title: event.currentTarget.value }))}
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "";
+                    setSectionForm((current) => ({ ...current, title: value }));
+                  }}
                 />
                 <FormSelect
                   label="Тип секция"
                   value={sectionForm.section_type}
-                  onChange={(event) =>
-                    setSectionForm((current) => ({ ...current, section_type: event.currentTarget.value }))
-                  }
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "theory";
+                    setSectionForm((current) => ({ ...current, section_type: value }));
+                  }}
                 >
                   {SECTION_TYPES.map((sectionType) => (
                     <option key={sectionType} value={sectionType}>
@@ -1280,16 +1327,20 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                   type="number"
                   min={1}
                   value={sectionForm.sort_order}
-                  onChange={(event) =>
-                    setSectionForm((current) => ({ ...current, sort_order: Number(event.currentTarget.value) || 1 }))
-                  }
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "1";
+                    setSectionForm((current) => ({ ...current, sort_order: Number(value) || 1 }));
+                  }}
                 />
               </div>
               <FormTextarea
                 label="Съдържание"
                 rows={8}
                 value={sectionForm.content}
-                onChange={(event) => setSectionForm((current) => ({ ...current, content: event.currentTarget.value }))}
+                onChange={(event) => {
+                  const value = event.currentTarget?.value ?? "";
+                  setSectionForm((current) => ({ ...current, content: value }));
+                }}
               />
               <div className="flex flex-wrap gap-3">
                 <NeonButton type="button" onClick={() => void handleSaveSection()} disabled={isSaving}>
@@ -1327,20 +1378,21 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             <EmptyState
               title="Няма урок за този ден"
               description="Създай урока първо, за да закачиш видео към него."
-              action={<NeonButton href={buildAdminDayHref(dayNumber, "lesson")}>Създай урок</NeonButton>}
+              action={<NeonButton href={buildAdminDayHref(dayNumber, "lesson")}>Създай урок за този ден</NeonButton>}
             />
           ) : (
             <>
               <div className="grid gap-4 lg:grid-cols-2">
                 <FormSelect
                   label="Video provider"
-                  value={lessonForm.video_provider}
-                  onChange={(event) =>
+                  value={lessonForm.video_provider ?? "none"}
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "none";
                     setLessonForm((current) => ({
                       ...current,
-                      video_provider: event.currentTarget.value as LessonInput["video_provider"],
-                    }))
-                  }
+                      video_provider: value as LessonInput["video_provider"],
+                    }));
+                  }}
                 >
                   <option value="none">none</option>
                   <option value="youtube">youtube</option>
@@ -1350,13 +1402,14 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                 </FormSelect>
                 <FormSelect
                   label="Video status"
-                  value={lessonForm.video_status}
-                  onChange={(event) =>
+                  value={lessonForm.video_status ?? "draft"}
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "draft";
                     setLessonForm((current) => ({
                       ...current,
-                      video_status: event.currentTarget.value as LessonInput["video_status"],
-                    }))
-                  }
+                      video_status: value as LessonInput["video_status"],
+                    }));
+                  }}
                 >
                   <option value="draft">draft</option>
                   <option value="published">published</option>
@@ -1366,40 +1419,42 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                   placeholder="https://youtube.com/... или https://vimeo.com/..."
                   value={lessonForm.video_url ?? ""}
                   hint="Постави линк към YouTube, Vimeo или външно видео."
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "";
                     setLessonForm((current) => ({
                       ...current,
-                      video_url: event.currentTarget.value.trim() || null,
-                    }))
-                  }
+                      video_url: value.trim() || null,
+                    }));
+                  }}
                 />
                 <FormInput
                   label="Video title"
                   value={lessonForm.video_title}
-                  onChange={(event) =>
-                    setLessonForm((current) => ({ ...current, video_title: event.currentTarget.value }))
-                  }
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "";
+                    setLessonForm((current) => ({ ...current, video_title: value }));
+                  }}
                 />
                 <FormInput
                   label="Thumbnail URL"
                   value={lessonForm.video_thumbnail_url}
-                  onChange={(event) =>
-                    setLessonForm((current) => ({ ...current, video_thumbnail_url: event.currentTarget.value }))
-                  }
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "";
+                    setLessonForm((current) => ({ ...current, video_thumbnail_url: value }));
+                  }}
                 />
                 <FormInput
                   label="Duration in seconds"
                   type="number"
                   min={0}
                   value={lessonForm.video_duration_seconds ?? ""}
-                  onChange={(event) =>
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "";
                     setLessonForm((current) => ({
                       ...current,
-                      video_duration_seconds: event.currentTarget.value
-                        ? Number(event.currentTarget.value)
-                        : null,
-                    }))
-                  }
+                      video_duration_seconds: value ? Number(value) : null,
+                    }));
+                  }}
                 />
               </div>
               <div className="space-y-3 rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
@@ -1414,11 +1469,14 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                   type="file"
                   accept={LESSON_VIDEO_ALLOWED_TYPES.join(",")}
                   onChange={(event) => {
-                    const file = event.currentTarget.files?.[0];
+                    const input = event.currentTarget;
+                    const file = input?.files?.[0];
                     if (file) {
                       void handleVideoUpload(file);
                     }
-                    event.currentTarget.value = "";
+                    if (input) {
+                      input.value = "";
+                    }
                   }}
                 />
                 {videoUpload.isUploading || videoUpload.error || videoUpload.success ? (
