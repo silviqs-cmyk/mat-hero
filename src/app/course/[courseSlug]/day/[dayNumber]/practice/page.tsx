@@ -22,7 +22,11 @@ export default function CoursePracticePage() {
     params.courseSlug,
     Number.isFinite(dayNumber) ? dayNumber : 1,
   );
-  const { data: questions, isLoading: questionsLoading, error: questionsError } = useDayQuestions(bundle?.day.id ?? null, false);
+  const { data: questions, isLoading: questionsLoading, error: questionsError } = useDayQuestions(
+    bundle?.day.id ?? null,
+    false,
+    "practice",
+  );
 
   if (userLoading || courseLoading || progressLoading || bundleLoading || questionsLoading) {
     return <LoadingState title="Зареждам задачите" lines={5} />;
@@ -62,7 +66,7 @@ export default function CoursePracticePage() {
       mode="practice"
       course={course}
       bundle={bundle}
-      questions={questions.filter((question) => !question.is_bonus)}
+      questions={questions}
       profile={profile}
       progress={progress}
     />

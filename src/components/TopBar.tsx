@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ChevronRight, Flame, Target } from "lucide-react";
 import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { useAppState } from "@/components/providers/AppStateProvider";
@@ -8,11 +9,8 @@ import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { getGoalModel } from "@/lib/studentFlow";
 
-interface TopBarProps {
-  subtitle: string;
-}
-
-export function TopBar({ subtitle }: TopBarProps) {
+export function TopBar() {
+  const pathname = usePathname();
   const { authUser, progress } = useAppState();
   const { progress: topBarProgress } = useTopBarProgress();
   const { profile } = useCurrentUser();
@@ -25,6 +23,8 @@ export function TopBar({ subtitle }: TopBarProps) {
   const avatarLetter = userLabel.charAt(0).toUpperCase();
   const planMessage =
     progress.current_day >= 8 ? "Финалната права е близо" : progress.current_day >= 4 ? "Държиш добър ритъм" : "Строиш стабилна основа";
+  const shouldHideProgressFallback =
+    pathname.startsWith("/dashboard") || pathname.startsWith("/course/");
   const activeProgress = topBarProgress
     ? {
         label: topBarProgress.label,
@@ -59,6 +59,8 @@ export function TopBar({ subtitle }: TopBarProps) {
           bar: "bg-[linear-gradient(90deg,#2563eb,var(--mh-accent-cyan))] shadow-[0_0_14px_rgba(34,211,238,0.28)]",
         };
 
+  const brandSubtitle = "Математика с ритъм";
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/8 bg-[rgba(7,11,22,0.82)] px-4 py-4 backdrop-blur-xl lg:px-8">
       <div className="flex items-center justify-between gap-4">
@@ -68,7 +70,7 @@ export function TopBar({ subtitle }: TopBarProps) {
           </div>
           <div className="min-w-0">
             <p className="font-logo text-[1.9rem] font-extrabold leading-none text-white">MatHero</p>
-            {subtitle ? <p className="mt-1 truncate text-sm leading-6 text-[var(--mh-text-muted)]">{subtitle}</p> : null}
+            <p className="mt-1 truncate text-sm leading-6 text-[var(--mh-text-muted)]">{brandSubtitle}</p>
           </div>
         </div>
 
@@ -93,25 +95,27 @@ export function TopBar({ subtitle }: TopBarProps) {
             </div>
           </div>
 
-          <div className={`hidden items-center gap-3 rounded-[22px] border px-4 py-3 lg:flex ${progressToneClasses.shell}`}>
-            <span className={`mh-icon-shell flex h-10 w-10 items-center justify-center ${progressToneClasses.icon}`}>
-              <Flame className="h-5 w-5" />
-            </span>
-            <div className="min-w-0 w-[11rem]">
-              <p className={`text-[0.7rem] font-semibold uppercase tracking-[0.14em] ${progressToneClasses.label}`}>{activeProgress.label}</p>
-              <p className="truncate text-sm font-semibold text-white">{activeProgress.summary}</p>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/8">
-                <div
-                  className={`h-full rounded-full ${progressToneClasses.bar}`}
-                  style={{ width: `${activeProgress.percent}%` }}
-                />
+          {(topBarProgress || !shouldHideProgressFallback) && activeProgress ? (
+            <div className={`hidden items-center gap-3 rounded-[22px] border px-4 py-3 lg:flex ${progressToneClasses.shell}`}>
+              <span className={`mh-icon-shell flex h-10 w-10 items-center justify-center ${progressToneClasses.icon}`}>
+                <Flame className="h-5 w-5" />
+              </span>
+              <div className="min-w-0 w-[11rem]">
+                <p className={`text-[0.7rem] font-semibold uppercase tracking-[0.14em] ${progressToneClasses.label}`}>{activeProgress.label}</p>
+                <p className="truncate text-sm font-semibold text-white">{activeProgress.summary}</p>
+                <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/8">
+                  <div
+                    className={`h-full rounded-full ${progressToneClasses.bar}`}
+                    style={{ width: `${activeProgress.percent}%` }}
+                  />
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-lg font-bold text-white">{activeProgress.percent}%</p>
+                <p className="text-[0.7rem] text-[var(--mh-text-muted)]">{activeProgress.helper}</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-lg font-bold text-white">{activeProgress.percent}%</p>
-              <p className="text-[0.7rem] text-[var(--mh-text-muted)]">{activeProgress.helper}</p>
-            </div>
-          </div>
+          ) : null}
 
           <Link
             href="/report"

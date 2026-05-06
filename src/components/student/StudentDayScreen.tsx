@@ -59,5 +59,5 @@ export function StudentDayScreen({ courseSlug, forcedDayNumber }: StudentDayScre
     );
   }
 
-  return <StudentDayOverview course={course} bundle={bundle} progress={progress} profile={profile} />;
+  return <StudentDayOverview course={course} bundle={bundle} progress={progress} />;
 }

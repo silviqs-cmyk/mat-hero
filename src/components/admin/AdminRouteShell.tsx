@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, LogOut, Map } from "lucide-react";
+import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { signOut } from "@/lib/auth/client";
 
@@ -21,31 +22,43 @@ export function AdminRouteShell({ children }: AdminRouteShellProps) {
 
   return (
     <div className="space-y-6">
-      <div className="sticky top-0 z-20 border-b border-white/8 bg-[rgba(6,9,20,0.88)] px-4 py-4 backdrop-blur-xl lg:px-8">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <div className="min-w-0">
-            <Link href="/admin" className="inline-flex items-center gap-3 text-white transition hover:text-cyan-100">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl border border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-100 shadow-[0_0_24px_rgba(217,70,239,0.16)]">
-                <ShieldCheck className="h-6 w-6" />
-              </span>
+      <header className="sticky top-0 z-50 border-b border-white/8 bg-[rgba(7,11,22,0.82)] px-4 py-4 backdrop-blur-xl lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <Link href="/admin" className="inline-flex min-w-0 items-center gap-3 text-white transition hover:text-cyan-100">
+              <div className="mh-card-muted flex h-12 w-12 items-center justify-center rounded-2xl p-2">
+                <AnimatedHeroMascot size="sm" animated={false} />
+              </div>
               <div>
-                <p className="font-logo text-[1.8rem] font-extrabold leading-none text-white">MatHero Admin</p>
-                <p className="mt-1 text-sm text-slate-400">Управление на курсове, уроци и задачи</p>
+                <p className="font-logo text-[1.9rem] font-extrabold leading-none text-white">MatHero</p>
+                <p className="mt-1 truncate text-sm leading-6 text-[var(--mh-text-muted)]">
+                  Математика с ритъм
+                </p>
               </div>
             </Link>
           </div>
 
-          <NeonButton
-            type="button"
-            onClick={() => void handleSignOut()}
-            variant="danger"
-            className="min-h-0 px-4 py-3 text-sm"
-          >
-            <LogOut className="h-4 w-4" />
-            Изход
-          </NeonButton>
+          <div className="flex flex-wrap items-center gap-2">
+            <NeonButton href="/admin" variant="ghost" className="min-h-0 px-4 py-3 text-sm">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </NeonButton>
+            <NeonButton href="/admin/plan" variant="ghost" className="min-h-0 px-4 py-3 text-sm">
+              <Map className="h-4 w-4" />
+              План
+            </NeonButton>
+            <NeonButton
+              type="button"
+              onClick={() => void handleSignOut()}
+              variant="ghost"
+              className="min-h-0 px-4 py-3 text-sm"
+            >
+              <LogOut className="h-4 w-4" />
+              Изход
+            </NeonButton>
+          </div>
         </div>
-      </div>
+      </header>
 
       <div>{children}</div>
     </div>

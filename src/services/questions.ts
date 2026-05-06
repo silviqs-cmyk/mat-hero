@@ -1,7 +1,11 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Question, QuestionOption } from "@/types/course";
 
-export async function getQuestionsForDay(dayId: string, includeBonus = true): Promise<Question[]> {
+export async function getQuestionsForDay(
+  dayId: string,
+  includeBonus = true,
+  group?: "practice" | "quiz" | "bonus",
+): Promise<Question[]> {
   const supabase = getSupabaseBrowserClient();
   let query = supabase
     .from("questions")
@@ -12,6 +16,10 @@ export async function getQuestionsForDay(dayId: string, includeBonus = true): Pr
 
   if (!includeBonus) {
     query = query.eq("is_bonus", false);
+  }
+
+  if (group) {
+    query = query.eq("question_group", group);
   }
 
   const { data, error } = await query;
@@ -37,8 +45,12 @@ export async function getQuestionOptions(questionId: string): Promise<QuestionOp
   return (data ?? []) as QuestionOption[];
 }
 
-export async function getQuestionsWithOptionsForDay(dayId: string, includeBonus = true): Promise<Question[]> {
-  const questions = await getQuestionsForDay(dayId, includeBonus);
+export async function getQuestionsWithOptionsForDay(
+  dayId: string,
+  includeBonus = true,
+  group?: "practice" | "quiz" | "bonus",
+): Promise<Question[]> {
+  const questions = await getQuestionsForDay(dayId, includeBonus, group);
 
   return Promise.all(
     questions.map(async (question) => ({

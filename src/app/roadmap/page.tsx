@@ -1,9 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Target, Zap } from "lucide-react";
 import { AchievementBadge } from "@/components/AchievementBadge";
 import { DayCard } from "@/components/DayCard";
 import { useAppState } from "@/components/providers/AppStateProvider";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { resetStudentProgress } from "@/services/resetProgress";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -11,11 +15,33 @@ import { StatCard } from "@/components/ui/StatCard";
 import { demoDays } from "@/lib/demoData";
 
 export default function RoadmapPage() {
+  const router = useRouter();
   const { progress, resetProgress } = useAppState();
+  const { isAuthenticated } = useCurrentUser();
+  const [isResetting, setIsResetting] = useState(false);
   const maxUnlockedDay = Math.min(
     10,
     Math.max(progress.current_day, ...progress.completed_days.map((dayId) => dayId + 1)),
   );
+
+  async function handleReset() {
+    if (isResetting) {
+      return;
+    }
+
+    setIsResetting(true);
+
+    try {
+      if (isAuthenticated) {
+        await resetStudentProgress();
+      }
+
+      resetProgress();
+      router.refresh();
+    } finally {
+      setIsResetting(false);
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -24,8 +50,8 @@ export default function RoadmapPage() {
           label="Пътна карта"
           title={<h2 className="mh-heading-xl">10 дни до увереност</h2>}
           action={
-            <NeonButton type="button" onClick={resetProgress} variant="secondary" className="min-h-0 px-4 py-2 text-sm">
-              Рестарт
+            <NeonButton type="button" onClick={() => void handleReset()} variant="secondary" className="min-h-0 px-4 py-2 text-sm" disabled={isResetting}>
+              {isResetting ? "Зануляване..." : "Рестарт"}
             </NeonButton>
           }
         />

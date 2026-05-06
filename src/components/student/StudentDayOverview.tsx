@@ -1,13 +1,12 @@
 "use client";
 
+import { useLayoutEffect } from "react";
 import { BookOpenCheck, ChevronRight, Lightbulb, Play } from "lucide-react";
+import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
 import { DayPlanCard } from "@/components/dashboard/DayPlanCard";
 import { DayTimeline } from "@/components/dashboard/DayTimeline";
-import { GoalProgressCard } from "@/components/dashboard/GoalProgressCard";
 import { InfoCard } from "@/components/dashboard/InfoCard";
 import { LearningOutcomes } from "@/components/dashboard/LearningOutcomes";
-import { ProgressBar } from "@/components/ProgressBar";
-import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -15,29 +14,28 @@ import {
   buildLessonHref,
   buildVideoHref,
   getDashboardProgress,
-  getGoalModel,
   getLearningOutcomes,
   getLessonBlocks,
   getPlanSteps,
   mapTimeline,
 } from "@/lib/studentFlow";
 import type { CourseWithDays, DayContentBundle } from "@/types/course";
-import type { UserProfile, UserProgress } from "@/types/user";
+import type { UserProgress } from "@/types/user";
 
 interface StudentDayOverviewProps {
   course: CourseWithDays;
   bundle: DayContentBundle;
   progress: UserProgress | null;
-  profile: UserProfile | null;
 }
 
-export function StudentDayOverview({ course, bundle, progress, profile }: StudentDayOverviewProps) {
+export function StudentDayOverview({ course, bundle, progress }: StudentDayOverviewProps) {
+  const { setProgress: setTopBarProgress } = useTopBarProgress();
   const progressValue = getDashboardProgress(progress, course.duration_days);
   const timeline = mapTimeline(course.days, course.slug, bundle.day.day_number);
   const lessonBlocks = getLessonBlocks(bundle);
   const planSteps = getPlanSteps(bundle, course.slug);
-  const outcomes = getLearningOutcomes(bundle);
-  const goal = getGoalModel(profile);
+  const computedOutcomes = getLearningOutcomes(bundle);
+  const outcomes = computedOutcomes.length > 0 ? computedOutcomes : [bundle.day.title];
   const lessonHref = buildLessonHref(course.slug, bundle.day.day_number);
   const videoDuration = bundle.lessons[0]?.estimated_minutes
     ? `${bundle.lessons[0].estimated_minutes}:00 мин`
@@ -46,6 +44,21 @@ export function StudentDayOverview({ course, bundle, progress, profile }: Studen
     bundle.day.subtitle && !/^Раздел\s+\d+(\s+и\s+Раздел\s+\d+)?$/i.test(bundle.day.subtitle.trim())
       ? bundle.day.subtitle
       : bundle.day.description;
+
+  useLayoutEffect(() => {
+    setTopBarProgress({
+      label: "Напредък в плана",
+      summary: `Ден ${bundle.day.day_number} от ${course.duration_days}`,
+      helper: "Всеки ден затваря още една стъпка от плана.",
+      value: progressValue,
+      max: 100,
+      tone: "cyan",
+    });
+
+    return () => {
+      setTopBarProgress(null);
+    };
+  }, [bundle.day.day_number, course.duration_days, progressValue, setTopBarProgress]);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -56,7 +69,6 @@ export function StudentDayOverview({ course, bundle, progress, profile }: Studen
           <SectionHeader
             label={`Ден ${bundle.day.day_number} от ${course.duration_days}`}
             title={<h1 className="mh-heading-xl">{bundle.day.title}</h1>}
-            action={<Badge tone="cyan">{progressValue}% готово</Badge>}
           />
           <p className="mh-copy-muted mt-3 max-w-3xl text-[1rem]">{daySummary}</p>
 
@@ -94,13 +106,8 @@ export function StudentDayOverview({ course, bundle, progress, profile }: Studen
             </NeonButton>
           </div>
 
-          <div className="mt-6">
-            <ProgressBar
-              value={progressValue}
-              max={100}
-              label="Напредък в плана"
-              helperText="Всеки ден е ясен маршрут: теория, кратко видео, задачи и тест."
-            />
+          <div className="mt-5">
+            <LearningOutcomes items={outcomes} compact />
           </div>
 
         </NeonCard>
@@ -111,12 +118,6 @@ export function StudentDayOverview({ course, bundle, progress, profile }: Studen
         </NeonCard>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <LearningOutcomes items={outcomes} />
-        <div className="xl:hidden">
-          <GoalProgressCard goal={goal} />
-        </div>
-      </section>
     </div>
   );
 }

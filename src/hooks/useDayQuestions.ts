@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { getQuestionsWithOptionsForDay } from "@/services/questions";
 import type { Question } from "@/types/course";
 
-export function useDayQuestions(dayId: string | null, includeBonus = true) {
+export function useDayQuestions(
+  dayId: string | null,
+  includeBonus = true,
+  group?: "practice" | "quiz" | "bonus",
+) {
   const [data, setData] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +26,7 @@ export function useDayQuestions(dayId: string | null, includeBonus = true) {
       setError(null);
 
       try {
-        const questions = await getQuestionsWithOptionsForDay(dayId, includeBonus);
+        const questions = await getQuestionsWithOptionsForDay(dayId, includeBonus, group);
         if (active) {
           setData(questions);
         }
@@ -41,7 +45,7 @@ export function useDayQuestions(dayId: string | null, includeBonus = true) {
     return () => {
       active = false;
     };
-  }, [dayId, includeBonus]);
+  }, [dayId, includeBonus, group]);
 
   return { data, isLoading, error };
 }

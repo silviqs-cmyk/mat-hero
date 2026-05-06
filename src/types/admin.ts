@@ -58,6 +58,12 @@ export interface LessonInput {
   type: string;
   content: string;
   video_url: string | null;
+  video_provider: "youtube" | "vimeo" | "external" | "uploaded" | "none";
+  video_title: string;
+  video_thumbnail_url: string;
+  video_duration_seconds: number | null;
+  video_status: "draft" | "published";
+  video_storage_path: string | null;
   estimated_minutes: number;
   sort_order: number;
   is_published: boolean;
@@ -89,6 +95,7 @@ export interface QuestionInput {
   points: number;
   topic: string;
   is_bonus: boolean;
+  question_group: "practice" | "quiz" | "bonus";
   sort_order: number;
   is_published: boolean;
   options?: QuestionOptionInput[];

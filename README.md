@@ -63,6 +63,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_LESSON_VIDEO_MAX_MB=100
 ```
 
 ## Supabase Setup
@@ -74,10 +75,20 @@ NEXT_PUBLIC_SITE_URL=http://localhost:3000
 4. Run the seed from:
    - `supabase/seed.sql`
 5. Create at least one admin by updating `profiles.role = 'admin'` for the target user.
+6. Run the storage migration for lesson videos:
+   - `supabase/migrations/005_lesson_video_storage.sql`
+7. Run the admin plan content migration:
+   - `supabase/migrations/006_admin_plan_content_model.sql`
+8. Confirm the `lesson-videos` bucket exists in Supabase Storage.
 
 Important:
 - Do not use the legacy `supabase/schema.sql` as the primary source of truth.
 - The canonical schema is now the migration file in `supabase/migrations/`.
+- The admin CMS lesson video upload assumes the `lesson-videos` bucket is public and stores the resulting public URL in `lessons.video_url`.
+- Lesson video uploads are restricted to admin users through Storage policies. The browser upload flow does not use the service role key.
+- The simplified admin CMS now uses one default course in the UI:
+  - slug: `nvo-matematika-7-klas`
+  - routes: `/admin`, `/admin/plan`, `/admin/day/[dayNumber]/...`
 
 ## Documentation
 

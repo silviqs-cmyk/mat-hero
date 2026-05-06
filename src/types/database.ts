@@ -46,6 +46,12 @@ export interface DatabaseLesson {
   type: string;
   content: string;
   video_url: string | null;
+  video_provider: "youtube" | "vimeo" | "external" | "uploaded" | "none";
+  video_title: string | null;
+  video_thumbnail_url: string | null;
+  video_duration_seconds: number | null;
+  video_status: "draft" | "published";
+  video_storage_path: string | null;
   estimated_minutes: number;
   sort_order: number;
   is_published: boolean;
@@ -76,6 +82,7 @@ export interface DatabaseQuestion {
   points: number;
   topic: string;
   is_bonus: boolean;
+  question_group: "practice" | "quiz" | "bonus";
   sort_order: number;
   is_published: boolean;
   created_at: string;

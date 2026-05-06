@@ -63,29 +63,35 @@ export async function listAdminCourses(): Promise<Course[]> {
 }
 
 export async function createCourse(input: CourseInput): Promise<Course> {
-  const supabase = getSupabaseBrowserClient();
-  const { data, error } = await supabase.from("courses").insert(input).select("*").single();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data as Course;
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { data, error } = await supabase.from("courses").insert(input).select("*").single();
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data as Course;
+  });
 }
 
 export async function updateCourse(courseId: string, input: CourseInput): Promise<Course> {
-  const supabase = getSupabaseBrowserClient();
-  const { data, error } = await supabase.from("courses").update(input).eq("id", courseId).select("*").single();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data as Course;
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { data, error } = await supabase.from("courses").update(input).eq("id", courseId).select("*").single();
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data as Course;
+  });
 }
 
 export async function deleteCourse(courseId: string): Promise<void> {
-  const supabase = getSupabaseBrowserClient();
-  const { error } = await supabase.from("courses").delete().eq("id", courseId);
-  if (error) {
-    throw new Error(error.message);
-  }
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.from("courses").delete().eq("id", courseId);
+    if (error) {
+      throw new Error(error.message);
+    }
+  });
 }
 
 export async function listAdminDays(courseId?: string): Promise<CourseDay[]> {
@@ -104,29 +110,35 @@ export async function listAdminDays(courseId?: string): Promise<CourseDay[]> {
 }
 
 export async function createDay(input: CourseDayInput): Promise<CourseDay> {
-  const supabase = getSupabaseBrowserClient();
-  const { data, error } = await supabase.from("course_days").insert(input).select("*").single();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data as CourseDay;
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { data, error } = await supabase.from("course_days").insert(input).select("*").single();
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data as CourseDay;
+  });
 }
 
 export async function updateDay(dayId: string, input: CourseDayInput): Promise<CourseDay> {
-  const supabase = getSupabaseBrowserClient();
-  const { data, error } = await supabase.from("course_days").update(input).eq("id", dayId).select("*").single();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data as CourseDay;
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { data, error } = await supabase.from("course_days").update(input).eq("id", dayId).select("*").single();
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data as CourseDay;
+  });
 }
 
 export async function deleteDay(dayId: string): Promise<void> {
-  const supabase = getSupabaseBrowserClient();
-  const { error } = await supabase.from("course_days").delete().eq("id", dayId);
-  if (error) {
-    throw new Error(error.message);
-  }
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.from("course_days").delete().eq("id", dayId);
+    if (error) {
+      throw new Error(error.message);
+    }
+  });
 }
 
 export async function listAdminLessons(dayId?: string): Promise<Lesson[]> {
@@ -145,29 +157,67 @@ export async function listAdminLessons(dayId?: string): Promise<Lesson[]> {
 }
 
 export async function createLesson(input: LessonInput): Promise<Lesson> {
-  const supabase = getSupabaseBrowserClient();
-  const { data, error } = await supabase.from("lessons").insert(input).select("*").single();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data as Lesson;
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const payload = {
+      course_day_id: input.course_day_id,
+      title: input.title,
+      type: input.type,
+      content: input.content,
+      video_url: input.video_url,
+      video_provider: input.video_provider,
+      video_title: input.video_title,
+      video_thumbnail_url: input.video_thumbnail_url,
+      video_duration_seconds: input.video_duration_seconds,
+      video_status: input.video_status,
+      video_storage_path: input.video_storage_path,
+      estimated_minutes: input.estimated_minutes,
+      sort_order: input.sort_order,
+      is_published: input.is_published,
+    };
+    const { data, error } = await supabase.from("lessons").insert(payload).select("*").single();
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data as Lesson;
+  });
 }
 
 export async function updateLesson(lessonId: string, input: LessonInput): Promise<Lesson> {
-  const supabase = getSupabaseBrowserClient();
-  const { data, error } = await supabase.from("lessons").update(input).eq("id", lessonId).select("*").single();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data as Lesson;
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const payload = {
+      course_day_id: input.course_day_id,
+      title: input.title,
+      type: input.type,
+      content: input.content,
+      video_url: input.video_url,
+      video_provider: input.video_provider,
+      video_title: input.video_title,
+      video_thumbnail_url: input.video_thumbnail_url,
+      video_duration_seconds: input.video_duration_seconds,
+      video_status: input.video_status,
+      video_storage_path: input.video_storage_path,
+      estimated_minutes: input.estimated_minutes,
+      sort_order: input.sort_order,
+      is_published: input.is_published,
+    };
+    const { data, error } = await supabase.from("lessons").update(payload).eq("id", lessonId).select("*").single();
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data as Lesson;
+  });
 }
 
 export async function deleteLesson(lessonId: string): Promise<void> {
-  const supabase = getSupabaseBrowserClient();
-  const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
-  if (error) {
-    throw new Error(error.message);
-  }
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
+    if (error) {
+      throw new Error(error.message);
+    }
+  });
 }
 
 export async function listLessonSections(lessonId?: string): Promise<LessonSection[]> {
@@ -186,37 +236,43 @@ export async function listLessonSections(lessonId?: string): Promise<LessonSecti
 }
 
 export async function createLessonSection(input: LessonSectionInput): Promise<LessonSection> {
-  const supabase = getSupabaseBrowserClient();
-  const { data, error } = await supabase.from("lesson_sections").insert(input).select("*").single();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data as LessonSection;
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { data, error } = await supabase.from("lesson_sections").insert(input).select("*").single();
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data as LessonSection;
+  });
 }
 
 export async function updateLessonSection(
   sectionId: string,
   input: LessonSectionInput,
 ): Promise<LessonSection> {
-  const supabase = getSupabaseBrowserClient();
-  const { data, error } = await supabase
-    .from("lesson_sections")
-    .update(input)
-    .eq("id", sectionId)
-    .select("*")
-    .single();
-  if (error) {
-    throw new Error(error.message);
-  }
-  return data as LessonSection;
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { data, error } = await supabase
+      .from("lesson_sections")
+      .update(input)
+      .eq("id", sectionId)
+      .select("*")
+      .single();
+    if (error) {
+      throw new Error(error.message);
+    }
+    return data as LessonSection;
+  });
 }
 
 export async function deleteLessonSection(sectionId: string): Promise<void> {
-  const supabase = getSupabaseBrowserClient();
-  const { error } = await supabase.from("lesson_sections").delete().eq("id", sectionId);
-  if (error) {
-    throw new Error(error.message);
-  }
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.from("lesson_sections").delete().eq("id", sectionId);
+    if (error) {
+      throw new Error(error.message);
+    }
+  });
 }
 
 export async function listAdminQuestions(dayId?: string): Promise<Question[]> {
@@ -250,97 +306,105 @@ export async function getQuestionOptions(questionId: string): Promise<QuestionOp
 }
 
 export async function createQuestion(input: QuestionInput): Promise<Question> {
-  const supabase = getSupabaseBrowserClient();
-  const payload = {
-    course_day_id: input.course_day_id,
-    lesson_id: input.lesson_id,
-    question_type: input.question_type,
-    prompt: input.prompt,
-    explanation: input.explanation,
-    expected_answer: input.expected_answer,
-    difficulty: input.difficulty,
-    points: input.points,
-    topic: input.topic,
-    is_bonus: input.is_bonus,
-    sort_order: input.sort_order,
-    is_published: input.is_published,
-  };
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const payload = {
+      course_day_id: input.course_day_id,
+      lesson_id: input.lesson_id,
+      question_type: input.question_type,
+      prompt: input.prompt,
+      explanation: input.explanation,
+      expected_answer: input.expected_answer,
+      difficulty: input.difficulty,
+      points: input.points,
+      topic: input.topic,
+      is_bonus: input.is_bonus,
+      question_group: input.question_group,
+      sort_order: input.sort_order,
+      is_published: input.is_published,
+    };
 
-  const { data, error } = await supabase.from("questions").insert(payload).select("*").single();
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  if (input.options && input.options.length > 0) {
-    const { error: optionError } = await supabase.from("question_options").insert(
-      input.options.map((option) => ({
-        question_id: data.id,
-        option_text: option.option_text,
-        is_correct: option.is_correct,
-        sort_order: option.sort_order,
-      })),
-    );
-    if (optionError) {
-      throw new Error(optionError.message);
+    const { data, error } = await supabase.from("questions").insert(payload).select("*").single();
+    if (error) {
+      throw new Error(error.message);
     }
-  }
 
-  return data as Question;
+    if (input.options && input.options.length > 0) {
+      const { error: optionError } = await supabase.from("question_options").insert(
+        input.options.map((option) => ({
+          question_id: data.id,
+          option_text: option.option_text,
+          is_correct: option.is_correct,
+          sort_order: option.sort_order,
+        })),
+      );
+      if (optionError) {
+        throw new Error(optionError.message);
+      }
+    }
+
+    return data as Question;
+  });
 }
 
 export async function updateQuestion(questionId: string, input: QuestionInput): Promise<Question> {
-  const supabase = getSupabaseBrowserClient();
-  const payload = {
-    course_day_id: input.course_day_id,
-    lesson_id: input.lesson_id,
-    question_type: input.question_type,
-    prompt: input.prompt,
-    explanation: input.explanation,
-    expected_answer: input.expected_answer,
-    difficulty: input.difficulty,
-    points: input.points,
-    topic: input.topic,
-    is_bonus: input.is_bonus,
-    sort_order: input.sort_order,
-    is_published: input.is_published,
-  };
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const payload = {
+      course_day_id: input.course_day_id,
+      lesson_id: input.lesson_id,
+      question_type: input.question_type,
+      prompt: input.prompt,
+      explanation: input.explanation,
+      expected_answer: input.expected_answer,
+      difficulty: input.difficulty,
+      points: input.points,
+      topic: input.topic,
+      is_bonus: input.is_bonus,
+      question_group: input.question_group,
+      sort_order: input.sort_order,
+      is_published: input.is_published,
+    };
 
-  const { data, error } = await supabase.from("questions").update(payload).eq("id", questionId).select("*").single();
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  const { error: deleteOptionsError } = await supabase
-    .from("question_options")
-    .delete()
-    .eq("question_id", questionId);
-  if (deleteOptionsError) {
-    throw new Error(deleteOptionsError.message);
-  }
-
-  if (input.options && input.options.length > 0) {
-    const { error: insertOptionsError } = await supabase.from("question_options").insert(
-      input.options.map((option) => ({
-        question_id: questionId,
-        option_text: option.option_text,
-        is_correct: option.is_correct,
-        sort_order: option.sort_order,
-      })),
-    );
-    if (insertOptionsError) {
-      throw new Error(insertOptionsError.message);
+    const { data, error } = await supabase.from("questions").update(payload).eq("id", questionId).select("*").single();
+    if (error) {
+      throw new Error(error.message);
     }
-  }
 
-  return data as Question;
+    const { error: deleteOptionsError } = await supabase
+      .from("question_options")
+      .delete()
+      .eq("question_id", questionId);
+    if (deleteOptionsError) {
+      throw new Error(deleteOptionsError.message);
+    }
+
+    if (input.options && input.options.length > 0) {
+      const { error: insertOptionsError } = await supabase.from("question_options").insert(
+        input.options.map((option) => ({
+          question_id: questionId,
+          option_text: option.option_text,
+          is_correct: option.is_correct,
+          sort_order: option.sort_order,
+        })),
+      );
+      if (insertOptionsError) {
+        throw new Error(insertOptionsError.message);
+      }
+    }
+
+    return data as Question;
+  });
 }
 
 export async function deleteQuestion(questionId: string): Promise<void> {
-  const supabase = getSupabaseBrowserClient();
-  const { error } = await supabase.from("questions").delete().eq("id", questionId);
-  if (error) {
-    throw new Error(error.message);
-  }
+  return withAdminRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const { error } = await supabase.from("questions").delete().eq("id", questionId);
+    if (error) {
+      throw new Error(error.message);
+    }
+  });
 }
 
 export async function listAdminUsers(): Promise<AdminUserOverview[]> {

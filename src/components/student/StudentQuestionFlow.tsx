@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnswerOption } from "@/components/AnswerOption";
 import { MascotCharacter } from "@/components/MascotCharacter";
@@ -83,7 +83,7 @@ export function StudentQuestionFlow({
   const resolvedCorrectAnswer = currentQuestion ? getResolvedCorrectAnswer({ ...currentQuestion, options: currentOptions }) : null;
   const isCorrect = currentQuestion ? evaluateQuestionAnswer({ ...currentQuestion, options: currentOptions }, submittedAnswer) : false;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setTopBarProgress({
       label: mode === "practice" ? "Напредък в задачите" : "Напредък в теста",
       summary: `${currentIndex + 1} / ${questions.length} въпроса`,

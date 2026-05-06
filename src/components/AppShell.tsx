@@ -8,70 +8,6 @@ import { BottomNav } from "@/components/BottomNav";
 import { useAppState } from "@/components/providers/AppStateProvider";
 import { TopBar } from "@/components/TopBar";
 
-function getRouteTitle(pathname: string): { title: string; subtitle: string } {
-  if (pathname === "/") {
-    return { title: "MatHero", subtitle: "Подготовка по математика за 7. клас" };
-  }
-
-  if (pathname.startsWith("/dashboard")) {
-    return { title: "Табло", subtitle: "XP, серия и дневна мисия" };
-  }
-
-  if (pathname.startsWith("/design-system")) {
-    return { title: "Design System", subtitle: "MatHero UI board и tokens" };
-  }
-
-  if (pathname.startsWith("/admin")) {
-    return { title: "Admin Studio", subtitle: "Курсове, дни, уроци и preview" };
-  }
-
-  if (pathname.startsWith("/roadmap")) {
-    return { title: "Пътна карта", subtitle: "10 дни до увереност" };
-  }
-
-  if (pathname.startsWith("/course/") && pathname.includes("/results")) {
-    return { title: "Резултат", subtitle: "Реалният резултат от деня" };
-  }
-
-  if (pathname.startsWith("/course/") && pathname.includes("/quiz")) {
-    return { title: "Тест", subtitle: "Завърши деня и запази резултата си" };
-  }
-
-  if (pathname.startsWith("/course/") && pathname.includes("/practice")) {
-    return { title: "Задачи", subtitle: "Тренирай с реалните въпроси от деня" };
-  }
-
-  if (pathname.startsWith("/course/") && pathname.includes("/lesson")) {
-    return { title: "Урок", subtitle: "Теория, пример и кратко видео" };
-  }
-
-  if (pathname.startsWith("/course/")) {
-    return { title: "Дневен план", subtitle: "Текущият ден от твоя 10-дневен курс" };
-  }
-
-  if (pathname.startsWith("/lesson")) {
-    return { title: "Урок", subtitle: "Кратко обяснение и пример" };
-  }
-
-  if (pathname.startsWith("/quiz")) {
-    return { title: "Тест", subtitle: "Един въпрос наведнъж" };
-  }
-
-  if (pathname.startsWith("/explanation")) {
-    return { title: "Обяснение", subtitle: "Решение стъпка по стъпка" };
-  }
-
-  if (pathname.startsWith("/results")) {
-    return { title: "Резултати", subtitle: "Как се справи днес" };
-  }
-
-  if (pathname.startsWith("/report")) {
-    return { title: "Профил", subtitle: "Твоят напредък и силни теми" };
-  }
-
-  return { title: "MatHero", subtitle: "Математика с ритъм" };
-}
-
 function isAuthRoute(pathname: string) {
   return (
     pathname === "/login" ||
@@ -92,7 +28,6 @@ function isProtectedStudentRoute(pathname: string) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { authUser } = useAppState();
-  const { subtitle } = getRouteTitle(pathname);
   const landing = pathname === "/";
   const admin = pathname.startsWith("/admin");
   const auth = isAuthRoute(pathname);
@@ -116,7 +51,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <BackgroundMathSymbols />
       {showTopBar ? (
         <div className="relative z-10">
-          <TopBar subtitle={subtitle} />
+          <TopBar />
         </div>
       ) : null}
       <main

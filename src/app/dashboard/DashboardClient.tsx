@@ -73,7 +73,6 @@ export function DashboardClient({ profile }: DashboardClientProps) {
       course={course}
       bundle={bundle}
       progress={progress}
-      profile={profile}
     />
   );
 }
