@@ -1,10 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnswerOption } from "@/components/AnswerOption";
 import { MascotCharacter } from "@/components/MascotCharacter";
-import { ProgressBar } from "@/components/ProgressBar";
+import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
 import { Badge } from "@/components/ui/Badge";
 import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
@@ -63,6 +63,7 @@ export function StudentQuestionFlow({
   progress,
 }: StudentQuestionFlowProps) {
   const router = useRouter();
+  const { setProgress: setTopBarProgress } = useTopBarProgress();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [answerText, setAnswerText] = useState("");
@@ -81,6 +82,21 @@ export function StudentQuestionFlow({
       : currentOptions.find((option) => option.id === selectedOptionId)?.option_text ?? "";
   const resolvedCorrectAnswer = currentQuestion ? getResolvedCorrectAnswer({ ...currentQuestion, options: currentOptions }) : null;
   const isCorrect = currentQuestion ? evaluateQuestionAnswer({ ...currentQuestion, options: currentOptions }, submittedAnswer) : false;
+
+  useEffect(() => {
+    setTopBarProgress({
+      label: mode === "practice" ? "Напредък в задачите" : "Напредък в теста",
+      summary: `${currentIndex + 1} / ${questions.length} въпроса`,
+      helper: mode === "practice" ? "Фокус върху правилния подход." : "Всеки верен отговор носи точки.",
+      value: currentIndex,
+      max: questions.length,
+      tone: mode === "practice" ? "cyan" : "lime",
+    });
+
+    return () => {
+      setTopBarProgress(null);
+    };
+  }, [currentIndex, mode, questions.length, setTopBarProgress]);
 
   async function handleSubmit() {
     if (!currentQuestion || saving || showFeedback) {
@@ -188,8 +204,35 @@ export function StudentQuestionFlow({
     saving ||
     (currentQuestion.question_type === "open_answer" ? answerText.trim().length === 0 : !selectedOptionId);
 
+  function handleEnterSubmit() {
+    if (showFeedback || buttonDisabled) {
+      return;
+    }
+
+    void handleSubmit();
+  }
+
   return (
-    <div className="mx-auto max-w-6xl space-y-5">
+    <div
+      className="mx-auto max-w-6xl space-y-5"
+      onKeyDown={(event) => {
+        if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+          return;
+        }
+
+        if (showFeedback) {
+          return;
+        }
+
+        const target = event.target as HTMLElement | null;
+        if (target?.tagName === "TEXTAREA") {
+          return;
+        }
+
+        event.preventDefault();
+        handleEnterSubmit();
+      }}
+    >
       <NeonCard padding="sm">
         <SectionHeader
           label={mode === "practice" ? "Упражнение" : "Тест за деня"}
@@ -210,14 +253,6 @@ export function StudentQuestionFlow({
               : "Мини през теста спокойно. След всеки въпрос ще преминем към следващия."
         }
         xpText={mode === "quiz" ? "+25 XP при завършен тест" : undefined}
-      />
-
-      <ProgressBar
-        label={mode === "practice" ? "Напредък в задачите" : "Напредък в теста"}
-        value={currentIndex}
-        max={questions.length}
-        helperText={mode === "practice" ? "Фокус върху правилния подход преди теста." : "Всеки верен отговор носи точки и XP."}
-        accent={mode === "practice" ? "cyan" : "lime"}
       />
 
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
@@ -242,6 +277,14 @@ export function StudentQuestionFlow({
                 onChange={(event) => setAnswerText(event.currentTarget.value)}
                 placeholder="Напиши отговора си"
                 disabled={showFeedback || saving}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+                    return;
+                  }
+
+                  event.preventDefault();
+                  handleEnterSubmit();
+                }}
               />
             </div>
           ) : (

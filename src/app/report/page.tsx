@@ -13,14 +13,6 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { getCurrentUserClient, signOut } from "@/lib/auth/client";
 import { demoDays } from "@/lib/demoData";
 
-function maskSessionId(sessionId: string) {
-  if (sessionId.length <= 10) {
-    return sessionId;
-  }
-
-  return `${sessionId.slice(0, 6)}...${sessionId.slice(-4)}`;
-}
-
 function getReadinessLabel(score: number) {
   if (score >= 80) {
     return "Стабилно знание";
@@ -55,9 +47,8 @@ function getReadinessTone(score: number) {
 
 export default function ReportPage() {
   const router = useRouter();
-  const { progress, sessionId } = useAppState();
+  const { progress } = useAppState();
   const [userEmail, setUserEmail] = useState<string | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
@@ -71,7 +62,6 @@ export default function ReportPage() {
       }
 
       setUserEmail(user?.email ?? null);
-      setUserId(user?.id ?? null);
       setAuthReady(true);
     }
 
@@ -146,10 +136,6 @@ export default function ReportPage() {
               <p className="mt-2 text-sm text-white">
                 {authReady ? (userEmail ? "Регистриран профил" : "Гост режим") : "Зареждане..."}
               </p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">Потребител ID</p>
-              <p className="mt-2 break-all text-sm text-white/80">{userId ?? maskSessionId(sessionId)}</p>
             </div>
           </NeonCard>
         </div>

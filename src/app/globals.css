@@ -625,3 +625,19 @@ textarea {
 .mh-avatar {
   background: linear-gradient(135deg, var(--mh-accent-purple), #b44cff);
 }
+
+.mh-shell-viewport {
+  height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  .mh-shell-viewport {
+    height: 100dvh;
+  }
+}
+
+.mh-shell-scroll {
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}

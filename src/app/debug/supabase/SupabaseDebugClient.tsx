@@ -24,9 +24,9 @@ const initialState: DiagnosticState = {
   anonKeyPrefix: null,
   envError: null,
   sessionStatus: "idle",
-  sessionMessage: "РќРµ Рµ СЃС‚Р°СЂС‚РёСЂР°РЅРѕ.",
+  sessionMessage: "Не е стартирано.",
   coursesStatus: "idle",
-  coursesMessage: "РќРµ Рµ СЃС‚Р°СЂС‚РёСЂР°РЅРѕ.",
+  coursesMessage: "Не е стартирано.",
 };
 
 function StatusBadge({
@@ -88,9 +88,9 @@ export function SupabaseDebugClient() {
         anonKeyPrefix,
         envError: null,
         sessionStatus: "idle",
-        sessionMessage: "РР·РїСЂР°С‰Р°РЅРµ РЅР° Р·Р°СЏРІРєР°...",
+        sessionMessage: "Изпращане на заявка...",
         coursesStatus: "idle",
-        coursesMessage: "РР·РїСЂР°С‰Р°РЅРµ РЅР° Р·Р°СЏРІРєР°...",
+        coursesMessage: "Изпращане на заявка...",
       }));
 
       try {
@@ -105,8 +105,8 @@ export function SupabaseDebugClient() {
           sessionMessage: error
             ? error.message
             : session
-              ? "РРјР° Р°РєС‚РёРІРЅР° session."
-              : "РќСЏРјР° Р°РєС‚РёРІРЅР° session, РЅРѕ Р·Р°СЏРІРєР°С‚Р° РјРёРЅР° СѓСЃРїРµС€РЅРѕ.",
+              ? "Има активна session."
+              : "Няма активна session, но заявката мина успешно.",
         }));
       } catch (error) {
         setState((current) => ({
@@ -150,9 +150,9 @@ export function SupabaseDebugClient() {
           : null,
         envError: error instanceof Error ? error.message : "Unknown env error.",
         sessionStatus: "error",
-        sessionMessage: "РџСЂРѕРїСѓСЃРЅР°С‚Рѕ Р·Р°СЂР°РґРё env РїСЂРѕР±Р»РµРј.",
+        sessionMessage: "Пропуснато заради env проблем.",
         coursesStatus: "error",
-        coursesMessage: "РџСЂРѕРїСѓСЃРЅР°С‚Рѕ Р·Р°СЂР°РґРё env РїСЂРѕР±Р»РµРј.",
+        coursesMessage: "Пропуснато заради env проблем.",
       });
     } finally {
       setIsRunning(false);
@@ -170,9 +170,9 @@ export function SupabaseDebugClient() {
       <NeonCard padding="lg" className="space-y-4">
         <div className="space-y-2">
           <p className="mh-label">Supabase Debug</p>
-          <h1 className="mh-heading-lg">Р’СЂРµРјРµРЅРЅР° СЃС‚СЂР°РЅРёС†Р° Р·Р° РґРёР°РіРЅРѕСЃС‚РёРєР°</h1>
+          <h1 className="mh-heading-lg">Временна страница за диагностика</h1>
           <p className="mh-copy-muted">
-            РўР°Р·Рё СЃС‚СЂР°РЅРёС†Р° РїСЂРѕРІРµСЂСЏРІР° env РЅР°СЃС‚СЂРѕР№РєРёС‚Рµ, auth session-Р° Рё Р±Р°Р·РѕРІ read РєСЉРј
+            Тази страница проверява env настройките, auth session-а и базов read към
             `courses`.
           </p>
         </div>
@@ -185,7 +185,7 @@ export function SupabaseDebugClient() {
             onClick={() => void runDiagnostics()}
             disabled={isRunning}
           >
-            {isRunning ? "РџСЂРѕРІРµСЂРєР°..." : "РџСѓСЃРЅРё РїСЂРѕРІРµСЂРєР° РѕС‚РЅРѕРІРѕ"}
+            {isRunning ? "Проверка..." : "Пусни проверка отново"}
           </NeonButton>
         </div>
       </NeonCard>
@@ -193,17 +193,17 @@ export function SupabaseDebugClient() {
       <div className="grid gap-6 lg:grid-cols-2">
         <NeonCard padding="lg" className="space-y-4">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold text-white">1. Env СЃС‚Р°С‚СѓСЃ</h2>
+            <h2 className="text-xl font-semibold text-white">1. Env статус</h2>
             <StatusBadge status={state.envError ? "error" : "success"} />
           </div>
 
           <div className="grid gap-3 text-sm text-slate-200">
             <div className="rounded-[1.25rem] border border-white/10 bg-white/4 p-4">
-              <div>`NEXT_PUBLIC_SUPABASE_URL` РЅР°Р»РёС‡РµРЅ: {String(flags.hasPublicUrl)}</div>
-              <div>`NEXT_PUBLIC_SUPABASE_URL` РІР°Р»РёРґРµРЅ: {String(flags.publicUrlLooksValid)}</div>
-              <div>`NEXT_PUBLIC_SUPABASE_ANON_KEY` РЅР°Р»РёС‡РµРЅ: {String(flags.hasPublicAnonKey)}</div>
-              <div>`NEXT_PUBLIC_SUPABASE_ANON_KEY` РІР°Р»РёРґРµРЅ: {String(flags.publicKeyLooksValid)}</div>
-              <div>`SUPABASE_SERVICE_ROLE_KEY` РЅР°Р»РёС‡РµРЅ: {String(flags.hasServiceRoleKey)}</div>
+              <div>`NEXT_PUBLIC_SUPABASE_URL` наличен: {String(flags.hasPublicUrl)}</div>
+              <div>`NEXT_PUBLIC_SUPABASE_URL` валиден: {String(flags.publicUrlLooksValid)}</div>
+              <div>`NEXT_PUBLIC_SUPABASE_ANON_KEY` наличен: {String(flags.hasPublicAnonKey)}</div>
+              <div>`NEXT_PUBLIC_SUPABASE_ANON_KEY` валиден: {String(flags.publicKeyLooksValid)}</div>
+              <div>`SUPABASE_SERVICE_ROLE_KEY` наличен: {String(flags.hasServiceRoleKey)}</div>
             </div>
 
             <div className="rounded-[1.25rem] border border-white/10 bg-white/4 p-4">
@@ -217,7 +217,7 @@ export function SupabaseDebugClient() {
               </div>
             ) : (
               <div className="rounded-[1.25rem] border border-emerald-400/25 bg-emerald-400/10 p-4 text-emerald-100">
-                Env РїСЂРѕРІРµСЂРєР°С‚Р° РјРёРЅР° СѓСЃРїРµС€РЅРѕ.
+                Env проверката мина успешно.
               </div>
             )}
           </div>

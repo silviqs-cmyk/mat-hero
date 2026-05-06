@@ -91,3 +91,7 @@ Important:
 npm run lint
 npm run build
 ```
+
+## Encoding
+
+Project files should be saved as UTF-8 to preserve Bulgarian text correctly across the app, SQL seeds, migrations, and CMS content.

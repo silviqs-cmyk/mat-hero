@@ -1,10 +1,9 @@
 "use client";
 
-import { BookOpenCheck, ChevronRight, Flame, Lightbulb, Play, Star } from "lucide-react";
+import { BookOpenCheck, ChevronRight, Lightbulb, Play } from "lucide-react";
 import { DayPlanCard } from "@/components/dashboard/DayPlanCard";
 import { DayTimeline } from "@/components/dashboard/DayTimeline";
 import { GoalProgressCard } from "@/components/dashboard/GoalProgressCard";
-import { HeroBuddyCard } from "@/components/dashboard/HeroBuddyCard";
 import { InfoCard } from "@/components/dashboard/InfoCard";
 import { LearningOutcomes } from "@/components/dashboard/LearningOutcomes";
 import { ProgressBar } from "@/components/ProgressBar";
@@ -12,13 +11,11 @@ import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { StatCard } from "@/components/ui/StatCard";
 import {
   buildLessonHref,
   buildVideoHref,
   getDashboardProgress,
   getGoalModel,
-  getHeroBuddy,
   getLearningOutcomes,
   getLessonBlocks,
   getPlanSteps,
@@ -40,7 +37,6 @@ export function StudentDayOverview({ course, bundle, progress, profile }: Studen
   const lessonBlocks = getLessonBlocks(bundle);
   const planSteps = getPlanSteps(bundle, course.slug);
   const outcomes = getLearningOutcomes(bundle);
-  const heroBuddy = getHeroBuddy(bundle);
   const goal = getGoalModel(profile);
   const lessonHref = buildLessonHref(course.slug, bundle.day.day_number);
   const videoDuration = bundle.lessons[0]?.estimated_minutes
@@ -69,11 +65,11 @@ export function StudentDayOverview({ course, bundle, progress, profile }: Studen
               <p>{daySummary}</p>
             </InfoCard>
 
-            <InfoCard label="Пример" tone="purple" icon={<BookOpenCheck className="h-5 w-5 text-fuchsia-200" />}>
-              {lessonBlocks.example.split("\n").map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-            </InfoCard>
+          <InfoCard label="Пример" tone="purple" icon={<BookOpenCheck className="h-5 w-5 text-fuchsia-200" />}>
+            {lessonBlocks.example.split("\n").map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </InfoCard>
 
             <div className="xl:col-span-2">
               <InfoCard label="Най-важното" tone="cyan" icon={<Lightbulb className="h-5 w-5 text-cyan-200" />}>
@@ -107,14 +103,6 @@ export function StudentDayOverview({ course, bundle, progress, profile }: Studen
             />
           </div>
 
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            <NeonCard padding="sm" className="rounded-[26px]">
-              <StatCard icon={Flame} value={progress?.streak_days ?? 0} label="Поредни дни" tone="gold" />
-            </NeonCard>
-            <NeonCard padding="sm" className="rounded-[26px]">
-              <StatCard icon={Star} value={progress?.total_xp ?? 0} label="XP точки" tone="cyan" />
-            </NeonCard>
-          </div>
         </NeonCard>
 
         <NeonCard padding="md">
@@ -123,11 +111,11 @@ export function StudentDayOverview({ course, bundle, progress, profile }: Studen
         </NeonCard>
       </section>
 
-      <HeroBuddyCard buddy={heroBuddy} />
-
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <LearningOutcomes items={outcomes} />
-        <GoalProgressCard goal={goal} />
+        <div className="xl:hidden">
+          <GoalProgressCard goal={goal} />
+        </div>
       </section>
     </div>
   );

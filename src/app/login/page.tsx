@@ -95,19 +95,16 @@ export default function LoginPage() {
           ) : null}
 
           <NeonButton type="submit" variant="primary" className="w-full justify-center" disabled={loading}>
-            {loading ? "Зареждане..." : "Продължи"}
+            {loading ? "Зареждане..." : "Вход"}
           </NeonButton>
         </form>
 
         <div className="mt-5 space-y-3 text-center text-sm">
           <Link href="/register" className="block font-medium text-cyan-200 transition hover:text-cyan-100">
-            Нямаш профил? Създай профил
+            Създай профил
           </Link>
           <Link href="/forgot-password" className="block text-[var(--mh-text-muted)] transition hover:text-white">
             Забравена парола?
-          </Link>
-          <Link href="/admin/login" className="block text-[var(--mh-text-muted)] transition hover:text-white">
-            Админ панел
           </Link>
         </div>
       </NeonCard>

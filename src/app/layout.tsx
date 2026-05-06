@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { Manrope } from "next/font/google";
 import { AppShell } from "@/components/AppShell";
 import { AppStateProvider } from "@/components/providers/AppStateProvider";
+import { TopBarProgressProvider } from "@/components/providers/TopBarProgressProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -52,7 +53,9 @@ export default function RootLayout({
     <html lang="bg">
       <body className={`${inter.variable} ${manrope.variable} ${exo2Logo.variable}`}>
         <AppStateProvider>
-          <AppShell>{children}</AppShell>
+          <TopBarProgressProvider>
+            <AppShell>{children}</AppShell>
+          </TopBarProgressProvider>
         </AppStateProvider>
       </body>
     </html>
