@@ -18,10 +18,13 @@ type FormInputProps =
 
 export function FormInput(props: FormInputProps) {
   const { label, error, hint } = props;
+  const normalizedProps = "value" in props && (props.value === null || props.value === undefined)
+    ? { ...props, value: "" }
+    : props;
   const fieldClassName = [
-    props.className,
-    props.as === "textarea" ? "mh-textarea" : props.as === "select" ? "mh-select" : "mh-input",
-    error ? props.as === "textarea" ? "mh-textarea--error" : props.as === "select" ? "mh-select--error" : "mh-input--error" : "",
+    normalizedProps.className,
+    normalizedProps.as === "textarea" ? "mh-textarea" : normalizedProps.as === "select" ? "mh-select" : "mh-input",
+    error ? normalizedProps.as === "textarea" ? "mh-textarea--error" : normalizedProps.as === "select" ? "mh-select--error" : "mh-input--error" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -29,14 +32,14 @@ export function FormInput(props: FormInputProps) {
   return (
     <label className="grid gap-2">
       {label ? <span className="text-sm font-semibold text-[var(--mh-text-soft)]">{label}</span> : null}
-      {props.as === "textarea" ? (
-        <textarea {...props} className={fieldClassName} />
-      ) : props.as === "select" ? (
-        <select {...props} className={fieldClassName}>
-          {props.children}
+      {normalizedProps.as === "textarea" ? (
+        <textarea {...normalizedProps} className={fieldClassName} />
+      ) : normalizedProps.as === "select" ? (
+        <select {...normalizedProps} className={fieldClassName}>
+          {normalizedProps.children}
         </select>
       ) : (
-        <input {...props} className={fieldClassName} />
+        <input {...normalizedProps} className={fieldClassName} />
       )}
       {error ? (
         <span className="text-sm text-rose-300">{error}</span>

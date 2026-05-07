@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode, Component } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -98,13 +98,13 @@ function getEmptyLessonForm(dayId = ""): LessonInput {
     title: "",
     type: "theory",
     content: "",
-    video_url: null,
+    video_url: "",
     video_provider: "none",
     video_title: "",
     video_thumbnail_url: "",
-    video_duration_seconds: null,
+    video_duration_seconds: 0,
     video_status: "draft",
-    video_storage_path: null,
+    video_storage_path: "",
     estimated_minutes: 20,
     sort_order: 1,
     is_published: false,
@@ -215,7 +215,7 @@ function buildAdminDayHref(dayNumber: number, suffix = "") {
   return suffix ? `/admin/day/${dayNumber}/${suffix}` : `/admin/day/${dayNumber}`;
 }
 
-export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspaceProps) {
+function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspaceProps) {
   const [snapshot, setSnapshot] = useState<AdminPlanSnapshot | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -279,13 +279,13 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
               title: nextLesson.title,
               type: nextLesson.type,
               content: nextLesson.content,
-              video_url: nextLesson.video_url,
-              video_provider: nextLesson.video_provider,
+              video_url: nextLesson.video_url ?? "",
+              video_provider: nextLesson.video_provider ?? "none",
               video_title: nextLesson.video_title ?? "",
               video_thumbnail_url: nextLesson.video_thumbnail_url ?? "",
-              video_duration_seconds: nextLesson.video_duration_seconds,
-              video_status: nextLesson.video_status,
-              video_storage_path: nextLesson.video_storage_path,
+              video_duration_seconds: nextLesson.video_duration_seconds ?? 0,
+              video_status: nextLesson.video_status ?? "draft",
+              video_storage_path: nextLesson.video_storage_path ?? "",
               estimated_minutes: nextLesson.estimated_minutes,
               sort_order: nextLesson.sort_order,
               is_published: nextLesson.is_published,
@@ -386,6 +386,12 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
     () => activeQuestions.filter((question) => getResolvedQuestionGroup(question) === currentQuestionGroup),
     [activeQuestions, currentQuestionGroup],
   );
+  const isModeRequiringDay = mode !== "dashboard" && mode !== "plan";
+  const isVideoModeReady =
+    mode !== "video" ||
+    !activeDay ||
+    !activeLesson ||
+    lessonForm.course_day_id === activeDay.id;
   const publishedDayCount = snapshot?.dayCards.filter((card) => card.status === "published").length ?? 0;
   const lessonCount = snapshot?.lessons.length ?? 0;
   const questionCount = snapshot?.questions.length ?? 0;
@@ -661,7 +667,7 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         ...current,
         video_provider: "uploaded",
         video_url: uploadResult.publicUrl,
-        video_storage_path: uploadResult.path,
+        video_storage_path: uploadResult.path ?? "",
         video_status: current.video_status,
       }));
       setVideoUpload({ isUploading: false, progress: 100, error: null, success: "Видеото е качено." });
@@ -681,11 +687,11 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
     setLessonForm((current) => ({
       ...current,
       video_provider: "none",
-      video_url: null,
-      video_storage_path: null,
+      video_url: "",
+      video_storage_path: "",
       video_title: "",
       video_thumbnail_url: "",
-      video_duration_seconds: null,
+      video_duration_seconds: 0,
       video_status: "draft",
     }));
     setVideoUpload(getEmptyVideoUploadState());
@@ -753,6 +759,14 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         action={<NeonButton href="/admin/plan">Към 10-дневния план</NeonButton>}
       />
     );
+  }
+
+  if (isModeRequiringDay && !activeDay) {
+    return renderMissingDayState();
+  }
+
+  if (mode === "video" && !isVideoModeReady) {
+    return <LoadingState title="Зареждам видео редактора" lines={5} />;
   }
 
   const previewVideo = lessonForm.video_url ? resolveLessonVideo(lessonForm.video_url) : null;
@@ -1073,29 +1087,33 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                   type="button"
                   variant={card.day.is_published ? "ghost" : "success"}
                   onClick={() => {
+                    if (!card.day) {
+                      return;
+                    }
+                    const nextDay = card.day;
                     setDayForm({
-                      course_id: card.day!.course_id,
-                      day_number: card.day!.day_number,
-                      title: card.day!.title,
-                      subtitle: card.day!.subtitle,
-                      description: card.day!.description,
-                      estimated_minutes: card.day!.estimated_minutes,
-                      is_published: !card.day!.is_published,
-                      sort_order: card.day!.sort_order,
+                      course_id: nextDay.course_id,
+                      day_number: nextDay.day_number,
+                      title: nextDay.title,
+                      subtitle: nextDay.subtitle,
+                      description: nextDay.description,
+                      estimated_minutes: nextDay.estimated_minutes,
+                      is_published: !nextDay.is_published,
+                      sort_order: nextDay.sort_order,
                     });
-                    void savePlanDay(card.day!.id, {
-                      course_id: card.day!.course_id,
-                      day_number: card.day!.day_number,
-                      title: card.day!.title,
-                      subtitle: card.day!.subtitle,
-                      description: card.day!.description,
-                      estimated_minutes: card.day!.estimated_minutes,
-                      is_published: !card.day!.is_published,
-                      sort_order: card.day!.sort_order,
+                    void savePlanDay(nextDay.id, {
+                      course_id: nextDay.course_id,
+                      day_number: nextDay.day_number,
+                      title: nextDay.title,
+                      subtitle: nextDay.subtitle,
+                      description: nextDay.description,
+                      estimated_minutes: nextDay.estimated_minutes,
+                      is_published: !nextDay.is_published,
+                      sort_order: nextDay.sort_order,
                     })
                       .then(loadSnapshot)
                       .then(() =>
-                        showToast("success", !card.day!.is_published ? `Публикува Ден ${card.dayNumber}.` : `Скри Ден ${card.dayNumber}.`),
+                        showToast("success", !nextDay.is_published ? `Публикува Ден ${card.dayNumber}.` : `Скри Ден ${card.dayNumber}.`),
                       )
                       .catch((publishError) =>
                         showToast("error", publishError instanceof Error ? publishError.message : "Не успях да обновя статуса."),
@@ -1114,8 +1132,6 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         </div>
       </div>
     );
-  } else if (!activeDay) {
-    content = renderMissingDayState();
   } else if (mode === "day") {
     content = (
       <div className="space-y-6">
@@ -1353,7 +1369,7 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                     variant="ghost"
                     onClick={() => {
                       setEditingSectionId(null);
-                      setSectionForm(getEmptySectionForm(activeLesson.id, activeSections.length + 1));
+                      setSectionForm(getEmptySectionForm(activeLesson?.id ?? "", activeSections.length + 1));
                     }}
                   >
                     Отказ
@@ -1423,13 +1439,13 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                     const value = event.currentTarget?.value ?? "";
                     setLessonForm((current) => ({
                       ...current,
-                      video_url: value.trim() || null,
+                      video_url: value.trim(),
                     }));
                   }}
                 />
                 <FormInput
                   label="Video title"
-                  value={lessonForm.video_title}
+                  value={lessonForm.video_title ?? ""}
                   onChange={(event) => {
                     const value = event.currentTarget?.value ?? "";
                     setLessonForm((current) => ({ ...current, video_title: value }));
@@ -1437,7 +1453,7 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                 />
                 <FormInput
                   label="Thumbnail URL"
-                  value={lessonForm.video_thumbnail_url}
+                  value={lessonForm.video_thumbnail_url ?? ""}
                   onChange={(event) => {
                     const value = event.currentTarget?.value ?? "";
                     setLessonForm((current) => ({ ...current, video_thumbnail_url: value }));
@@ -1452,7 +1468,7 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                     const value = event.currentTarget?.value ?? "";
                     setLessonForm((current) => ({
                       ...current,
-                      video_duration_seconds: value ? Number(value) : null,
+                      video_duration_seconds: Number(value || "0") || 0,
                     }));
                   }}
                 />
@@ -1636,18 +1652,18 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       ? resolveLessonVideo(activeLesson.video_url)
       : null;
 
-    content = (
+      content = (
       <div className="space-y-6">
         <SectionHeader
           label={`Preview · Ден ${dayNumber}`}
-          title={activeDay.title}
+          title={activeDay?.title ?? `Ден ${dayNumber}`}
           action={<NeonButton href={buildAdminDayHref(dayNumber)} variant="secondary">Назад към редактора</NeonButton>}
         />
         <NeonCard padding="md" className="space-y-3">
           <p className="mh-label">План за деня</p>
-          <h2 className="text-2xl font-semibold text-white">{activeDay.title}</h2>
-          <p className="text-sm text-[var(--mh-text-muted)]">{activeDay.subtitle}</p>
-          <p className="text-sm text-[var(--mh-text-soft)]">{activeDay.description}</p>
+          <h2 className="text-2xl font-semibold text-white">{activeDay?.title ?? `Ден ${dayNumber}`}</h2>
+          <p className="text-sm text-[var(--mh-text-muted)]">{activeDay?.subtitle ?? ""}</p>
+          <p className="text-sm text-[var(--mh-text-soft)]">{activeDay?.description ?? ""}</p>
         </NeonCard>
 
         {!activeLesson ? (
@@ -1806,4 +1822,44 @@ export function AdminPlanWorkspace({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       ) : null}
     </div>
   );
+}
+
+class AdminPlanWorkspaceErrorBoundary extends Component<AdminPlanWorkspaceProps, { hasError: boolean; error: string | null }> {
+  constructor(props: AdminPlanWorkspaceProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: unknown) {
+    return {
+      hasError: true,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+
+  componentDidCatch(error: unknown, info: unknown) {
+    console.error("AdminPlanWorkspace caught an error:", error, info);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <ErrorState
+          title="Възникна грешка в admin workspace"
+          description={this.state.error ?? "Моля, презаредете страницата или опитайте по-късно."}
+          action={
+            <NeonButton onClick={() => window.location.reload()}>
+              Презареди
+            </NeonButton>
+          }
+        />
+      );
+    }
+
+    return <AdminPlanWorkspaceContent {...this.props} />;
+  }
+}
+
+export function AdminPlanWorkspace(props: AdminPlanWorkspaceProps) {
+  return <AdminPlanWorkspaceErrorBoundary {...props} />;
 }
