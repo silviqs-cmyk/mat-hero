@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AnswerOption } from "@/components/AnswerOption";
 import { MascotCharacter } from "@/components/MascotCharacter";
 import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
+import { AnswerFeedbackModal } from "@/components/quiz/AnswerFeedbackModal";
 import { Badge } from "@/components/ui/Badge";
 import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
@@ -80,14 +81,23 @@ export function StudentQuestionFlow({
     currentQuestion?.question_type === "open_answer"
       ? answerText
       : currentOptions.find((option) => option.id === selectedOptionId)?.option_text ?? "";
-  const resolvedCorrectAnswer = currentQuestion ? getResolvedCorrectAnswer({ ...currentQuestion, options: currentOptions }) : null;
-  const isCorrect = currentQuestion ? evaluateQuestionAnswer({ ...currentQuestion, options: currentOptions }, submittedAnswer) : false;
+  const resolvedCorrectAnswer = currentQuestion
+    ? getResolvedCorrectAnswer({ ...currentQuestion, options: currentOptions })
+    : null;
+  const isCorrect = currentQuestion
+    ? evaluateQuestionAnswer({ ...currentQuestion, options: currentOptions }, submittedAnswer)
+    : false;
+  const usesModalFeedback = mode === "quiz";
+  const showInlineFeedback = showFeedback && !usesModalFeedback;
 
   useLayoutEffect(() => {
     setTopBarProgress({
       label: mode === "practice" ? "Напредък в задачите" : "Напредък в теста",
       summary: `${currentIndex + 1} / ${questions.length} въпроса`,
-      helper: mode === "practice" ? "Фокус върху правилния подход." : "Всеки верен отговор носи точки.",
+      helper:
+        mode === "practice"
+          ? "Фокус върху правилния подход."
+          : "Всеки верен отговор носи точки.",
       value: currentIndex,
       max: questions.length,
       tone: mode === "practice" ? "cyan" : "lime",
@@ -113,26 +123,25 @@ export function StudentQuestionFlow({
 
     setSaving(true);
     try {
+      const answerRecord = {
+        questionId: currentQuestion.id,
+        topic: currentQuestion.topic,
+        isCorrect,
+        selectedOptionId,
+        answerText: submittedAnswer,
+        pointsEarned: isCorrect ? currentQuestion.points : 0,
+      } satisfies AnswerRecord;
+
       await saveUserAnswer({
         userId: profile.id,
         questionId: currentQuestion.id,
         selectedOptionId,
         openAnswer: currentQuestion.question_type === "open_answer" ? answerText : null,
-        isCorrect,
-        pointsEarned: isCorrect ? currentQuestion.points : 0,
+        isCorrect: answerRecord.isCorrect,
+        pointsEarned: answerRecord.pointsEarned,
       });
 
-      setAnswers((previous) => [
-        ...previous,
-        {
-          questionId: currentQuestion.id,
-          topic: currentQuestion.topic,
-          isCorrect,
-          selectedOptionId,
-          answerText: submittedAnswer,
-          pointsEarned: isCorrect ? currentQuestion.points : 0,
-        },
-      ]);
+      setAnswers((previous) => [...previous, answerRecord]);
       setShowFeedback(true);
     } finally {
       setSaving(false);
@@ -164,8 +173,13 @@ export function StudentQuestionFlow({
     const weakTopics = Array.from(
       new Set(answers.filter((answer) => !answer.isCorrect).map((answer) => answer.topic).filter(Boolean)),
     ).slice(0, 4);
-    const completedDays = Array.from(new Set([...(progress?.completed_days ?? []), bundle.day.day_number])).sort((left, right) => left - right);
-    const currentDayNumber = Math.min(course.duration_days, Math.max(progress?.current_day_number ?? 1, bundle.day.day_number + 1));
+    const completedDays = Array.from(
+      new Set([...(progress?.completed_days ?? []), bundle.day.day_number]),
+    ).sort((left, right) => left - right);
+    const currentDayNumber = Math.min(
+      course.duration_days,
+      Math.max(progress?.current_day_number ?? 1, bundle.day.day_number + 1),
+    );
 
     setSaving(true);
     try {
@@ -243,14 +257,14 @@ export function StudentQuestionFlow({
       </NeonCard>
 
       <MascotCharacter
-        mood={showFeedback && isCorrect ? "celebrating" : showFeedback ? "happy" : "idle"}
-        title={showFeedback ? (isCorrect ? "Точно така!" : "Имаш следващ шанс") : undefined}
+        mood={showInlineFeedback && isCorrect ? "celebrating" : showInlineFeedback ? "happy" : "idle"}
+        title={showInlineFeedback ? (isCorrect ? "Точно така!" : "Имаш следващ шанс") : undefined}
         message={
-          showFeedback
+          showInlineFeedback
             ? currentQuestion.explanation
             : mode === "practice"
               ? "Решавай задачите една по една и гледай обясненията веднага след всеки отговор."
-              : "Мини през теста спокойно. След всеки въпрос ще преминем към следващия."
+              : "Мини през теста спокойно. След всеки въпрос обратната връзка ще излиза в popup."
         }
         xpText={mode === "quiz" ? "+25 XP при завършен тест" : undefined}
       />
@@ -296,7 +310,7 @@ export function StudentQuestionFlow({
                   optionText={option.option_text}
                   isSelected={selectedOptionId === option.id}
                   isCorrect={Boolean(option.is_correct)}
-                  showFeedback={showFeedback}
+                  showFeedback={showInlineFeedback}
                   onClick={() => {
                     if (!showFeedback && !saving) {
                       setSelectedOptionId(option.id);
@@ -319,10 +333,20 @@ export function StudentQuestionFlow({
         <NeonCard padding="sm" className="bg-[rgb(1,1,2)] lg:p-6">
           <p className="mh-label">Обратна връзка</p>
 
-          {showFeedback ? (
+          {showInlineFeedback ? (
             <>
-              <div className={`mt-4 rounded-[24px] p-4 lg:p-5 ${isCorrect ? "border border-cyan-400/20 bg-cyan-400/5" : "border border-rose-400/20 bg-rose-400/5"}`}>
-                <h3 className={`font-display text-2xl leading-tight lg:text-[1.8rem] ${isCorrect ? "text-cyan-100" : "text-rose-300"}`}>
+              <div
+                className={`mt-4 rounded-[24px] p-4 lg:p-5 ${
+                  isCorrect
+                    ? "border border-cyan-400/20 bg-cyan-400/5"
+                    : "border border-rose-400/20 bg-rose-400/5"
+                }`}
+              >
+                <h3
+                  className={`font-display text-2xl leading-tight lg:text-[1.8rem] ${
+                    isCorrect ? "text-cyan-100" : "text-rose-300"
+                  }`}
+                >
                   {isCorrect ? "Точен отговор." : "Тук има какво да затвърдим."}
                 </h3>
                 <p className="mh-copy-muted mt-3">{currentQuestion.explanation}</p>
@@ -333,7 +357,11 @@ export function StudentQuestionFlow({
 
               <div className="mt-5 flex flex-wrap gap-3">
                 <NeonButton type="button" onClick={() => void handleContinue()} disabled={saving}>
-                  {currentIndex < questions.length - 1 ? "Следващ въпрос" : mode === "practice" ? "Към теста" : "Виж резултата"}
+                  {currentIndex < questions.length - 1
+                    ? "Следващ въпрос"
+                    : mode === "practice"
+                      ? "Към теста"
+                      : "Виж резултата"}
                 </NeonButton>
               </div>
             </>
@@ -348,6 +376,15 @@ export function StudentQuestionFlow({
           )}
         </NeonCard>
       </section>
+
+      <AnswerFeedbackModal
+        isOpen={usesModalFeedback && showFeedback}
+        isCorrect={isCorrect}
+        explanation={currentQuestion.explanation}
+        correctAnswer={resolvedCorrectAnswer}
+        isLastQuestion={currentIndex === questions.length - 1}
+        onContinue={() => void handleContinue()}
+      />
     </div>
   );
 }
