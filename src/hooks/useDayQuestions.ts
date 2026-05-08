@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { QuestionGroup } from "@/lib/questionGroups";
 import { getQuestionsWithOptionsForDay } from "@/services/questions";
 import type { Question } from "@/types/course";
 
 export function useDayQuestions(
   dayId: string | null,
   includeBonus = true,
-  group?: "practice" | "quiz" | "bonus",
+  group?: QuestionGroup,
 ) {
   const [data, setData] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(false);

@@ -1,5 +1,6 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getNetworkErrorMessage } from "@/lib/auth/client";
+import { getQuestionGroupFlags } from "@/lib/questionGroups";
 import type {
   AdminDashboardStats,
   AdminUserOverview,
@@ -308,6 +309,7 @@ export async function getQuestionOptions(questionId: string): Promise<QuestionOp
 export async function createQuestion(input: QuestionInput): Promise<Question> {
   return withAdminRequest(async () => {
     const supabase = getSupabaseBrowserClient();
+    const questionFlags = getQuestionGroupFlags(input);
     const payload = {
       course_day_id: input.course_day_id,
       lesson_id: input.lesson_id,
@@ -318,8 +320,7 @@ export async function createQuestion(input: QuestionInput): Promise<Question> {
       difficulty: input.difficulty,
       points: input.points,
       topic: input.topic,
-      is_bonus: input.is_bonus,
-      question_group: input.question_group,
+      ...questionFlags,
       sort_order: input.sort_order,
       is_published: input.is_published,
     };
@@ -350,6 +351,7 @@ export async function createQuestion(input: QuestionInput): Promise<Question> {
 export async function updateQuestion(questionId: string, input: QuestionInput): Promise<Question> {
   return withAdminRequest(async () => {
     const supabase = getSupabaseBrowserClient();
+    const questionFlags = getQuestionGroupFlags(input);
     const payload = {
       course_day_id: input.course_day_id,
       lesson_id: input.lesson_id,
@@ -360,8 +362,7 @@ export async function updateQuestion(questionId: string, input: QuestionInput): 
       difficulty: input.difficulty,
       points: input.points,
       topic: input.topic,
-      is_bonus: input.is_bonus,
-      question_group: input.question_group,
+      ...questionFlags,
       sort_order: input.sort_order,
       is_published: input.is_published,
     };

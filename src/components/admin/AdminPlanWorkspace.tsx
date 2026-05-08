@@ -620,7 +620,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       difficulty: question.difficulty,
       points: question.points,
       topic: question.topic,
-      is_bonus: question.is_bonus,
+      is_bonus: getResolvedQuestionGroup(question) === "bonus",
       question_group: getResolvedQuestionGroup(question),
       sort_order: question.sort_order,
       is_published: question.is_published,

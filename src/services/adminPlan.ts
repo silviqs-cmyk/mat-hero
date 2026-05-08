@@ -2,6 +2,7 @@
 
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getNetworkErrorMessage } from "@/lib/auth/client";
+import { getQuestionGroupFlags, resolveQuestionGroup, type QuestionGroup } from "@/lib/questionGroups";
 import type { Course, CourseDay, Lesson, LessonSection, Question, QuestionOption } from "@/types/course";
 import type { CourseDayInput, LessonInput, LessonSectionInput, QuestionInput } from "@/types/admin";
 
@@ -10,7 +11,7 @@ const DEFAULT_ADMIN_COURSE_TITLE = "10-дневна подготовка по м
 const DEFAULT_ADMIN_COURSE_DESCRIPTION = "Основният MatHero продукт за НВО по математика в 7. клас.";
 export const ADMIN_PLAN_TOTAL_DAYS = 10;
 
-export type AdminQuestionGroup = "practice" | "quiz" | "bonus";
+export type AdminQuestionGroup = QuestionGroup;
 
 export interface AdminPlanDayCard {
   dayNumber: number;
@@ -45,11 +46,7 @@ function withAdminPlanRequest<T>(operation: () => Promise<T>): Promise<T> {
 export function getResolvedQuestionGroup(
   question: Pick<Question, "question_group" | "is_bonus">,
 ): AdminQuestionGroup {
-  if (question.question_group === "practice" || question.question_group === "quiz" || question.question_group === "bonus") {
-    return question.question_group;
-  }
-
-  return question.is_bonus ? "bonus" : "practice";
+  return resolveQuestionGroup(question);
 }
 
 function detectVideoProviderFromUrl(videoUrl: string | null) {
@@ -315,6 +312,7 @@ export async function reorderPlanSections(sectionIdsInOrder: string[]): Promise<
 export async function savePlanQuestion(questionId: string | null, input: QuestionInput): Promise<Question> {
   return withAdminPlanRequest(async () => {
     const supabase = getSupabaseBrowserClient();
+    const questionFlags = getQuestionGroupFlags(input);
     const payload = {
       course_day_id: input.course_day_id,
       lesson_id: input.lesson_id,
@@ -325,8 +323,7 @@ export async function savePlanQuestion(questionId: string | null, input: Questio
       difficulty: input.difficulty,
       points: input.points,
       topic: input.topic,
-      is_bonus: input.question_group === "bonus" || input.is_bonus,
-      question_group: input.question_group,
+      ...questionFlags,
       sort_order: input.sort_order,
       is_published: input.is_published,
     };

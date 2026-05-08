@@ -1,33 +1,38 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { resolveQuestionGroup, type QuestionGroup } from "@/lib/questionGroups";
 import type { Question, QuestionOption } from "@/types/course";
 
 export async function getQuestionsForDay(
   dayId: string,
   includeBonus = true,
-  group?: "practice" | "quiz" | "bonus",
+  group?: QuestionGroup,
 ): Promise<Question[]> {
   const supabase = getSupabaseBrowserClient();
-  let query = supabase
+  const query = supabase
     .from("questions")
     .select("*")
     .eq("course_day_id", dayId)
     .eq("is_published", true)
     .order("sort_order", { ascending: true });
 
-  if (!includeBonus) {
-    query = query.eq("is_bonus", false);
-  }
-
-  if (group) {
-    query = query.eq("question_group", group);
-  }
-
   const { data, error } = await query;
   if (error) {
     throw new Error(error.message);
   }
 
-  return (data ?? []) as Question[];
+  return ((data ?? []) as Question[]).filter((question) => {
+    const resolvedGroup = resolveQuestionGroup(question);
+
+    if (!includeBonus && resolvedGroup === "bonus") {
+      return false;
+    }
+
+    if (group && resolvedGroup !== group) {
+      return false;
+    }
+
+    return true;
+  });
 }
 
 export async function getQuestionOptions(questionId: string): Promise<QuestionOption[]> {
@@ -48,7 +53,7 @@ export async function getQuestionOptions(questionId: string): Promise<QuestionOp
 export async function getQuestionsWithOptionsForDay(
   dayId: string,
   includeBonus = true,
-  group?: "practice" | "quiz" | "bonus",
+  group?: QuestionGroup,
 ): Promise<Question[]> {
   const questions = await getQuestionsForDay(dayId, includeBonus, group);
 

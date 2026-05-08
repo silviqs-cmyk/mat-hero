@@ -1,6 +1,7 @@
+import { resolveQuestionGroup } from "@/lib/questionGroups";
+import type { DayPlanStep, DayTimelineItem, GoalProgressModel, HeroBuddyModel } from "@/types";
 import type { DayContentBundle, Lesson, Question } from "@/types/course";
 import type { UserProfile, UserProgress } from "@/types/user";
-import type { DayPlanStep, DayTimelineItem, GoalProgressModel, HeroBuddyModel } from "@/types";
 
 interface EvaluableOption {
   option_text: string;
@@ -49,7 +50,11 @@ export function getDashboardProgress(progress: UserProgress | null, totalDays: n
   return Math.max(10, Math.round((currentDay / totalDays) * 100));
 }
 
-export function mapTimeline(days: Array<{ id: string; day_number: number; title: string; subtitle: string }>, courseSlug: string, activeDayNumber: number): DayTimelineItem[] {
+export function mapTimeline(
+  days: Array<{ id: string; day_number: number; title: string; subtitle: string }>,
+  courseSlug: string,
+  activeDayNumber: number,
+): DayTimelineItem[] {
   return days.map((day) => ({
     id: day.id,
     dayNumber: day.day_number,
@@ -73,8 +78,9 @@ function getExampleText(lesson: Lesson, questions: Question[]) {
 }
 
 export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayPlanStep[] {
-  const mainQuestions = bundle.questions.filter((question) => !question.is_bonus);
-  const bonusQuestions = bundle.questions.filter((question) => question.is_bonus);
+  const practiceQuestions = bundle.questions.filter((question) => resolveQuestionGroup(question) === "practice");
+  const quizQuestions = bundle.questions.filter((question) => resolveQuestionGroup(question) === "quiz");
+  const bonusQuestions = bundle.questions.filter((question) => resolveQuestionGroup(question) === "bonus");
 
   return [
     {
@@ -91,20 +97,20 @@ export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayP
       id: `${bundle.day.id}-practice`,
       type: "practice",
       eyebrow: "2. УПРАЖНИ",
-      title: `${mainQuestions.length} основни задачи`,
+      title: `${practiceQuestions.length} основни задачи`,
       ctaLabel: "Задачи",
       tone: "cyan",
-      count: mainQuestions.length,
+      count: practiceQuestions.length,
       href: buildPracticeHref(courseSlug, bundle.day.day_number),
     },
     {
       id: `${bundle.day.id}-quiz`,
       type: "quiz",
       eyebrow: "3. ПРОВЕРИ",
-      title: `${mainQuestions.length} въпроса`,
+      title: `${quizQuestions.length} въпроса`,
       ctaLabel: "Тест за деня",
       tone: "green",
-      count: mainQuestions.length,
+      count: quizQuestions.length,
       href: buildQuizHref(courseSlug, bundle.day.day_number),
     },
     {
@@ -155,12 +161,16 @@ export function getLearningOutcomes(bundle: DayContentBundle) {
 }
 
 export function getHeroBuddy(bundle: DayContentBundle): HeroBuddyModel {
+  const quizPoints = bundle.questions
+    .filter((question) => resolveQuestionGroup(question) === "quiz")
+    .reduce((sum, question) => sum + question.points, 0);
+
   return {
     title: "Супер ход!",
     message:
       bundle.day.description ||
       "Мини първо през кратката теория, после отвори основните задачи една по една и чак накрая тръгни към теста.",
-    rewardLabel: `+${bundle.questions.filter((question) => !question.is_bonus).reduce((sum, question) => sum + question.points, 0)} XP след тест`,
+    rewardLabel: `+${quizPoints} XP след тест`,
   };
 }
 

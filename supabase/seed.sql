@@ -111,6 +111,41 @@ set
   is_published = excluded.is_published;
 
 update public.questions
+set question_group = case id
+  when '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad08' then 'quiz'
+  when '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad09' then 'quiz'
+  when '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad10' then 'bonus'
+  else 'practice'
+end
+where id in (
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad01',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad02',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad03',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad04',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad05',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad06',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad07',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad08',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad09',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad10'
+);
+
+update public.questions
+set is_bonus = (question_group = 'bonus')
+where id in (
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad01',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad02',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad03',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad04',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad05',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad06',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad07',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad08',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad09',
+  '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad10'
+);
+
+update public.questions
 set expected_answer = case id
   when '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad02' then '12'
   when '7f9b0f4b-b75d-4a25-a5dc-0a337f92ad03' then 'Невярно'
