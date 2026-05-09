@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect } from "react";
-import { BookOpenCheck, ChevronRight, Lightbulb, Play } from "lucide-react";
+import { ChevronRight, Lightbulb, Play } from "lucide-react";
 import { DayPlanCard } from "@/components/dashboard/DayPlanCard";
 import { DayTimeline } from "@/components/dashboard/DayTimeline";
 import { InfoCard } from "@/components/dashboard/InfoCard";
@@ -74,22 +74,10 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
           />
           <p className="mh-copy-muted mt-3 max-w-3xl text-[1rem]">{daySummary}</p>
 
-          <div className="mt-6 grid gap-4 xl:grid-cols-2">
-            <InfoCard label="Теория" tone="purple" icon={<BookOpenCheck className="h-5 w-5 text-fuchsia-200" />}>
-              <p>{daySummary}</p>
+          <div className="mt-6">
+            <InfoCard label="Най-важното" tone="cyan" icon={<Lightbulb className="h-5 w-5 text-cyan-200" />}>
+              <p>{lessonBlocks.keyPoints}</p>
             </InfoCard>
-
-            <InfoCard label="Пример" tone="purple" icon={<BookOpenCheck className="h-5 w-5 text-fuchsia-200" />}>
-              {lessonBlocks.example.split("\n").map((line) => (
-                <p key={line}>{line}</p>
-              ))}
-            </InfoCard>
-
-            <div className="xl:col-span-2">
-              <InfoCard label="Най-важното" tone="cyan" icon={<Lightbulb className="h-5 w-5 text-cyan-200" />}>
-                <p>{lessonBlocks.keyPoints}</p>
-              </InfoCard>
-            </div>
           </div>
 
           <div className="mt-6 flex flex-col gap-4 2xl:flex-row">

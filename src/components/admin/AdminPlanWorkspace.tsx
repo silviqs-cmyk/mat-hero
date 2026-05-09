@@ -209,6 +209,14 @@ function getQuestionEditorTitle(group: AdminQuestionGroup) {
   return "Основни задачи";
 }
 
+function getSectionDisplayTitle(section: Pick<LessonSection, "title" | "section_type">) {
+  if (section.section_type === "theory") {
+    return "Теория";
+  }
+
+  return section.title;
+}
+
 function buildAdminDayHref(dayNumber: number, suffix = "") {
   return suffix ? `/admin/day/${dayNumber}/${suffix}` : `/admin/day/${dayNumber}`;
 }
@@ -754,7 +762,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       <EmptyState
         title="Невалиден ден"
         description={`Избери ден между 1 и ${ADMIN_PLAN_TOTAL_DAYS}.`}
-        action={<NeonButton href="/admin/plan">Към 10-дневния план</NeonButton>}
+        action={<NeonButton href="/admin">Към 10-дневната програма</NeonButton>}
       />
     );
   }
@@ -774,7 +782,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
     return (
       <div className="flex flex-wrap gap-2">
         <NeonButton href={buildAdminDayHref(dayIndex)} variant="secondary">Редактирай ден</NeonButton>
-        <NeonButton href={buildAdminDayHref(dayIndex, "lesson")} variant="ghost">Урок</NeonButton>
+        <NeonButton href={buildAdminDayHref(dayIndex, "theory")} variant="ghost">Теория</NeonButton>
         <NeonButton href={buildAdminDayHref(dayIndex, "video")} variant="ghost">Видео</NeonButton>
         <NeonButton href={buildAdminDayHref(dayIndex, "practice")} variant="ghost">Задачи</NeonButton>
         <NeonButton href={buildAdminDayHref(dayIndex, "quiz")} variant="ghost">Тест</NeonButton>
@@ -1017,7 +1025,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         <SectionHeader
           label="Admin Dashboard"
           title="10-дневна подготовка по математика"
-          action={<NeonButton href="/admin/plan">Отвори плана</NeonButton>}
+          action={<NeonButton href="/admin">Отвори програмата</NeonButton>}
         />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatCard icon={Target} value={`${publishedDayCount}/${ADMIN_PLAN_TOTAL_DAYS}`} label="Публикувани дни" tone="cyan" />
@@ -1029,7 +1037,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           <SectionHeader
             label="Статус на плана"
             title="Какво има в 10-дневния курс"
-            action={<NeonButton href="/admin/plan" variant="secondary">Отвори 10-дневния план</NeonButton>}
+            action={<NeonButton href="/admin" variant="secondary">Отвори 10-дневната програма</NeonButton>}
           />
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {snapshot.dayCards.slice(0, 3).map((card) => (
@@ -1136,7 +1144,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         <SectionHeader
           label={`Ден ${dayNumber}`}
           title="Редактор на деня"
-          action={<NeonButton href="/admin/plan" variant="secondary">Към плана</NeonButton>}
+          action={<NeonButton href="/admin" variant="secondary">Към програмата</NeonButton>}
         />
         <NeonCard padding="md" className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-2">
@@ -1199,13 +1207,13 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       <div className="space-y-6">
         <SectionHeader
           label={`Ден ${dayNumber}`}
-          title="Lesson editor"
+          title="Theory editor"
           action={<NeonButton href={buildAdminDayHref(dayNumber, "video")} variant="secondary">Към видеото</NeonButton>}
         />
         <NeonCard padding="md" className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-2">
             <FormInput
-              label="Lesson title"
+              label="Theory title"
               value={lessonForm.title}
               onChange={(event) => {
                 const value = event.currentTarget?.value ?? "";
@@ -1242,7 +1250,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           />
           <NeonButton type="button" onClick={() => void handleSaveLesson()} disabled={isSaving}>
             <Save className="h-4 w-4" />
-            Запази урока
+            Запази теорията
           </NeonButton>
         </NeonCard>
 
@@ -1250,18 +1258,18 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           <EmptyState
             title="Още няма урок за този ден"
             description="Създай урока и после ще можеш да управляваш секции, формули, примери и съвети."
-            action={<NeonButton onClick={() => void handleSaveLesson()}>Създай урок</NeonButton>}
+            action={<NeonButton onClick={() => void handleSaveLesson()}>Създай теория</NeonButton>}
           />
         ) : (
           <>
             <NeonCard padding="md" className="space-y-4">
               <SectionHeader
-                label="Lesson sections"
+                label="Theory sections"
                 title="Подреди теорията на деня"
               />
               {activeSections.length === 0 ? (
                 <EmptyState
-                  title="Няма lesson sections"
+                  title="Няма theory sections"
                   description="Добави теория, пример, формула или tip, за да подредиш урока."
                 />
               ) : (
@@ -1274,7 +1282,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                             <Badge tone="cyan">{section.section_type}</Badge>
                             <Badge tone="neutral">#{section.sort_order}</Badge>
                           </div>
-                          <h3 className="mt-3 text-lg font-semibold text-white">{section.title}</h3>
+                          <h3 className="mt-3 text-lg font-semibold text-white">{getSectionDisplayTitle(section)}</h3>
                           <p className="mt-2 line-clamp-3 text-sm text-[var(--mh-text-muted)]">{section.content}</p>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -1310,7 +1318,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
 
             <NeonCard padding="md" className="space-y-4">
               <SectionHeader
-                label="Section editor"
+                label="Theory section editor"
                 title={editingSectionId ? "Редакция на секция" : "Нова секция"}
               />
               <div className="grid gap-4 lg:grid-cols-2">
@@ -1385,14 +1393,14 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         <SectionHeader
           label={`Ден ${dayNumber}`}
           title="Видео към урока"
-          action={<NeonButton href={buildAdminDayHref(dayNumber, "lesson")} variant="secondary">Към урока</NeonButton>}
+          action={<NeonButton href={buildAdminDayHref(dayNumber, "theory")} variant="secondary">Към теорията</NeonButton>}
         />
         <NeonCard padding="md" className="space-y-4">
           {!activeLesson ? (
             <EmptyState
-              title="Няма урок за този ден"
-              description="Създай урока първо, за да закачиш видео към него."
-              action={<NeonButton href={buildAdminDayHref(dayNumber, "lesson")}>Създай урок за този ден</NeonButton>}
+              title="Няма теория за този ден"
+              description="Създай теорията първо, за да закачиш видео към нея."
+              action={<NeonButton href={buildAdminDayHref(dayNumber, "theory")}>Създай теория за този ден</NeonButton>}
             />
           ) : (
             <>
@@ -1666,15 +1674,15 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
 
         {!activeLesson ? (
           <EmptyState
-            title="Няма урок за preview"
-            description="Създай урок и lesson sections, за да видиш student изгледа."
+            title="Няма теория за preview"
+            description="Създай теория и theory sections, за да видиш student изгледа."
           />
         ) : (
           <>
             <NeonCard padding="md" className="space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="mh-label">Урок</p>
+                  <p className="mh-label">Теория</p>
                   <h3 className="mt-2 text-xl font-semibold text-white">{activeLesson.title}</h3>
                 </div>
                 <Badge tone={activeLesson.is_published ? "green" : "gold"}>
@@ -1717,10 +1725,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             </NeonCard>
 
             <NeonCard padding="md" className="space-y-4">
-              <p className="mh-label">Lesson sections</p>
+              <p className="mh-label">Theory sections</p>
               {previewLessonSections.length === 0 ? (
                 <EmptyState
-                  title="Няма lesson sections"
+                  title="Няма theory sections"
                   description="Добави теория, пример или формула, за да попълниш урока."
                 />
               ) : (
@@ -1730,7 +1738,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                       <div className="flex items-center gap-2">
                         <Badge tone="cyan">{section.section_type}</Badge>
                       </div>
-                      <h4 className="mt-3 text-lg font-semibold text-white">{section.title}</h4>
+                      <h4 className="mt-3 text-lg font-semibold text-white">{getSectionDisplayTitle(section)}</h4>
                       <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--mh-text-soft)]">{section.content}</p>
                     </div>
                   ))}

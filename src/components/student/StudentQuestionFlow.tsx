@@ -47,6 +47,11 @@ interface AnswerRecord {
   pointsEarned: number;
 }
 
+interface SubmitOverrides {
+  selectedOptionId?: string | null;
+  answerText?: string;
+}
+
 function buildQuestionOptions(question: Question) {
   if (question.question_type === "true_false" && (!question.options || question.options.length === 0)) {
     return [
@@ -170,16 +175,27 @@ export function StudentQuestionFlow({
     };
   }, [currentIndex, safeProgressHelper, safeProgressLabel, mode, totalQuestions, setTopBarProgress]);
 
-  async function handleSubmit() {
+  async function handleSubmit(overrides?: SubmitOverrides) {
     if (!currentQuestion || saving || showFeedback) {
       return;
     }
 
-    if (currentQuestion.question_type === "open_answer" && answerText.trim().length === 0) {
+    const nextSelectedOptionId = overrides?.selectedOptionId ?? selectedOptionId;
+    const nextAnswerText = overrides?.answerText ?? answerText;
+    const nextSubmittedAnswer =
+      currentQuestion.question_type === "open_answer"
+        ? nextAnswerText
+        : currentOptions.find((option) => option.id === nextSelectedOptionId)?.option_text ?? "";
+    const nextIsCorrect = evaluateQuestionAnswer(
+      { ...currentQuestion, options: currentOptions },
+      nextSubmittedAnswer,
+    );
+
+    if (currentQuestion.question_type === "open_answer" && nextAnswerText.trim().length === 0) {
       return;
     }
 
-    if (currentQuestion.question_type !== "open_answer" && !selectedOptionId) {
+    if (currentQuestion.question_type !== "open_answer" && !nextSelectedOptionId) {
       return;
     }
 
@@ -188,24 +204,27 @@ export function StudentQuestionFlow({
       const answerRecord = {
         questionId: currentQuestion.id,
         topic: currentQuestion.topic,
-        isCorrect,
-        selectedOptionId,
-        answerText: submittedAnswer,
-        pointsEarned: isCorrect ? currentQuestion.points : 0,
+        isCorrect: nextIsCorrect,
+        selectedOptionId: nextSelectedOptionId,
+        answerText: nextSubmittedAnswer,
+        pointsEarned: nextIsCorrect ? currentQuestion.points : 0,
       } satisfies AnswerRecord;
+
+      if (nextSelectedOptionId !== selectedOptionId) {
+        setSelectedOptionId(nextSelectedOptionId);
+      }
+      setAnswers((previous) => [...previous, answerRecord]);
+      setLastSubmittedAnswer(answerRecord);
+      setShowFeedback(true);
 
       await saveUserAnswer({
         userId: profile.id,
         questionId: currentQuestion.id,
-        selectedOptionId,
-        openAnswer: currentQuestion.question_type === "open_answer" ? answerText : null,
+        selectedOptionId: nextSelectedOptionId,
+        openAnswer: currentQuestion.question_type === "open_answer" ? nextAnswerText : null,
         isCorrect: answerRecord.isCorrect,
         pointsEarned: answerRecord.pointsEarned,
       });
-
-      setAnswers((previous) => [...previous, answerRecord]);
-      setLastSubmittedAnswer(answerRecord);
-      setShowFeedback(true);
     } finally {
       setSaving(false);
     }
@@ -371,6 +390,9 @@ export function StudentQuestionFlow({
                   onClick={() => {
                     if (!showFeedback && !saving) {
                       setSelectedOptionId(option.id);
+                      if (mode === "quiz") {
+                        void handleSubmit({ selectedOptionId: option.id });
+                      }
                     }
                   }}
                 />

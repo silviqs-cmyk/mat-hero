@@ -43,7 +43,7 @@ export function AdminRouteShell({ children }: AdminRouteShellProps) {
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
             </NeonButton>
-            <NeonButton href="/admin/plan" variant="ghost" className="min-h-0 px-4 py-3 text-sm">
+            <NeonButton href="/admin" variant="ghost" className="min-h-0 px-4 py-3 text-sm">
               <Map className="h-4 w-4" />
               План
             </NeonButton>

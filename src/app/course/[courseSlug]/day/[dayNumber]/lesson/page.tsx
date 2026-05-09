@@ -1,4 +1,4 @@
-import { BookOpenCheck, ChevronRight, Lightbulb, PlayCircle } from "lucide-react";
+import { BookOpenCheck, ChevronRight, Lightbulb, PlayCircle, Sigma } from "lucide-react";
 import { MascotCharacter } from "@/components/MascotCharacter";
 import { InfoCard } from "@/components/dashboard/InfoCard";
 import { TopBarProgressSync } from "@/components/providers/TopBarProgressSync";
@@ -126,12 +126,14 @@ export default async function CourseLessonPage({
   const hasVideoLink = hasPublishedLessonVideo(lesson);
   const resolvedVideo = resolveLessonVideo(publishedVideoUrl);
   const theorySection =
-    lesson.sections?.find((section) => ["theory", "tip", "warning", "formula"].includes(section.section_type)) ??
+    lesson.sections?.find((section) => section.section_type === "theory") ??
+    lesson.sections?.find((section) => ["tip", "warning"].includes(section.section_type)) ??
     lesson.sections?.[0];
   const exampleSection =
     lesson.sections?.find((section) => section.section_type === "example") ??
     lesson.sections?.[1] ??
     lesson.sections?.[0];
+  const formulaSection = lesson.sections?.find((section) => section.section_type === "formula") ?? null;
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -182,40 +184,40 @@ export default async function CourseLessonPage({
                 <div className="flex items-center justify-between gap-4 px-5 py-5">
                   <p className="text-sm text-slate-300">Видеото е налично като външен ресурс.</p>
                   <NeonButton href={publishedVideoUrl ?? "#"} variant="ghost" className="min-h-0 px-3 py-2 text-xs">
-                    Гледай видео
+                    Гледай видеото
                   </NeonButton>
                 </div>
               )}
             </div>
           ) : null}
 
-          <div className="mt-6 grid gap-4 xl:grid-cols-2">
+          <div className="mt-6 grid gap-4">
             <InfoCard
-              label={theorySection?.title ?? "Най-важното"}
+              label="Теория"
               tone="cyan"
               icon={<Lightbulb className="h-5 w-5 text-cyan-200" />}
             >
               <p>{theorySection?.content ?? lesson.content}</p>
             </InfoCard>
             <InfoCard
-              label={exampleSection?.title ?? "Пример"}
+              label="Пример"
               tone="purple"
               icon={<BookOpenCheck className="h-5 w-5 text-fuchsia-200" />}
             >
               <p>{exampleSection?.content ?? lesson.content}</p>
             </InfoCard>
+            {formulaSection ? (
+              <NeonCard tone="gold" padding="md" className="rounded-[24px]">
+                <div className="flex items-center gap-3">
+                  <Sigma className="h-5 w-5 text-amber-200" />
+                  <p className="mh-label">{formulaSection.title || "Формула"}</p>
+                </div>
+                <div className="mt-5 space-y-3 text-[1.05rem] leading-8 text-[var(--mh-text)]">
+                  <p>{formulaSection.content}</p>
+                </div>
+              </NeonCard>
+            ) : null}
           </div>
-
-          {lesson.sections && lesson.sections.length > 0 ? (
-            <div className="mt-6 grid gap-3">
-              {lesson.sections.map((section) => (
-                <NeonCard key={section.id} padding="sm" className="rounded-[22px]">
-                  <p className="mh-label">{section.title}</p>
-                  <p className="mt-3 text-[1rem] leading-7 text-slate-200">{section.content}</p>
-                </NeonCard>
-              ))}
-            </div>
-          ) : null}
 
           <div className="mt-6 flex flex-col gap-4 2xl:flex-row">
             {hasVideoLink ? (

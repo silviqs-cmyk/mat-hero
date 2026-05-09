@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { FeedbackMascot } from "@/components/quiz/FeedbackMascot";
 
 interface AnswerFeedbackModalProps {
@@ -56,6 +57,7 @@ export function AnswerFeedbackModal({
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
   const copy = getModalCopy(state);
+  const portalRoot = typeof window === "undefined" ? null : window.document.body;
 
   useEffect(() => {
     if (!isOpen) {
@@ -107,8 +109,8 @@ export function AnswerFeedbackModal({
     return null;
   }
 
-  return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-950/82 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+  const modalMarkup = (
+    <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-slate-950/82 p-0 backdrop-blur-sm sm:items-center sm:p-4">
       <div
         ref={dialogRef}
         role="dialog"
@@ -174,4 +176,10 @@ export function AnswerFeedbackModal({
       </div>
     </div>
   );
+
+  if (!portalRoot) {
+    return modalMarkup;
+  }
+
+  return createPortal(modalMarkup, portalRoot);
 }
