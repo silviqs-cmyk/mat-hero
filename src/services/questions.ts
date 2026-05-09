@@ -103,7 +103,8 @@ export async function listUserAnswersForDay(userId: string, dayId: string) {
   const { data: questions, error: questionError } = await supabase
     .from("questions")
     .select("id")
-    .eq("course_day_id", dayId);
+    .eq("course_day_id", dayId)
+    .eq("is_published", true);
 
   if (questionError) {
     throw new Error(questionError.message);

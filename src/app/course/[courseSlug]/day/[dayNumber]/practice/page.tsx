@@ -1,74 +1,143 @@
-"use client";
-
-import { useParams } from "next/navigation";
-import { StudentQuestionFlow } from "@/components/student/StudentQuestionFlow";
+import { CourseQuestionPage } from "@/components/student/CourseQuestionPage";
+import { StudentFlowDebugCard } from "@/components/student/StudentFlowDebugCard";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { LoadingState } from "@/components/ui/LoadingState";
 import { NeonButton } from "@/components/ui/NeonButton";
-import { useCurrentUser } from "@/hooks/useCurrentUser";
-import { useCourse } from "@/hooks/useCourse";
-import { useDayContentBundle } from "@/hooks/useDayContentBundle";
-import { useDayQuestions } from "@/hooks/useDayQuestions";
-import { useUserProgress } from "@/hooks/useUserProgress";
+import { requireStudent } from "@/lib/auth/server";
+import { parseDayNumberParam } from "@/lib/studentFlow";
+import { resolveQuestionGroup } from "@/lib/questionGroups";
+import {
+  getCourseDayServer,
+  getPublishedCourseBySlugServer,
+  getQuestionsWithOptionsForDayServer,
+  getUserCourseProgressServer,
+} from "@/services/studentContent.server";
 
-export default function CoursePracticePage() {
-  const params = useParams<{ courseSlug: string; dayNumber: string }>();
-  const dayNumber = Number(params.dayNumber);
-  const { profile, isAuthenticated, isLoading: userLoading } = useCurrentUser();
-  const { data: course, isLoading: courseLoading, error: courseError } = useCourse(params.courseSlug);
-  const { data: progress, isLoading: progressLoading } = useUserProgress(profile?.id ?? null, course?.id ?? null);
-  const { data: bundle, isLoading: bundleLoading, error: bundleError } = useDayContentBundle(
-    params.courseSlug,
-    Number.isFinite(dayNumber) ? dayNumber : 1,
-  );
-  const { data: questions, isLoading: questionsLoading, error: questionsError } = useDayQuestions(
-    bundle?.day.id ?? null,
-    false,
-    "practice",
-  );
+export default async function CoursePracticePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ courseSlug: string; dayNumber: string }>;
+  searchParams: Promise<{ debug?: string }>;
+}) {
+  const { profile } = await requireStudent();
+  const { courseSlug, dayNumber: rawDayNumber } = await params;
+  const resolvedSearchParams = await searchParams;
+  const debugEnabled = resolvedSearchParams.debug === "1" || resolvedSearchParams.debug === "true";
+  const dayNumber = parseDayNumberParam(rawDayNumber);
 
-  if (userLoading || courseLoading || progressLoading || bundleLoading || questionsLoading) {
-    return <LoadingState title="Зареждам задачите" lines={5} />;
-  }
+  const baseDebugItems = [
+    { label: "courseSlug", value: courseSlug },
+    { label: "raw dayNumber", value: rawDayNumber },
+    { label: "parsed dayNumber", value: dayNumber },
+    { label: "has profile", value: Boolean(profile) },
+  ];
 
-  if (!isAuthenticated || !profile) {
+  if (!profile) {
     return (
-      <EmptyState
-        title="Нужен е вход"
-        description="Влез в MatHero, за да решаваш задачите и да запазваш напредъка си."
-        action={<NeonButton href="/">Към входа</NeonButton>}
-      />
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Practice Route Debug" items={baseDebugItems} /> : null}
+        <EmptyState
+          title="Нужен е вход"
+          description="Влез в MatHero, за да решаваш задачите и да запазваш напредъка си."
+          action={<NeonButton href="/login">Към входа</NeonButton>}
+        />
+      </div>
     );
   }
 
-  if (courseError || bundleError || questionsError) {
+  if (dayNumber === null) {
     return (
-      <ErrorState
-        title="Не успях да заредя задачите"
-        description={courseError ?? bundleError ?? questionsError ?? "Възникна грешка."}
-        action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
-      />
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Practice Route Debug" items={baseDebugItems} /> : null}
+        <EmptyState
+          title="Невалиден ден"
+          description="Линкът към деня не е валиден."
+          action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
+        />
+      </div>
     );
   }
 
-  if (!course || !bundle || questions.length === 0) {
+  const loadResult = await (async () => {
+    const course = await getPublishedCourseBySlugServer(courseSlug);
+    if (!course) {
+      return { course: null, progress: null, bundle: null, questions: [] as Awaited<ReturnType<typeof getQuestionsWithOptionsForDayServer>> };
+    }
+
+    const [progress, bundle] = await Promise.all([
+      getUserCourseProgressServer(profile.id, course.id),
+      getCourseDayServer(course.slug, dayNumber),
+    ]);
+    const questions = bundle ? await getQuestionsWithOptionsForDayServer(bundle.day.id, false, "practice") : [];
+    return { course, progress, bundle, questions };
+  })()
+    .then((data) => ({ data, error: null as string | null }))
+    .catch((error) => ({ data: null, error: error instanceof Error ? error.message : "Възникна грешка." }));
+
+  const allQuestions = loadResult.data?.bundle?.questions ?? [];
+  const resolvedDebugItems = [
+    ...baseDebugItems,
+    { label: "load error", value: loadResult.error },
+    { label: "course found", value: Boolean(loadResult.data?.course) },
+    { label: "bundle found", value: Boolean(loadResult.data?.bundle) },
+    { label: "day id", value: loadResult.data?.bundle?.day.id },
+    { label: "bundle questions", value: allQuestions.length },
+    { label: "practice in bundle", value: allQuestions.filter((question) => resolveQuestionGroup(question) === "practice").length },
+    { label: "loaded practice", value: loadResult.data?.questions.length ?? 0 },
+  ];
+
+  if (loadResult.error) {
     return (
-      <EmptyState
-        title="Още няма задачи"
-        description="Публикувай въпроси за този ден и те ще се появят тук."
-      />
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Practice Route Debug" items={resolvedDebugItems} /> : null}
+        <ErrorState
+          title="Не успях да заредя задачите"
+          description={loadResult.error}
+          action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
+        />
+      </div>
+    );
+  }
+
+  if (!loadResult.data?.course) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Practice Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState title="Няма такъв курс" description="Този курс не е наличен или не е публикуван." />
+      </div>
+    );
+  }
+
+  if (!loadResult.data.bundle) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Practice Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState title="Няма налично съдържание" description="Този ден още няма публикуван урок или задачи." />
+      </div>
+    );
+  }
+
+  if (loadResult.data.questions.length === 0) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Practice Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState title="Още няма задачи" description="Публикувай въпроси за този ден и те ще се появят тук." />
+      </div>
     );
   }
 
   return (
-    <StudentQuestionFlow
-      mode="practice"
-      course={course}
-      bundle={bundle}
-      questions={questions}
-      profile={profile}
-      progress={progress}
-    />
+    <div className="space-y-6">
+      {debugEnabled ? <StudentFlowDebugCard title="Practice Route Debug" items={resolvedDebugItems} /> : null}
+      <CourseQuestionPage
+        mode="practice"
+        course={loadResult.data.course}
+        bundle={loadResult.data.bundle}
+        questions={loadResult.data.questions}
+        profile={profile}
+        progress={loadResult.data.progress}
+      />
+    </div>
   );
 }

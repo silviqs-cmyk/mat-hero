@@ -1,13 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { FeedbackMascot } from "@/components/quiz/FeedbackMascot";
 
 interface AnswerFeedbackModalProps {
   isOpen: boolean;
+  state: "correct" | "incorrect" | "completed";
   isCorrect: boolean;
   explanation: string;
   correctAnswer: string | null;
-  isLastQuestion: boolean;
+  pointsEarned?: number;
+  primaryLabel: string;
   onContinue: () => void;
 }
 
@@ -19,16 +22,40 @@ function getFocusableElements(container: HTMLElement) {
   );
 }
 
+function getModalCopy(state: AnswerFeedbackModalProps["state"]) {
+  if (state === "completed") {
+    return {
+      title: "Тестът е завършен!",
+      message: "Супер работа. Продължи към резултата си.",
+    };
+  }
+
+  if (state === "correct") {
+    return {
+      title: "Вярно!",
+      message: "Браво, това е правилният отговор.",
+    };
+  }
+
+  return {
+    title: "Не съвсем",
+    message: "Виж обяснението и продължи.",
+  };
+}
+
 export function AnswerFeedbackModal({
   isOpen,
+  state,
   isCorrect,
   explanation,
   correctAnswer,
-  isLastQuestion,
+  pointsEarned = 0,
+  primaryLabel,
   onContinue,
 }: AnswerFeedbackModalProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
+  const copy = getModalCopy(state);
 
   useEffect(() => {
     if (!isOpen) {
@@ -87,29 +114,51 @@ export function AnswerFeedbackModal({
         role="dialog"
         aria-modal="true"
         aria-live="polite"
-        aria-label={isCorrect ? "Верен отговор" : "Грешен отговор"}
-        className={`mh-card w-full max-h-[80vh] overflow-y-auto rounded-t-[28px] border px-5 py-6 sm:max-w-xl sm:rounded-[28px] sm:px-6 ${
-          isCorrect
-            ? "border-cyan-400/30 shadow-[0_0_36px_rgba(34,211,238,0.18)]"
-            : "border-rose-400/30 shadow-[0_0_36px_rgba(244,63,94,0.14)]"
+        aria-label={copy.title}
+        className={`mh-card max-h-[80vh] w-full overflow-y-auto rounded-t-[28px] border px-5 py-6 sm:max-w-xl sm:rounded-[28px] sm:px-6 ${
+          state === "completed"
+            ? "border-lime-400/30 shadow-[0_0_40px_rgba(132,204,22,0.18)]"
+            : state === "correct"
+              ? "border-cyan-400/30 shadow-[0_0_36px_rgba(34,211,238,0.18)]"
+              : "border-rose-400/30 shadow-[0_0_36px_rgba(244,63,94,0.14)]"
         }`}
       >
         <div className="space-y-5">
           <div className="mx-auto h-1.5 w-14 rounded-full bg-white/15 sm:hidden" aria-hidden="true" />
 
-          <div className="space-y-3">
-            <p className="mh-label">Обратна връзка</p>
-            <h2 className={`font-display text-3xl leading-tight ${isCorrect ? "text-cyan-100" : "text-rose-300"}`}>
-              {isCorrect ? "Вярно!" : "Не съвсем"}
-            </h2>
-            <p className="mh-copy-muted">
-              {isCorrect ? "Браво, това е правилният отговор." : "Виж обяснението и продължи."}
-            </p>
-            {!isCorrect && correctAnswer ? (
-              <p className="text-sm font-semibold text-white">Верен отговор: {correctAnswer}</p>
-            ) : null}
-            {!isCorrect && explanation ? <p className="mh-copy-muted">{explanation}</p> : null}
+          <div className="flex justify-center">
+            <div className="scale-[0.88] sm:scale-100">
+              <FeedbackMascot state={state} size="md" />
+            </div>
           </div>
+
+          <div className="space-y-3 text-center">
+            <p className="mh-label">Обратна връзка</p>
+            <h2
+              className={`font-display text-3xl leading-tight ${
+                state === "completed"
+                  ? "text-lime-100"
+                  : state === "correct"
+                    ? "text-cyan-100"
+                    : "text-rose-300"
+              }`}
+            >
+              {copy.title}
+            </h2>
+            <p className="mh-copy-muted">{copy.message}</p>
+            {isCorrect && state !== "completed" && pointsEarned > 0 ? (
+              <p className="text-sm font-semibold text-cyan-200">+{pointsEarned} точки</p>
+            ) : null}
+          </div>
+
+          {!isCorrect || state === "incorrect" ? (
+            <div className="space-y-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left">
+              {correctAnswer ? (
+                <p className="text-sm font-semibold text-white">Верен отговор: {correctAnswer}</p>
+              ) : null}
+              {explanation ? <p className="mh-copy-muted">{explanation}</p> : null}
+            </div>
+          ) : null}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button
@@ -118,7 +167,7 @@ export function AnswerFeedbackModal({
               onClick={onContinue}
               className="mh-btn mh-btn-primary w-full sm:w-auto"
             >
-              {isLastQuestion ? "Виж резултата" : "Следващ въпрос"}
+              {primaryLabel}
             </button>
           </div>
         </div>

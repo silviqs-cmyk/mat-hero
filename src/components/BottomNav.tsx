@@ -10,7 +10,7 @@ const navItems = [
   { href: "/dashboard", label: "Табло", icon: BarChart3 },
   { href: "/roadmap", label: "Карта", icon: Map },
   { href: "/results", label: "Резултати", icon: Trophy },
-  { href: "/report", label: "Профил", icon: User },
+  { href: "/profile", label: "Профил", icon: User },
 ];
 
 export function BottomNav() {

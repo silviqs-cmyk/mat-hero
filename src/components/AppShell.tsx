@@ -20,7 +20,9 @@ function isAuthRoute(pathname: string) {
 function isProtectedStudentRoute(pathname: string) {
   return (
     pathname === "/dashboard" ||
+    pathname === "/profile" ||
     pathname === "/report" ||
+    pathname.startsWith("/day/") ||
     pathname.startsWith("/course/")
   );
 }

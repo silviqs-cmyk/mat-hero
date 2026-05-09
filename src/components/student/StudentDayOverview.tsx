@@ -2,11 +2,11 @@
 
 import { useLayoutEffect } from "react";
 import { BookOpenCheck, ChevronRight, Lightbulb, Play } from "lucide-react";
-import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
 import { DayPlanCard } from "@/components/dashboard/DayPlanCard";
 import { DayTimeline } from "@/components/dashboard/DayTimeline";
 import { InfoCard } from "@/components/dashboard/InfoCard";
 import { LearningOutcomes } from "@/components/dashboard/LearningOutcomes";
+import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -17,6 +17,7 @@ import {
   getLearningOutcomes,
   getLessonBlocks,
   getPlanSteps,
+  getPublishedLessonVideoUrl,
   mapTimeline,
 } from "@/lib/studentFlow";
 import type { CourseWithDays, DayContentBundle } from "@/types/course";
@@ -37,6 +38,7 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
   const computedOutcomes = getLearningOutcomes(bundle);
   const outcomes = computedOutcomes.length > 0 ? computedOutcomes : [bundle.day.title];
   const lessonHref = buildLessonHref(course.slug, bundle.day.day_number);
+  const publishedVideoUrl = getPublishedLessonVideoUrl(bundle.lessons[0]);
   const videoDuration = bundle.lessons[0]?.estimated_minutes
     ? `${bundle.lessons[0].estimated_minutes}:00 мин`
     : "5:00 мин";
@@ -77,11 +79,11 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
               <p>{daySummary}</p>
             </InfoCard>
 
-          <InfoCard label="Пример" tone="purple" icon={<BookOpenCheck className="h-5 w-5 text-fuchsia-200" />}>
-            {lessonBlocks.example.split("\n").map((line) => (
-              <p key={line}>{line}</p>
-            ))}
-          </InfoCard>
+            <InfoCard label="Пример" tone="purple" icon={<BookOpenCheck className="h-5 w-5 text-fuchsia-200" />}>
+              {lessonBlocks.example.split("\n").map((line) => (
+                <p key={line}>{line}</p>
+              ))}
+            </InfoCard>
 
             <div className="xl:col-span-2">
               <InfoCard label="Най-важното" tone="cyan" icon={<Lightbulb className="h-5 w-5 text-cyan-200" />}>
@@ -91,14 +93,16 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
           </div>
 
           <div className="mt-6 flex flex-col gap-4 2xl:flex-row">
-            <NeonButton
-              href={buildVideoHref(course.slug, bundle.day.day_number)}
-              variant="secondary"
-              className="min-h-14 w-full px-6 text-[1.1rem] 2xl:w-auto"
-            >
-              <Play className="h-5 w-5" />
-              Виж видео ({videoDuration})
-            </NeonButton>
+            {publishedVideoUrl ? (
+              <NeonButton
+                href={buildVideoHref(course.slug, bundle.day.day_number)}
+                variant="secondary"
+                className="min-h-14 w-full px-6 text-[1.1rem] 2xl:w-auto"
+              >
+                <Play className="h-5 w-5" />
+                Виж видео ({videoDuration})
+              </NeonButton>
+            ) : null}
 
             <NeonButton href={lessonHref} className="min-h-14 w-full px-8 text-[1.15rem] 2xl:flex-1">
               Започни урока
@@ -109,7 +113,6 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
           <div className="mt-5">
             <LearningOutcomes items={outcomes} compact />
           </div>
-
         </NeonCard>
 
         <NeonCard padding="md">
@@ -117,7 +120,6 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
           <DayTimeline items={timeline} />
         </NeonCard>
       </section>
-
     </div>
   );
 }

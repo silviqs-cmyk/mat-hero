@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { listPublishedCourses } from "@/services/courses";
+import { getDefaultPublishedCourse } from "@/services/courses";
 import type { Course } from "@/types/course";
 
 export function usePublishedCourse() {
@@ -17,9 +17,9 @@ export function usePublishedCourse() {
       setError(null);
 
       try {
-        const courses = await listPublishedCourses();
+        const course = await getDefaultPublishedCourse();
         if (active) {
-          setData(courses[0] ?? null);
+          setData(course);
         }
       } catch (loadError) {
         if (active) {

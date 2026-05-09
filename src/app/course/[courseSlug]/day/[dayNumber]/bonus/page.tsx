@@ -13,7 +13,7 @@ import {
   getUserCourseProgressServer,
 } from "@/services/studentContent.server";
 
-export default async function CourseQuizPage({
+export default async function CourseBonusPage({
   params,
   searchParams,
 }: {
@@ -36,10 +36,10 @@ export default async function CourseQuizPage({
   if (!profile) {
     return (
       <div className="space-y-6">
-        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={baseDebugItems} /> : null}
+        {debugEnabled ? <StudentFlowDebugCard title="Bonus Route Debug" items={baseDebugItems} /> : null}
         <EmptyState
           title="Нужен е вход"
-          description="Влез в MatHero, за да решаваш тестове и да запазваш резултатите си."
+          description="Влез в MatHero, за да решаваш бонус задачите и да запазваш напредъка си."
           action={<NeonButton href="/login">Към входа</NeonButton>}
         />
       </div>
@@ -49,7 +49,7 @@ export default async function CourseQuizPage({
   if (dayNumber === null) {
     return (
       <div className="space-y-6">
-        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={baseDebugItems} /> : null}
+        {debugEnabled ? <StudentFlowDebugCard title="Bonus Route Debug" items={baseDebugItems} /> : null}
         <EmptyState
           title="Невалиден ден"
           description="Линкът към деня не е валиден."
@@ -69,7 +69,7 @@ export default async function CourseQuizPage({
       getUserCourseProgressServer(profile.id, course.id),
       getCourseDayServer(course.slug, dayNumber),
     ]);
-    const questions = bundle ? await getQuestionsWithOptionsForDayServer(bundle.day.id, false, "quiz") : [];
+    const questions = bundle ? await getQuestionsWithOptionsForDayServer(bundle.day.id, false, "bonus") : [];
     return { course, progress, bundle, questions };
   })()
     .then((data) => ({ data, error: null as string | null }))
@@ -83,16 +83,16 @@ export default async function CourseQuizPage({
     { label: "bundle found", value: Boolean(loadResult.data?.bundle) },
     { label: "day id", value: loadResult.data?.bundle?.day.id },
     { label: "bundle questions", value: allQuestions.length },
-    { label: "quiz in bundle", value: allQuestions.filter((question) => resolveQuestionGroup(question) === "quiz").length },
-    { label: "loaded quiz", value: loadResult.data?.questions.length ?? 0 },
+    { label: "bonus in bundle", value: allQuestions.filter((question) => resolveQuestionGroup(question) === "bonus").length },
+    { label: "loaded bonus", value: loadResult.data?.questions.length ?? 0 },
   ];
 
   if (loadResult.error) {
     return (
       <div className="space-y-6">
-        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
+        {debugEnabled ? <StudentFlowDebugCard title="Bonus Route Debug" items={resolvedDebugItems} /> : null}
         <ErrorState
-          title="Не успях да заредя теста"
+          title="Не успях да заредя бонус задачите"
           description={loadResult.error}
           action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
         />
@@ -103,7 +103,7 @@ export default async function CourseQuizPage({
   if (!loadResult.data?.course) {
     return (
       <div className="space-y-6">
-        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
+        {debugEnabled ? <StudentFlowDebugCard title="Bonus Route Debug" items={resolvedDebugItems} /> : null}
         <EmptyState title="Няма такъв курс" description="Този курс не е наличен или не е публикуван." />
       </div>
     );
@@ -112,7 +112,7 @@ export default async function CourseQuizPage({
   if (!loadResult.data.bundle) {
     return (
       <div className="space-y-6">
-        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
+        {debugEnabled ? <StudentFlowDebugCard title="Bonus Route Debug" items={resolvedDebugItems} /> : null}
         <EmptyState title="Няма налично съдържание" description="Този ден още няма публикуван урок или задачи." />
       </div>
     );
@@ -121,17 +121,17 @@ export default async function CourseQuizPage({
   if (loadResult.data.questions.length === 0) {
     return (
       <div className="space-y-6">
-        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
-        <EmptyState title="Още няма тест" description="Добави публикувани въпроси за този ден и тестът ще се появи тук." />
+        {debugEnabled ? <StudentFlowDebugCard title="Bonus Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState title="Още няма бонус задачи" description="Добави публикувани bonus въпроси за този ден и те ще се появят тук." />
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
+      {debugEnabled ? <StudentFlowDebugCard title="Bonus Route Debug" items={resolvedDebugItems} /> : null}
       <CourseQuestionPage
-        mode="quiz"
+        mode="bonus"
         course={loadResult.data.course}
         bundle={loadResult.data.bundle}
         questions={loadResult.data.questions}

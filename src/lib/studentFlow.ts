@@ -14,11 +14,13 @@ interface EvaluableQuestion {
 }
 
 export function buildCourseHref(courseSlug: string) {
-  return `/course/${courseSlug}`;
+  void courseSlug;
+  return "/dashboard";
 }
 
 export function buildDayHref(courseSlug: string, dayNumber: number) {
-  return `/course/${courseSlug}/day/${dayNumber}`;
+  void courseSlug;
+  return `/day/${dayNumber}`;
 }
 
 export function buildLessonHref(courseSlug: string, dayNumber: number) {
@@ -37,8 +39,21 @@ export function buildQuizHref(courseSlug: string, dayNumber: number) {
   return `${buildDayHref(courseSlug, dayNumber)}/quiz`;
 }
 
+export function buildBonusHref(courseSlug: string, dayNumber: number) {
+  return `${buildDayHref(courseSlug, dayNumber)}/bonus`;
+}
+
 export function buildResultsHref(courseSlug: string, dayNumber: number) {
   return `${buildDayHref(courseSlug, dayNumber)}/results`;
+}
+
+export function parseDayNumberParam(value: string | null | undefined) {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    return null;
+  }
+
+  return parsed;
 }
 
 export function getCurrentDayNumber(progress: UserProgress | null, totalDays: number) {
@@ -121,9 +136,21 @@ export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayP
       ctaLabel: "За още прогрес",
       tone: "gold",
       count: bonusQuestions.length,
-      href: buildQuizHref(courseSlug, bundle.day.day_number),
+      href: buildBonusHref(courseSlug, bundle.day.day_number),
     },
   ];
+}
+
+export function hasPublishedLessonVideo(lesson: Pick<Lesson, "video_status" | "video_url"> | null | undefined) {
+  if (!lesson?.video_url) {
+    return false;
+  }
+
+  return lesson.video_status !== "draft";
+}
+
+export function getPublishedLessonVideoUrl(lesson: Pick<Lesson, "video_status" | "video_url"> | null | undefined) {
+  return hasPublishedLessonVideo(lesson) ? lesson?.video_url ?? null : null;
 }
 
 export function getLessonBlocks(bundle: DayContentBundle) {

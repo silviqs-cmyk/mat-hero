@@ -1,78 +1,133 @@
-"use client";
-
-import { useLayoutEffect } from "react";
-import { useParams } from "next/navigation";
 import { ChevronRight, ExternalLink, PlayCircle } from "lucide-react";
-import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
+import { TopBarProgressSync } from "@/components/providers/TopBarProgressSync";
+import { StudentFlowDebugCard } from "@/components/student/StudentFlowDebugCard";
+import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
-import { LoadingState } from "@/components/ui/LoadingState";
-import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { useCourse } from "@/hooks/useCourse";
-import { useDayContentBundle } from "@/hooks/useDayContentBundle";
-import { buildLessonHref, buildPracticeHref } from "@/lib/studentFlow";
+import { requireStudent } from "@/lib/auth/server";
+import { buildLessonHref, buildPracticeHref, getPublishedLessonVideoUrl, parseDayNumberParam } from "@/lib/studentFlow";
 import { resolveLessonVideo } from "@/lib/video";
+import { getCourseDayServer, getPublishedCourseBySlugServer } from "@/services/studentContent.server";
 
-export default function CourseVideoPage() {
-  const params = useParams<{ courseSlug: string; dayNumber: string }>();
-  const { setProgress: setTopBarProgress } = useTopBarProgress();
-  const dayNumber = Number(params.dayNumber);
-  const { data: course, isLoading: courseLoading, error: courseError } = useCourse(params.courseSlug);
-  const { data: bundle, isLoading: bundleLoading, error: bundleError } = useDayContentBundle(
-    params.courseSlug,
-    Number.isFinite(dayNumber) ? dayNumber : 1,
-  );
-  const lesson = bundle?.lessons[0];
-  const resolvedVideo = resolveLessonVideo(lesson?.video_url ?? null);
+export default async function CourseVideoPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ courseSlug: string; dayNumber: string }>;
+  searchParams: Promise<{ debug?: string }>;
+}) {
+  await requireStudent();
+  const { courseSlug, dayNumber: rawDayNumber } = await params;
+  const resolvedSearchParams = await searchParams;
+  const debugEnabled = resolvedSearchParams.debug === "1" || resolvedSearchParams.debug === "true";
+  const dayNumber = parseDayNumberParam(rawDayNumber);
 
-  useLayoutEffect(() => {
-    if (!bundle || !course) {
-      return;
-    }
+  const baseDebugItems = [
+    { label: "courseSlug", value: courseSlug },
+    { label: "raw dayNumber", value: rawDayNumber },
+    { label: "parsed dayNumber", value: dayNumber },
+  ];
 
-    setTopBarProgress({
-      label: "Видео урок",
-      summary: `Ден ${bundle.day.day_number} от ${course.duration_days}`,
-      helper: "Изгледай видеото и после мини към задачите.",
-      value: 1,
-      max: 3,
-      tone: "cyan",
-    });
-
-    return () => {
-      setTopBarProgress(null);
-    };
-  }, [bundle, course, setTopBarProgress]);
-
-  if (courseLoading || bundleLoading) {
-    return <LoadingState title="Зареждам видеото" lines={4} />;
-  }
-
-  if (courseError || bundleError) {
+  if (dayNumber === null) {
     return (
-      <ErrorState
-        title="Не успях да заредя видеото"
-        description={courseError ?? bundleError ?? "Възникна грешка."}
-        action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
-      />
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Video Route Debug" items={baseDebugItems} /> : null}
+        <EmptyState
+          title="Невалиден ден"
+          description="Линкът към деня не е валиден."
+          action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
+        />
+      </div>
     );
   }
 
-  if (!course || !bundle || !lesson || !resolvedVideo) {
+  const loadResult = await (async () => {
+    const course = await getPublishedCourseBySlugServer(courseSlug);
+    const bundle = await getCourseDayServer(courseSlug, dayNumber);
+    return { course, bundle };
+  })()
+    .then((data) => ({ data, error: null as string | null }))
+    .catch((error) => ({ data: null, error: error instanceof Error ? error.message : "Възникна грешка." }));
+
+  const lesson = loadResult.data?.bundle?.lessons[0] ?? null;
+  const publishedVideoUrl = getPublishedLessonVideoUrl(lesson);
+  const resolvedVideo = resolveLessonVideo(publishedVideoUrl);
+  const resolvedDebugItems = [
+    ...baseDebugItems,
+    { label: "load error", value: loadResult.error },
+    { label: "course found", value: Boolean(loadResult.data?.course) },
+    { label: "bundle found", value: Boolean(loadResult.data?.bundle) },
+    { label: "lesson found", value: Boolean(lesson) },
+    { label: "lesson id", value: lesson?.id },
+    { label: "lesson title", value: lesson?.title },
+    { label: "video status", value: lesson?.video_status },
+    { label: "video url", value: lesson?.video_url },
+    { label: "published video url", value: publishedVideoUrl },
+    { label: "resolved video kind", value: resolvedVideo?.kind },
+  ];
+
+  if (loadResult.error) {
     return (
-      <EmptyState
-        title="Няма видео за този ден"
-        description="За този урок още няма добавено видео."
-        action={<NeonButton href={buildLessonHref(params.courseSlug, dayNumber)}>Към урока</NeonButton>}
-      />
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Video Route Debug" items={resolvedDebugItems} /> : null}
+        <ErrorState
+          title="Не успях да заредя видеото"
+          description={loadResult.error}
+          action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
+        />
+      </div>
+    );
+  }
+
+  if (!loadResult.data?.course || !loadResult.data.bundle) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Video Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState
+          title="Няма налично съдържание"
+          description="Този ден още няма публикуван урок или задачи."
+          action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
+        />
+      </div>
+    );
+  }
+
+  const course = loadResult.data.course;
+  const bundle = loadResult.data.bundle;
+  const lessonHref = buildLessonHref(course.slug, bundle.day.day_number);
+  const practiceHref = buildPracticeHref(course.slug, bundle.day.day_number);
+
+  if (!lesson || !resolvedVideo) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Video Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState
+          title="Няма видео за този ден"
+          description="За този урок още няма добавено публикувано видео."
+          action={<NeonButton href={lessonHref}>Към урока</NeonButton>}
+        />
+      </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
+      {debugEnabled ? <StudentFlowDebugCard title="Video Route Debug" items={resolvedDebugItems} /> : null}
+
+      <TopBarProgressSync
+        value={{
+          label: "Видео урок",
+          summary: `Ден ${bundle.day.day_number} от ${course.duration_days}`,
+          helper: "Изгледай видеото и после мини към задачите.",
+          value: 1,
+          max: 3,
+          tone: "cyan",
+        }}
+      />
+
       <NeonCard padding="lg" className="rounded-[30px]">
         <SectionHeader
           label="Видео"
@@ -108,26 +163,19 @@ export default function CourseVideoPage() {
         </div>
 
         <div className="mt-6 flex flex-col gap-4 2xl:flex-row">
-          <NeonButton
-            href={buildLessonHref(params.courseSlug, dayNumber)}
-            variant="secondary"
-            className="min-h-14 w-full px-6 text-[1.1rem] 2xl:w-auto"
-          >
+          <NeonButton href={lessonHref} variant="secondary" className="min-h-14 w-full px-6 text-[1.1rem] 2xl:w-auto">
             <PlayCircle className="h-5 w-5" />
             Към урока
           </NeonButton>
 
-          <NeonButton
-            href={buildPracticeHref(params.courseSlug, dayNumber)}
-            className="min-h-14 w-full px-8 text-[1.15rem] 2xl:flex-1"
-          >
+          <NeonButton href={practiceHref} className="min-h-14 w-full px-8 text-[1.15rem] 2xl:flex-1">
             Към задачите
             <ChevronRight className="h-5 w-5" />
           </NeonButton>
 
-          {lesson.video_url ? (
+          {publishedVideoUrl ? (
             <NeonButton
-              href={lesson.video_url}
+              href={publishedVideoUrl}
               variant="ghost"
               className="min-h-14 w-full px-6 text-[1rem] 2xl:w-auto"
             >

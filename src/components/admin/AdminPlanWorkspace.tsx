@@ -9,7 +9,6 @@ import {
   FileQuestion,
   Layers,
   Plus,
-  Rocket,
   Save,
   Sparkles,
   Target,
@@ -37,7 +36,6 @@ import {
 } from "@/services/adminLessonVideos";
 import {
   ADMIN_PLAN_TOTAL_DAYS,
-  DEFAULT_ADMIN_COURSE_SLUG,
   ensurePlanDay,
   getAdminPlanSnapshot,
   getResolvedQuestionGroup,
@@ -1019,7 +1017,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         <SectionHeader
           label="Admin Dashboard"
           title="10-дневна подготовка по математика"
-          action={<NeonButton href="/admin/day/1">Редактирай Ден 1</NeonButton>}
+          action={<NeonButton href="/admin/plan">Отвори плана</NeonButton>}
         />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <StatCard icon={Target} value={`${publishedDayCount}/${ADMIN_PLAN_TOTAL_DAYS}`} label="Публикувани дни" tone="cyan" />
@@ -1780,18 +1778,14 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
     <div className="mx-auto max-w-7xl space-y-6 px-4 pb-8 lg:px-8">
       <NeonCard tone="muted" padding="sm" className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="mh-label">Курс</p>
-          <h1 className="mt-2 text-xl font-semibold text-white">10-дневна подготовка по математика</h1>
-          <p className="mt-1 text-sm text-[var(--mh-text-muted)]">Slug: {DEFAULT_ADMIN_COURSE_SLUG}</p>
+          <p className="mh-label">Admin</p>
+          <h1 className="mt-2 text-xl font-semibold text-white">10-дневна програма по математика</h1>
+          <p className="mt-1 text-sm text-[var(--mh-text-muted)]">Управлявай ден 1 до ден 10 директно, без Courses като начален екран.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <NeonButton href="/admin" variant={mode === "dashboard" ? "primary" : "ghost"}>
-            <Rocket className="h-4 w-4" />
-            Dashboard
-          </NeonButton>
-          <NeonButton href="/admin/plan" variant={mode === "plan" ? "primary" : "ghost"}>
+          <NeonButton href="/admin" variant={mode === "dashboard" || mode === "plan" ? "primary" : "ghost"}>
             <Layers className="h-4 w-4" />
-            10-дневен план
+            10-дневна програма
           </NeonButton>
           {dayNumber ? (
             <NeonButton href={buildAdminDayHref(dayNumber)} variant={mode === "day" ? "primary" : "ghost"}>

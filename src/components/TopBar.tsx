@@ -24,7 +24,7 @@ export function TopBar() {
   const planMessage =
     progress.current_day >= 8 ? "Финалната права е близо" : progress.current_day >= 4 ? "Държиш добър ритъм" : "Строиш стабилна основа";
   const shouldHideProgressFallback =
-    pathname.startsWith("/dashboard") || pathname.startsWith("/course/");
+    pathname.startsWith("/dashboard") || pathname.startsWith("/day/") || pathname.startsWith("/course/");
   const activeProgress = topBarProgress
     ? {
         label: topBarProgress.label,
@@ -118,7 +118,7 @@ export function TopBar() {
           ) : null}
 
           <Link
-            href="/report"
+            href="/profile"
             className="flex items-center gap-2 rounded-full border border-white/8 bg-white/[0.03] px-2 py-2 transition hover:border-cyan-300/20 hover:bg-white/[0.05] sm:gap-3 sm:px-3"
             aria-label="Към профила"
           >
