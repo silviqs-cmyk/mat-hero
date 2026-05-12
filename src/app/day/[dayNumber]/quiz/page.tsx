@@ -1,5 +1,17 @@
-import CourseQuizPage from "@/app/course/[courseSlug]/day/[dayNumber]/quiz/page";
-import { DEFAULT_COURSE_SLUG } from "@/services/courses";
+import { CourseQuestionPage } from "@/components/student/CourseQuestionPage";
+import { StudentFlowDebugCard } from "@/components/student/StudentFlowDebugCard";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ErrorState } from "@/components/ui/ErrorState";
+import { NeonButton } from "@/components/ui/NeonButton";
+import { requireStudent } from "@/lib/auth/server";
+import { parseDayNumberParam } from "@/lib/studentFlow";
+import { getMiniTestQuestions } from "@/lib/questionGroups";
+import {
+  getCourseDayByNumberServer,
+  getDefaultPublishedCourseServer,
+  getQuestionsWithOptionsForDayServer,
+  getUserCourseProgressServer,
+} from "@/services/studentContent.server";
 
 export default async function DayQuizPage({
   params,
@@ -8,10 +20,124 @@ export default async function DayQuizPage({
   params: Promise<{ dayNumber: string }>;
   searchParams: Promise<{ debug?: string }>;
 }) {
-  const { dayNumber } = await params;
+  const { profile } = await requireStudent();
+  const { dayNumber: rawDayNumber } = await params;
+  const resolvedSearchParams = await searchParams;
+  const debugEnabled = resolvedSearchParams.debug === "1" || resolvedSearchParams.debug === "true";
+  const dayNumber = parseDayNumberParam(rawDayNumber);
 
-  return CourseQuizPage({
-    params: Promise.resolve({ courseSlug: DEFAULT_COURSE_SLUG, dayNumber }),
-    searchParams,
-  });
+  const baseDebugItems = [
+    { label: "raw dayNumber", value: rawDayNumber },
+    { label: "parsed dayNumber", value: dayNumber },
+    { label: "has profile", value: Boolean(profile) },
+  ];
+
+  if (!profile) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={baseDebugItems} /> : null}
+        <EmptyState
+          title="Нужен е вход"
+          description="Влез в MatHero, за да решаваш тестове и да запазваш резултатите си."
+          action={<NeonButton href="/login">Към входа</NeonButton>}
+        />
+      </div>
+    );
+  }
+
+  if (dayNumber === null) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={baseDebugItems} /> : null}
+        <EmptyState
+          title="Невалиден ден"
+          description="Линкът към деня не е валиден."
+          action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
+        />
+      </div>
+    );
+  }
+
+  const loadResult = await (async () => {
+    const course = await getDefaultPublishedCourseServer();
+    if (!course) {
+      return { course: null, progress: null, bundle: null, questions: [] as Awaited<ReturnType<typeof getQuestionsWithOptionsForDayServer>> };
+    }
+
+    const [progress, bundle] = await Promise.all([
+      getUserCourseProgressServer(profile.id, course.id),
+      getCourseDayByNumberServer(dayNumber),
+    ]);
+    const allQuestions = bundle ? await getQuestionsWithOptionsForDayServer(bundle.day.id, false) : [];
+    const questions = getMiniTestQuestions(allQuestions);
+    return { course, progress, bundle, questions };
+  })()
+    .then((data) => ({ data, error: null as string | null }))
+    .catch((error) => ({ data: null, error: error instanceof Error ? error.message : "Възникна грешка." }));
+
+  const allQuestions = loadResult.data?.bundle?.questions ?? [];
+  const resolvedDebugItems = [
+    ...baseDebugItems,
+    { label: "load error", value: loadResult.error },
+    { label: "course found", value: Boolean(loadResult.data?.course) },
+    { label: "bundle found", value: Boolean(loadResult.data?.bundle) },
+    { label: "day id", value: loadResult.data?.bundle?.day.id },
+    { label: "bundle questions", value: allQuestions.length },
+    { label: "quiz available", value: getMiniTestQuestions(allQuestions).length },
+    { label: "loaded quiz", value: loadResult.data?.questions.length ?? 0 },
+  ];
+
+  if (loadResult.error) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
+        <ErrorState
+          title="Не успях да заредя теста"
+          description={loadResult.error}
+          action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
+        />
+      </div>
+    );
+  }
+
+  if (!loadResult.data?.course) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState title="Няма такъв курс" description="Този курс не е наличен или не е публикуван." />
+      </div>
+    );
+  }
+
+  if (!loadResult.data.bundle) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState title="Няма налично съдържание" description="Този ден още няма публикуван урок или задачи." />
+      </div>
+    );
+  }
+
+  if (loadResult.data.questions.length === 0) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState title="Още няма тест" description="Добави публикувани въпроси за този ден и тестът ще се появи тук." />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {debugEnabled ? <StudentFlowDebugCard title="Quiz Route Debug" items={resolvedDebugItems} /> : null}
+      <CourseQuestionPage
+        mode="quiz"
+        course={loadResult.data.course}
+        bundle={loadResult.data.bundle}
+        questions={loadResult.data.questions}
+        profile={profile}
+        progress={loadResult.data.progress}
+      />
+    </div>
+  );
 }

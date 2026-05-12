@@ -7,8 +7,10 @@ import { DayTimeline } from "@/components/dashboard/DayTimeline";
 import { InfoCard } from "@/components/dashboard/InfoCard";
 import { LearningOutcomes } from "@/components/dashboard/LearningOutcomes";
 import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
+import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { PageHeroHeader } from "@/components/ui/PageHeroHeader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import {
   buildLessonHref,
@@ -68,11 +70,12 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
         <NeonCard padding="md">
-          <SectionHeader
+          <PageHeroHeader
             label={`Ден ${bundle.day.day_number} от ${course.duration_days}`}
             title={<h1 className="mh-heading-xl">{bundle.day.title}</h1>}
+            action={<Badge tone="cyan">{`Ден ${bundle.day.day_number}`}</Badge>}
+            description={daySummary}
           />
-          <p className="mh-copy-muted mt-3 max-w-3xl text-[1rem]">{daySummary}</p>
 
           <div className="mt-6">
             <InfoCard label="Най-важното" tone="cyan" icon={<Lightbulb className="h-5 w-5 text-cyan-200" />}>

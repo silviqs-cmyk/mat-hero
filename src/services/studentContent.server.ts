@@ -66,6 +66,10 @@ export async function getDefaultCourseServer(): Promise<CourseWithDays | null> {
   return getDefaultPublishedCourseServer();
 }
 
+export async function getCourseDayByNumberServer(dayNumber: number): Promise<DayContentBundle | null> {
+  return getCourseDayServer(DEFAULT_COURSE_SLUG, dayNumber);
+}
+
 export async function getCourseDayServer(courseSlug: string, dayNumber: number): Promise<DayContentBundle | null> {
   const supabase = await createServerSupabaseClient();
   const course = await getPublishedCourseBySlugServer(courseSlug);
@@ -130,6 +134,16 @@ export async function getCourseDayServer(courseSlug: string, dayNumber: number):
     lessons: lessonsWithSections,
     questions: (questions ?? []) as Question[],
   };
+}
+
+export async function getLessonForDayServer(dayNumber: number): Promise<Lesson | null> {
+  const bundle = await getCourseDayByNumberServer(dayNumber);
+  return bundle?.lessons[0] ?? null;
+}
+
+export async function getLessonSectionsServer(dayNumber: number) {
+  const lesson = await getLessonForDayServer(dayNumber);
+  return lesson?.sections ?? [];
 }
 
 export async function getQuestionsWithOptionsForDayServer(

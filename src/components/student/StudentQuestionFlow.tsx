@@ -11,7 +11,6 @@ import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { resolveQuestionGroup } from "@/lib/questionGroups";
 import {
   buildBonusHref,
   buildDayHref,
@@ -125,22 +124,13 @@ export function StudentQuestionFlow({
     ? evaluateQuestionAnswer({ ...currentQuestion, options: currentOptions }, submittedAnswer)
     : false;
   const isLastQuestion = currentIndex === totalQuestions - 1;
-  const hasQuizQuestions = bundle.questions.some((question) => resolveQuestionGroup(question) === "quiz");
-  const hasBonusQuestions = bundle.questions.some((question) => resolveQuestionGroup(question) === "bonus");
-  const answerRecords = useMemo(() => {
-    if (!lastSubmittedAnswer) {
-      return answers;
-    }
-
-    return answers.some((answer) => answer.questionId === lastSubmittedAnswer.questionId)
-      ? answers
-      : [...answers, lastSubmittedAnswer];
-  }, [answers, lastSubmittedAnswer]);
+  const hasBonusQuestions = false;
   const showsCompletionState = isLastQuestion && mode !== "practice";
   const feedbackState = showsCompletionState ? "completed" : isCorrect ? "correct" : "incorrect";
+  const shouldReturnToQuizFromPractice = false;
   const completionHref =
     mode === "practice"
-      ? hasQuizQuestions
+      ? shouldReturnToQuizFromPractice
         ? buildQuizHref(course.slug, bundle.day.day_number)
         : hasBonusQuestions
           ? buildBonusHref(course.slug, bundle.day.day_number)
@@ -150,7 +140,7 @@ export function StudentQuestionFlow({
         : buildResultsHref(course.slug, bundle.day.day_number);
   const primaryLabel = isLastQuestion
     ? mode === "practice"
-      ? hasQuizQuestions
+      ? shouldReturnToQuizFromPractice
         ? "Към теста"
         : hasBonusQuestions
           ? "Към бонуса"
@@ -249,12 +239,16 @@ export function StudentQuestionFlow({
       return;
     }
 
-    const totalAnsweredQuestions = answerRecords.length;
-    const earnedPoints = answerRecords.reduce((sum, answer) => sum + answer.pointsEarned, 0);
+    const finalAnswerRecords =
+      lastSubmittedAnswer && !answers.some((answer) => answer.questionId === lastSubmittedAnswer.questionId)
+        ? [...answers, lastSubmittedAnswer]
+        : answers;
+    const totalAnsweredQuestions = finalAnswerRecords.length;
+    const earnedPoints = finalAnswerRecords.reduce((sum, answer) => sum + answer.pointsEarned, 0);
     const totalPossiblePoints = questions.reduce((sum, question) => sum + question.points, 0);
     const percentage = totalPossiblePoints > 0 ? Math.round((earnedPoints / totalPossiblePoints) * 100) : 0;
     const weakTopics = Array.from(
-      new Set(answerRecords.filter((answer) => !answer.isCorrect).map((answer) => answer.topic).filter(Boolean)),
+      new Set(finalAnswerRecords.filter((answer) => !answer.isCorrect).map((answer) => answer.topic).filter(Boolean)),
     ).slice(0, 4);
     const completedDays = Array.from(new Set([...(progress?.completed_days ?? []), bundle.day.day_number])).sort(
       (left, right) => left - right,

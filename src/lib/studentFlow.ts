@@ -1,4 +1,4 @@
-import { resolveQuestionGroup } from "@/lib/questionGroups";
+import { getMiniTestQuestions, getPracticeQuestions } from "@/lib/questionGroups";
 import type { DayPlanStep, DayTimelineItem, GoalProgressModel, HeroBuddyModel } from "@/types";
 import type { DayContentBundle, Lesson, Question } from "@/types/course";
 import type { UserProfile, UserProgress } from "@/types/user";
@@ -18,6 +18,7 @@ export function buildCourseHref(courseSlug: string) {
   return "/dashboard";
 }
 
+// Student URLs intentionally hide courseSlug because MatHero v1 uses one default course.
 export function buildDayHref(courseSlug: string, dayNumber: number) {
   void courseSlug;
   return `/day/${dayNumber}`;
@@ -93,11 +94,12 @@ function getExampleText(lesson: Lesson, questions: Question[]) {
 }
 
 export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayPlanStep[] {
-  const practiceQuestions = bundle.questions.filter((question) => resolveQuestionGroup(question) === "practice");
-  const quizQuestions = bundle.questions.filter((question) => resolveQuestionGroup(question) === "quiz");
-  const bonusQuestions = bundle.questions.filter((question) => resolveQuestionGroup(question) === "bonus");
-
-  return [
+  const primaryLesson = bundle.lessons[0] ?? null;
+  const hasVideo = hasPublishedLessonVideo(primaryLesson);
+  const practiceQuestions = getPracticeQuestions(bundle.questions);
+  const quizQuestions = getMiniTestQuestions(bundle.questions);
+  const bonusQuestions: Question[] = [];
+  const steps: DayPlanStep[] = [
     {
       id: `${bundle.day.id}-lesson`,
       type: "lesson",
@@ -108,27 +110,47 @@ export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayP
       count: null,
       href: buildLessonHref(courseSlug, bundle.day.day_number),
     },
-    {
-      id: `${bundle.day.id}-practice`,
-      type: "practice",
-      eyebrow: "2. УПРАЖНИ",
-      title: `${practiceQuestions.length} основни задачи`,
-      ctaLabel: "Задачи",
+  ];
+
+  if (hasVideo) {
+    steps.push({
+      id: `${bundle.day.id}-video`,
+      type: "video",
+      eyebrow: "2. ГЛЕДАЙ",
+      title: primaryLesson?.video_title?.trim() || "Видео урок",
+      ctaLabel: "Видео",
       tone: "cyan",
-      count: practiceQuestions.length,
-      href: buildPracticeHref(courseSlug, bundle.day.day_number),
-    },
-    {
+      count: null,
+      href: buildVideoHref(courseSlug, bundle.day.day_number),
+    });
+  }
+
+  if (quizQuestions.length > 0) {
+    steps.push({
       id: `${bundle.day.id}-quiz`,
       type: "quiz",
-      eyebrow: "3. ПРОВЕРИ",
+      eyebrow: `${hasVideo ? "3" : "2"}. ПРОВЕРИ`,
       title: `${quizQuestions.length} въпроса`,
       ctaLabel: "Тест за деня",
       tone: "green",
       count: quizQuestions.length,
       href: buildQuizHref(courseSlug, bundle.day.day_number),
-    },
-    {
+    });
+  }
+
+  steps.push({
+    id: `${bundle.day.id}-practice`,
+    type: "practice",
+    eyebrow: `${hasVideo ? (quizQuestions.length > 0 ? "4" : "3") : quizQuestions.length > 0 ? "3" : "2"}. УПРАЖНИ`,
+    title: `${practiceQuestions.length} основни задачи`,
+    ctaLabel: "Задачи",
+    tone: "cyan",
+    count: practiceQuestions.length,
+    href: buildPracticeHref(courseSlug, bundle.day.day_number),
+  });
+
+  if (bonusQuestions.length > 0) {
+    steps.push({
       id: `${bundle.day.id}-bonus`,
       type: "bonus",
       eyebrow: "БОНУС",
@@ -137,8 +159,10 @@ export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayP
       tone: "gold",
       count: bonusQuestions.length,
       href: buildBonusHref(courseSlug, bundle.day.day_number),
-    },
-  ];
+    });
+  }
+
+  return steps;
 }
 
 export function hasPublishedLessonVideo(lesson: Pick<Lesson, "video_status" | "video_url"> | null | undefined) {
@@ -155,12 +179,12 @@ export function getPublishedLessonVideoUrl(lesson: Pick<Lesson, "video_status" |
 
 export function getLessonBlocks(bundle: DayContentBundle) {
   const primaryLesson = bundle.lessons[0];
-  const theorySection = primaryLesson?.sections?.find((section) =>
-    ["theory", "tip", "warning", "formula"].includes(section.section_type),
+  const summarySection = primaryLesson?.sections?.find((section) =>
+    ["tip", "warning", "formula"].includes(section.section_type),
   );
 
   return {
-    keyPoints: theorySection?.content ?? primaryLesson?.content ?? bundle.day.description,
+    keyPoints: summarySection?.content ?? primaryLesson?.content ?? bundle.day.description,
     example: primaryLesson ? getExampleText(primaryLesson, bundle.questions) : bundle.day.description,
   };
 }
@@ -188,15 +212,16 @@ export function getLearningOutcomes(bundle: DayContentBundle) {
 }
 
 export function getHeroBuddy(bundle: DayContentBundle): HeroBuddyModel {
-  const quizPoints = bundle.questions
-    .filter((question) => resolveQuestionGroup(question) === "quiz")
-    .reduce((sum, question) => sum + question.points, 0);
+  const quizPoints = getMiniTestQuestions(bundle.questions).reduce(
+    (sum, question) => sum + question.points,
+    0,
+  );
 
   return {
     title: "Супер ход!",
     message:
       bundle.day.description ||
-      "Мини първо през кратката теория, после отвори основните задачи една по една и чак накрая тръгни към теста.",
+      "Мини първо през теорията, после видеото, след това теста и накрая задачите.",
     rewardLabel: `+${quizPoints} XP след тест`,
   };
 }

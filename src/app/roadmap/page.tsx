@@ -10,7 +10,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { resetStudentProgress } from "@/services/resetProgress";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
-import { SectionHeader } from "@/components/ui/SectionHeader";
+import { PageHeroHeader } from "@/components/ui/PageHeroHeader";
 import { StatCard } from "@/components/ui/StatCard";
 import { demoDays } from "@/lib/demoData";
 
@@ -46,18 +46,16 @@ export default function RoadmapPage() {
   return (
     <div className="space-y-6">
       <NeonCard padding="md">
-        <SectionHeader
+        <PageHeroHeader
           label="Пътна карта"
-          title={<h2 className="mh-heading-xl">10 дни до увереност</h2>}
+          title={<h2 className="mh-heading-xl">10 дни до уверност</h2>}
           action={
             <NeonButton type="button" onClick={() => void handleReset()} variant="secondary" className="min-h-0 px-4 py-2 text-sm" disabled={isResetting}>
               {isResetting ? "Зануляване..." : "Рестарт"}
             </NeonButton>
           }
+          description="Всеки ден отключва следващия. Пази ритъма, мини през урока, задачите и теста и ще видаш как целият план се затваря стъпка по стъпка."
         />
-        <p className="mh-copy-muted mt-3 max-w-3xl text-[1rem]">
-          Всеки ден отключва следващия. Пази ритъма, мини през урока, задачите и теста и ще виждаш как целият план се затваря стъпка по стъпка.
-        </p>
       </NeonCard>
 
       <section className="grid gap-4 lg:grid-cols-3">

@@ -1,7 +1,5 @@
-import { BookOpenCheck, ChevronRight, Lightbulb, PlayCircle, Sigma } from "lucide-react";
-import { MascotCharacter } from "@/components/MascotCharacter";
-import { InfoCard } from "@/components/dashboard/InfoCard";
 import { TopBarProgressSync } from "@/components/providers/TopBarProgressSync";
+import { LessonSectionStepper } from "@/components/student/LessonSectionStepper";
 import { StudentFlowDebugCard } from "@/components/student/StudentFlowDebugCard";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -12,14 +10,13 @@ import { SectionHeader } from "@/components/ui/SectionHeader";
 import { requireStudent } from "@/lib/auth/server";
 import {
   buildPracticeHref,
-  buildVideoHref,
   getPublishedLessonVideoUrl,
-  hasPublishedLessonVideo,
   parseDayNumberParam,
 } from "@/lib/studentFlow";
 import { resolveQuestionGroup } from "@/lib/questionGroups";
 import { resolveLessonVideo } from "@/lib/video";
 import { getCourseDayServer, getPublishedCourseBySlugServer } from "@/services/studentContent.server";
+import type { LessonSection } from "@/types/course";
 
 export default async function CourseLessonPage({
   params,
@@ -29,6 +26,7 @@ export default async function CourseLessonPage({
   searchParams: Promise<{ debug?: string }>;
 }) {
   await requireStudent();
+
   const { courseSlug, dayNumber: rawDayNumber } = await params;
   const resolvedSearchParams = await searchParams;
   const debugEnabled = resolvedSearchParams.debug === "1" || resolvedSearchParams.debug === "true";
@@ -46,7 +44,7 @@ export default async function CourseLessonPage({
         {debugEnabled ? <StudentFlowDebugCard title="Lesson Route Debug" items={baseDebugItems} /> : null}
         <EmptyState
           title="Невалиден ден"
-          description="Линкът към деня не е валиден."
+          description="Линкът към този ден не е валиден."
           action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
         />
       </div>
@@ -59,7 +57,10 @@ export default async function CourseLessonPage({
     return { course, bundle };
   })()
     .then((data) => ({ data, error: null as string | null }))
-    .catch((error) => ({ data: null, error: error instanceof Error ? error.message : "Възникна грешка." }));
+    .catch((error) => ({
+      data: null,
+      error: error instanceof Error ? error.message : "Възникна грешка.",
+    }));
 
   const lesson = loadResult.data?.bundle?.lessons[0] ?? null;
   const publishedVideoUrl = getPublishedLessonVideoUrl(lesson);
@@ -78,9 +79,18 @@ export default async function CourseLessonPage({
     { label: "resolved video", value: Boolean(resolveLessonVideo(publishedVideoUrl)) },
     { label: "lesson sections", value: lesson?.sections?.length ?? 0 },
     { label: "questions total", value: allQuestions.length },
-    { label: "practice count", value: allQuestions.filter((question) => resolveQuestionGroup(question) === "practice").length },
-    { label: "quiz count", value: allQuestions.filter((question) => resolveQuestionGroup(question) === "quiz").length },
-    { label: "bonus count", value: allQuestions.filter((question) => resolveQuestionGroup(question) === "bonus").length },
+    {
+      label: "practice count",
+      value: allQuestions.filter((question) => resolveQuestionGroup(question) === "practice").length,
+    },
+    {
+      label: "quiz count",
+      value: allQuestions.filter((question) => resolveQuestionGroup(question) === "quiz").length,
+    },
+    {
+      label: "bonus count",
+      value: allQuestions.filter((question) => resolveQuestionGroup(question) === "bonus").length,
+    },
   ];
 
   if (loadResult.error) {
@@ -123,17 +133,22 @@ export default async function CourseLessonPage({
 
   const course = loadResult.data.course;
   const bundle = loadResult.data.bundle;
-  const hasVideoLink = hasPublishedLessonVideo(lesson);
-  const resolvedVideo = resolveLessonVideo(publishedVideoUrl);
-  const theorySection =
-    lesson.sections?.find((section) => section.section_type === "theory") ??
-    lesson.sections?.find((section) => ["tip", "warning"].includes(section.section_type)) ??
-    lesson.sections?.[0];
-  const exampleSection =
-    lesson.sections?.find((section) => section.section_type === "example") ??
-    lesson.sections?.[1] ??
-    lesson.sections?.[0];
-  const formulaSection = lesson.sections?.find((section) => section.section_type === "formula") ?? null;
+  const theorySections = (lesson.sections ?? [])
+    .filter((section) => section.section_type === "theory" && Boolean(section.content?.trim()))
+    .sort((left, right) => left.sort_order - right.sort_order);
+
+  const fallbackSection: LessonSection = {
+    id: `${lesson.id}-fallback-theory`,
+    lesson_id: lesson.id,
+    title: lesson.title,
+    section_type: "theory",
+    content: lesson.content,
+    sort_order: 0,
+    created_at: lesson.created_at,
+    updated_at: lesson.updated_at,
+  };
+
+  const stepperSections = theorySections.length > 0 ? theorySections : [fallbackSection];
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
@@ -141,16 +156,16 @@ export default async function CourseLessonPage({
 
       <TopBarProgressSync
         value={{
-          label: "Теория и пример",
+          label: "Теория",
           summary: `Ден ${bundle.day.day_number} от ${course.duration_days}`,
-          helper: "Прочети урока и после продължи към видеото или задачите.",
+          helper: "Мини през темите една по една и накрая продължи към задачите.",
           value: 1,
           max: 3,
           tone: "cyan",
         }}
       />
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <section>
         <NeonCard padding="lg" className="rounded-[30px]">
           <SectionHeader
             label="Урок"
@@ -158,93 +173,16 @@ export default async function CourseLessonPage({
             action={<Badge tone="cyan">{lesson.type}</Badge>}
             align="center"
           />
+
           <p className="mh-copy-muted mt-4">{bundle.day.description}</p>
 
-          {resolvedVideo ? (
-            <div className="mt-6 overflow-hidden rounded-[24px] border border-white/10 bg-black">
-              {resolvedVideo.kind === "embed" ? (
-                <div className="aspect-video">
-                  <iframe
-                    src={resolvedVideo.src}
-                    title={lesson.title}
-                    className="h-full w-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                    referrerPolicy="strict-origin-when-cross-origin"
-                  />
-                </div>
-              ) : resolvedVideo.kind === "file" ? (
-                <video
-                  src={resolvedVideo.src}
-                  controls
-                  preload="metadata"
-                  className="aspect-video h-full w-full bg-black"
-                />
-              ) : (
-                <div className="flex items-center justify-between gap-4 px-5 py-5">
-                  <p className="text-sm text-slate-300">Видеото е налично като външен ресурс.</p>
-                  <NeonButton href={publishedVideoUrl ?? "#"} variant="ghost" className="min-h-0 px-3 py-2 text-xs">
-                    Гледай видеото
-                  </NeonButton>
-                </div>
-              )}
-            </div>
-          ) : null}
-
-          <div className="mt-6 grid gap-4">
-            <InfoCard
-              label="Теория"
-              tone="cyan"
-              icon={<Lightbulb className="h-5 w-5 text-cyan-200" />}
-            >
-              <p>{theorySection?.content ?? lesson.content}</p>
-            </InfoCard>
-            <InfoCard
-              label="Пример"
-              tone="purple"
-              icon={<BookOpenCheck className="h-5 w-5 text-fuchsia-200" />}
-            >
-              <p>{exampleSection?.content ?? lesson.content}</p>
-            </InfoCard>
-            {formulaSection ? (
-              <NeonCard tone="gold" padding="md" className="rounded-[24px]">
-                <div className="flex items-center gap-3">
-                  <Sigma className="h-5 w-5 text-amber-200" />
-                  <p className="mh-label">{formulaSection.title || "Формула"}</p>
-                </div>
-                <div className="mt-5 space-y-3 text-[1.05rem] leading-8 text-[var(--mh-text)]">
-                  <p>{formulaSection.content}</p>
-                </div>
-              </NeonCard>
-            ) : null}
-          </div>
-
-          <div className="mt-6 flex flex-col gap-4 2xl:flex-row">
-            {hasVideoLink ? (
-              <NeonButton
-                href={buildVideoHref(course.slug, bundle.day.day_number)}
-                variant="secondary"
-                className="min-h-14 w-full px-6 text-[1.1rem] 2xl:w-auto"
-              >
-                <PlayCircle className="h-5 w-5" />
-                Към видеото
-              </NeonButton>
-            ) : null}
-            <NeonButton
-              href={buildPracticeHref(course.slug, bundle.day.day_number)}
-              className="min-h-14 w-full px-8 text-[1.15rem] 2xl:flex-1"
-            >
-              Продължи към задачите
-              <ChevronRight className="h-5 w-5" />
-            </NeonButton>
+          <div className="mt-6">
+            <LessonSectionStepper
+              sections={stepperSections}
+              practiceHref={buildPracticeHref(course.slug, bundle.day.day_number)}
+            />
           </div>
         </NeonCard>
-
-        <MascotCharacter
-          mood="happy"
-          message="Прегледай теорията, мини през примера и после затвърди с практическите задачи."
-          xpText="+25 XP след тест"
-        />
       </section>
     </div>
   );

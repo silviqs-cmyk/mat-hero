@@ -40,6 +40,11 @@ export function useCurrentUser() {
           isAuthenticated: true,
           isAdmin: profile?.role === "admin",
         });
+      } catch (error) {
+        console.error("Failed to load current user", error);
+        if (active) {
+          setState(initialState);
+        }
       } finally {
         if (active) {
           setIsLoading(false);

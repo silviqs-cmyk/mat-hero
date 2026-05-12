@@ -49,6 +49,7 @@ import {
   type AdminPlanSnapshot,
   type AdminQuestionGroup,
 } from "@/services/adminPlan";
+import { expandLessonSectionToTopics } from "@/lib/lessonTopics";
 import { isValidVideoUrl, resolveLessonVideo } from "@/lib/video";
 import type { Lesson, LessonSection, Question } from "@/types/course";
 import type { CourseDayInput, LessonInput, LessonSectionInput, QuestionInput, QuestionOptionInput } from "@/types/admin";
@@ -217,6 +218,44 @@ function getSectionDisplayTitle(section: Pick<LessonSection, "title" | "section_
   return section.title;
 }
 
+function getSectionTypeLabel(sectionType: string) {
+  switch (sectionType) {
+    case "theory":
+      return "Теория";
+    case "example":
+      return "Пример";
+    case "formula":
+      return "Формула";
+    case "tip":
+      return "Най-важното";
+    case "warning":
+      return "Важно";
+    case "common_mistake":
+      return "Честа грешка";
+    default:
+      return sectionType;
+  }
+}
+
+function getSectionPlacementHint(sectionType: string) {
+  switch (sectionType) {
+    case "theory":
+      return "Показва се в Lesson > Теория";
+    case "example":
+      return "Показва се в Lesson > Пример";
+    case "formula":
+      return "Показва се в Lesson > Формула и може да влезе в Най-важното";
+    case "tip":
+      return "Показва се в Dashboard > Най-важното";
+    case "warning":
+      return "Показва се в Dashboard > Най-важното";
+    case "common_mistake":
+      return "Полезно за преговор и честа грешка";
+    default:
+      return "";
+  }
+}
+
 function buildAdminDayHref(dayNumber: number, suffix = "") {
   return suffix ? `/admin/day/${dayNumber}/${suffix}` : `/admin/day/${dayNumber}`;
 }
@@ -363,6 +402,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             .sort((left, right) => left.sort_order - right.sort_order)
         : [],
     [activeLesson, snapshot?.sections],
+  );
+  const activeTheorySections = useMemo(
+    () => activeSections.filter((section) => section.section_type === "theory"),
+    [activeSections],
   );
   const activeQuestions = useMemo(
     () =>
@@ -540,6 +583,179 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       content: section.content,
       sort_order: section.sort_order,
     });
+  }
+
+  async function handleCreateTopicsFromLessonContent() {
+    if (!activeLesson) {
+      showToast("error", "Първо създай урок за този ден.");
+      return;
+    }
+
+    if (!lessonForm.content.trim()) {
+      showToast("error", "Добави съдържание в Intro / content, за да го разделя на теми.");
+      return;
+    }
+
+    const generatedTopics = expandLessonSectionToTopics({
+      id: `${activeLesson.id}-lesson-content`,
+      lesson_id: activeLesson.id,
+      title: lessonForm.title.trim() || "Тема",
+      section_type: "theory",
+      content: lessonForm.content,
+      sort_order: activeSections.length + 1,
+      created_at: activeLesson.created_at,
+      updated_at: activeLesson.updated_at,
+    }).slice(0, 2);
+
+    if (generatedTopics.length <= 1) {
+      showToast("error", "Не успях да открия отделни теми. Добави празни редове или кратки заглавия между темите.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      for (const [index, topic] of generatedTopics.entries()) {
+        await savePlanSection(null, {
+          lesson_id: activeLesson.id,
+          title: topic.title,
+          section_type: "theory",
+          content: topic.content,
+          sort_order: activeSections.length + index + 1,
+        });
+      }
+
+      await loadSnapshot();
+      setSectionForm(getEmptySectionForm(activeLesson.id, activeSections.length + generatedTopics.length + 1));
+      showToast("success", "Създадох до 2 theory sections от lesson текста.");
+    } catch (splitError) {
+      showToast("error", splitError instanceof Error ? splitError.message : "Не успях да разделя lesson текста.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleSplitSectionIntoTopics() {
+    if (!activeLesson) {
+      showToast("error", "Първо създай урок за този ден.");
+      return;
+    }
+
+    if (sectionForm.section_type !== "theory") {
+      showToast("error", "Автоматично разделяне е налично само за theory секции.");
+      return;
+    }
+
+    if (!sectionForm.content.trim()) {
+      showToast("error", "Добави съдържание, за да го разделя на теми.");
+      return;
+    }
+
+    const generatedTopics = expandLessonSectionToTopics({
+      id: editingSectionId ?? `${activeLesson.id}-draft-section`,
+      lesson_id: activeLesson.id,
+      title: sectionForm.title.trim() || "Тема",
+      section_type: "theory",
+      content: sectionForm.content,
+      sort_order: sectionForm.sort_order,
+      created_at: activeLesson.created_at,
+      updated_at: activeLesson.updated_at,
+    }).slice(0, 2);
+
+    if (generatedTopics.length <= 1) {
+      showToast("error", "Не успях да открия отделни теми. Добави празни редове или кратки заглавия между темите.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      if (editingSectionId) {
+        const currentIndex = activeSections.findIndex((section) => section.id === editingSectionId);
+        if (currentIndex === -1) {
+          throw new Error("Не открих секцията за редакция.");
+        }
+
+        await savePlanSection(editingSectionId, {
+          lesson_id: activeLesson.id,
+          title: generatedTopics[0].title,
+          section_type: "theory",
+          content: generatedTopics[0].content,
+          sort_order: activeSections[currentIndex].sort_order,
+        });
+
+        const newIds: string[] = [];
+        for (const [index, topic] of generatedTopics.slice(1).entries()) {
+          const created = await savePlanSection(null, {
+            lesson_id: activeLesson.id,
+            title: topic.title,
+            section_type: "theory",
+            content: topic.content,
+            sort_order: activeSections[currentIndex].sort_order + index + 1,
+          });
+          newIds.push(created.id);
+        }
+
+        const orderedIds = activeSections.map((section) => section.id);
+        orderedIds.splice(currentIndex + 1, 0, ...newIds);
+        await reorderPlanSections(orderedIds);
+      } else {
+        for (const [index, topic] of generatedTopics.entries()) {
+          await savePlanSection(null, {
+            lesson_id: activeLesson.id,
+            title: topic.title,
+            section_type: "theory",
+            content: topic.content,
+            sort_order: activeSections.length + index + 1,
+          });
+        }
+      }
+
+      await loadSnapshot();
+      setEditingSectionId(null);
+      setSectionForm(getEmptySectionForm(activeLesson.id, activeSections.length + generatedTopics.length + 1));
+      showToast("success", "Разделих теорията на до 2 отделни теми.");
+    } catch (splitError) {
+      showToast("error", splitError instanceof Error ? splitError.message : "Не успях да разделя секцията.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleKeepOnlyTwoTheorySections() {
+    if (!activeLesson) {
+      showToast("error", "Първо създай урок за този ден.");
+      return;
+    }
+
+    if (activeTheorySections.length <= 2) {
+      showToast("success", "Вече има само 2 или по-малко theory sections.");
+      return;
+    }
+
+    const sectionsToDelete = activeTheorySections.slice(2);
+    const remainingIds = activeSections
+      .filter((section) => !sectionsToDelete.some((candidate) => candidate.id === section.id))
+      .map((section) => section.id);
+
+    setIsSaving(true);
+    try {
+      for (const section of sectionsToDelete) {
+        await removePlanSection(section.id);
+      }
+
+      await reorderPlanSections(remainingIds);
+      await loadSnapshot();
+
+      if (editingSectionId && sectionsToDelete.some((section) => section.id === editingSectionId)) {
+        setEditingSectionId(null);
+        setSectionForm(getEmptySectionForm(activeLesson.id, remainingIds.length + 1));
+      }
+
+      showToast("success", "Изтрих излишните theory sections и оставих само 2.");
+    } catch (cleanupError) {
+      showToast("error", cleanupError instanceof Error ? cleanupError.message : "Не успях да изтрия излишните theory sections.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   function validateQuestionForm() {
@@ -1252,6 +1468,21 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             <Save className="h-4 w-4" />
             Запази теорията
           </NeonButton>
+          {activeLesson && lessonForm.content.trim() ? (
+            <>
+              <NeonButton
+                type="button"
+                variant="ghost"
+                onClick={() => void handleCreateTopicsFromLessonContent()}
+                disabled={isSaving}
+              >
+                Раздели lesson текста на 2 теми
+              </NeonButton>
+              <p className="text-xs text-[var(--mh-text-muted)]">
+                Автоматичното разделяне създава най-много 2 theory sections. Ако ти трябват още, добави ги ръчно.
+              </p>
+            </>
+          ) : null}
         </NeonCard>
 
         {!activeLesson ? (
@@ -1267,6 +1498,19 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                 label="Theory sections"
                 title="Подреди теорията на деня"
               />
+              <p className="text-sm text-[var(--mh-text-muted)]">
+                Теория и Пример отиват в lesson екрана. Най-важното в dashboard се управлява от tip, warning или formula. Автоматичното разделяне тук прави до 2 theory sections.
+              </p>
+              {activeTheorySections.length > 2 ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  <NeonButton type="button" variant="danger" onClick={() => void handleKeepOnlyTwoTheorySections()} disabled={isSaving}>
+                    Остави само 2 theory sections
+                  </NeonButton>
+                  <p className="text-xs text-[var(--mh-text-muted)]">
+                    Ще изтрия всички theory секции след първите 2 и ще пренаредя останалите.
+                  </p>
+                </div>
+              ) : null}
               {activeSections.length === 0 ? (
                 <EmptyState
                   title="Няма theory sections"
@@ -1279,10 +1523,11 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
-                            <Badge tone="cyan">{section.section_type}</Badge>
+                            <Badge tone="cyan">{getSectionTypeLabel(section.section_type)}</Badge>
                             <Badge tone="neutral">#{section.sort_order}</Badge>
                           </div>
                           <h3 className="mt-3 text-lg font-semibold text-white">{getSectionDisplayTitle(section)}</h3>
+                          <p className="mt-2 text-xs text-[var(--mh-text-muted)]">{getSectionPlacementHint(section.section_type)}</p>
                           <p className="mt-2 line-clamp-3 text-sm text-[var(--mh-text-muted)]">{section.content}</p>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -1340,7 +1585,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                 >
                   {SECTION_TYPES.map((sectionType) => (
                     <option key={sectionType} value={sectionType}>
-                      {sectionType}
+                      {getSectionTypeLabel(sectionType)}
                     </option>
                   ))}
                 </FormSelect>
@@ -1364,11 +1609,27 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                   setSectionForm((current) => ({ ...current, content: value }));
                 }}
               />
+              <p className="text-sm text-[var(--mh-text-muted)]">{getSectionPlacementHint(sectionForm.section_type)}</p>
               <div className="flex flex-wrap gap-3">
                 <NeonButton type="button" onClick={() => void handleSaveSection()} disabled={isSaving}>
                   <Save className="h-4 w-4" />
                   {editingSectionId ? "Запази секцията" : "Добави секция"}
                 </NeonButton>
+                {sectionForm.section_type === "theory" && sectionForm.content.trim() ? (
+                  <NeonButton
+                    type="button"
+                    variant="ghost"
+                    onClick={() => void handleSplitSectionIntoTopics()}
+                    disabled={isSaving}
+                  >
+                    Раздели секцията на 2 теми
+                  </NeonButton>
+                ) : null}
+                {sectionForm.section_type === "theory" ? (
+                  <p className="w-full text-xs text-[var(--mh-text-muted)]">
+                    Автоматичното разделяне прави най-много 2 theory sections. Останалите теми ги добави ръчно.
+                  </p>
+                ) : null}
                 {editingSectionId ? (
                   <NeonButton
                     type="button"

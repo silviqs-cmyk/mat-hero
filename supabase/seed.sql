@@ -50,7 +50,7 @@ set
   sort_order = excluded.sort_order;
 
 insert into public.lessons (
-  id, course_day_id, title, type, content, video_url, estimated_minutes, sort_order, is_published
+  id, course_day_id, title, type, content, video_url, video_provider, video_status, estimated_minutes, sort_order, is_published
 )
 values (
   '7f9b0f4b-b75d-4a25-a5dc-0a337f92ab01',
@@ -59,6 +59,8 @@ values (
   'theory',
   'Започваме с естествени и рационални числа, признаци за делимост, прости и съставни числа, абсолютна стойност и действия с рационални числа.',
   'https://www.youtube.com/watch?v=demo-mathero-day-1',
+  'youtube',
+  'published',
   12,
   1,
   true
@@ -69,6 +71,8 @@ set
   type = excluded.type,
   content = excluded.content,
   video_url = excluded.video_url,
+  video_provider = excluded.video_provider,
+  video_status = excluded.video_status,
   estimated_minutes = excluded.estimated_minutes,
   sort_order = excluded.sort_order,
   is_published = excluded.is_published;
@@ -205,3 +209,385 @@ set
   icon = excluded.icon,
   xp_reward = excluded.xp_reward,
   condition_type = excluded.condition_type;
+
+with remaining_days as (
+  select
+    d.id as course_day_id,
+    d.day_number,
+    d.title as day_title,
+    d.description as day_description,
+    ('7f9b0f4b-b75d-4a26-a6dc-' || lpad(to_hex(4096 + d.day_number), 12, '0'))::uuid as lesson_id
+  from public.course_days d
+  where d.course_id = '7f9b0f4b-b75d-4a25-a5dc-0a337f92aa01'
+    and d.day_number between 2 and 10
+)
+insert into public.lessons (
+  id, course_day_id, title, type, content, video_url, video_provider, video_status, estimated_minutes, sort_order, is_published
+)
+select
+  lesson_id,
+  course_day_id,
+  format('Ден %s: %s', day_number, day_title),
+  'theory',
+  format(
+    'В този урок упражняваме %s. Мини стъпка по стъпка, следи реда на действията и проверявай дали всеки резултат пасва на условието.',
+    day_title
+  ),
+  format('https://www.youtube.com/watch?v=demo-mathero-day-%s', day_number),
+  'youtube',
+  'published',
+  12,
+  1,
+  true
+from remaining_days
+on conflict (id) do update
+set
+  title = excluded.title,
+  type = excluded.type,
+  content = excluded.content,
+  video_url = excluded.video_url,
+  video_provider = excluded.video_provider,
+  video_status = excluded.video_status,
+  estimated_minutes = excluded.estimated_minutes,
+  sort_order = excluded.sort_order,
+  is_published = excluded.is_published;
+
+with remaining_days as (
+  select
+    d.day_number,
+    d.title as day_title,
+    ('7f9b0f4b-b75d-4a26-a6dc-' || lpad(to_hex(4096 + d.day_number), 12, '0'))::uuid as lesson_id
+  from public.course_days d
+  where d.course_id = '7f9b0f4b-b75d-4a25-a5dc-0a337f92aa01'
+    and d.day_number between 2 and 10
+)
+insert into public.lesson_sections (id, lesson_id, title, section_type, content, sort_order)
+select
+  section_id,
+  lesson_id,
+  title,
+  section_type,
+  content,
+  sort_order
+from remaining_days
+cross join lateral (
+  values
+    (
+      ('7f9b0f4b-b75d-4a26-a6dd-' || lpad(to_hex(day_number * 100 + 1), 12, '0'))::uuid,
+      'Най-важното',
+      'theory',
+      format(
+        'Фокусът на ден %s е %s. Прочети идеята спокойно, реши примерите подред и следи ключовите думи в условието.',
+        day_number,
+        day_title
+      ),
+      1
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6dd-' || lpad(to_hex(day_number * 100 + 2), 12, '0'))::uuid,
+      'Формула',
+      'formula',
+      'Правило: работи подред, пази знаците и накрая провери дали отговорът пасва на условието.',
+      2
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6dd-' || lpad(to_hex(day_number * 100 + 3), 12, '0'))::uuid,
+      'Пример',
+      'example',
+      format(
+        'Пример: %s + 2 = %s, а %s · 2 = %s.',
+        day_number,
+        day_number + 2,
+        day_number,
+        day_number * 2
+      ),
+      3
+    )
+) as sections(section_id, title, section_type, content, sort_order)
+on conflict (id) do update
+set
+  title = excluded.title,
+  section_type = excluded.section_type,
+  content = excluded.content,
+  sort_order = excluded.sort_order;
+
+with remaining_days as (
+  select
+    d.id as course_day_id,
+    d.day_number,
+    d.title as day_title,
+    ('7f9b0f4b-b75d-4a26-a6dc-' || lpad(to_hex(4096 + d.day_number), 12, '0'))::uuid as lesson_id
+  from public.course_days d
+  where d.course_id = '7f9b0f4b-b75d-4a25-a5dc-0a337f92aa01'
+    and d.day_number between 2 and 10
+)
+insert into public.questions (
+  id,
+  course_day_id,
+  lesson_id,
+  question_type,
+  prompt,
+  explanation,
+  difficulty,
+  points,
+  topic,
+  is_bonus,
+  question_group,
+  expected_answer,
+  sort_order,
+  is_published
+)
+select
+  question_id,
+  course_day_id,
+  lesson_id,
+  question_type,
+  prompt,
+  explanation,
+  difficulty,
+  points,
+  day_title,
+  false,
+  question_group,
+  expected_answer,
+  sort_order,
+  true
+from remaining_days
+cross join lateral (
+  values
+    (
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 1), 12, '0'))::uuid,
+      'multiple_choice',
+      format('Колко е %s + 2?', day_number),
+      'Събираме числата директно.',
+      'easy',
+      10,
+      'practice',
+      null,
+      1
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 2), 12, '0'))::uuid,
+      'open_answer',
+      format('Колко е %s + 3?', day_number),
+      'Добавяме 3 към числото.',
+      'easy',
+      10,
+      'practice',
+      (day_number + 3)::text,
+      2
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 3), 12, '0'))::uuid,
+      'true_false',
+      format('Вярно ли е, че %s е по-голямо от 0?', day_number),
+      'Всички дни в плана са номерирани с положителни числа.',
+      'easy',
+      10,
+      'practice',
+      'Вярно',
+      3
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 4), 12, '0'))::uuid,
+      'multiple_choice',
+      format('Колко е %s · 2?', day_number),
+      'Умножаваме числото по 2.',
+      'medium',
+      10,
+      'practice',
+      null,
+      4
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 5), 12, '0'))::uuid,
+      'open_answer',
+      format('Колко е %s · %s?', day_number, day_number),
+      'Умножаваме числото само по себе си.',
+      'medium',
+      10,
+      'practice',
+      (day_number * day_number)::text,
+      5
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 6), 12, '0'))::uuid,
+      'multiple_choice',
+      format('Кое число се дели на %s?', day_number),
+      'Търсим число, което е кратно на числото от условието.',
+      'medium',
+      10,
+      'practice',
+      null,
+      6
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 7), 12, '0'))::uuid,
+      'true_false',
+      format('Вярно ли е, че %s - 1 е по-малко от %s?', day_number, day_number),
+      'Ако извадим 1 от положително число, получаваме по-малко число.',
+      'easy',
+      10,
+      'quiz',
+      'Вярно',
+      7
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 8), 12, '0'))::uuid,
+      'multiple_choice',
+      format('Колко е %s + %s?', day_number, day_number),
+      'Събираме числото със себе си.',
+      'medium',
+      10,
+      'quiz',
+      null,
+      8
+    )
+) as questions(question_id, question_type, prompt, explanation, difficulty, points, question_group, expected_answer, sort_order)
+on conflict (id) do update
+set
+  prompt = excluded.prompt,
+  explanation = excluded.explanation,
+  difficulty = excluded.difficulty,
+  points = excluded.points,
+  topic = excluded.topic,
+  is_bonus = excluded.is_bonus,
+  question_group = excluded.question_group,
+  expected_answer = excluded.expected_answer,
+  sort_order = excluded.sort_order,
+  is_published = excluded.is_published;
+
+with remaining_days as (
+  select d.day_number
+  from public.course_days d
+  where d.course_id = '7f9b0f4b-b75d-4a25-a5dc-0a337f92aa01'
+    and d.day_number between 2 and 10
+)
+insert into public.question_options (id, question_id, option_text, is_correct, sort_order)
+select
+  option_id,
+  question_id,
+  option_text,
+  is_correct,
+  sort_order
+from remaining_days
+cross join lateral (
+  values
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 101), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 1), 12, '0'))::uuid,
+      (day_number + 1)::text,
+      false,
+      1
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 102), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 1), 12, '0'))::uuid,
+      (day_number + 2)::text,
+      true,
+      2
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 103), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 1), 12, '0'))::uuid,
+      (day_number + 3)::text,
+      false,
+      3
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 104), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 1), 12, '0'))::uuid,
+      (day_number + 4)::text,
+      false,
+      4
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 401), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 4), 12, '0'))::uuid,
+      (day_number * 2 - 1)::text,
+      false,
+      1
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 402), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 4), 12, '0'))::uuid,
+      (day_number * 2)::text,
+      true,
+      2
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 403), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 4), 12, '0'))::uuid,
+      (day_number * 2 + 1)::text,
+      false,
+      3
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 404), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 4), 12, '0'))::uuid,
+      (day_number * 2 + 2)::text,
+      false,
+      4
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 601), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 6), 12, '0'))::uuid,
+      (day_number + 1)::text,
+      false,
+      1
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 602), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 6), 12, '0'))::uuid,
+      (day_number * 2)::text,
+      true,
+      2
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 603), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 6), 12, '0'))::uuid,
+      (day_number * 2 + 1)::text,
+      false,
+      3
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 604), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 6), 12, '0'))::uuid,
+      (day_number * 2 + 2)::text,
+      false,
+      4
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 801), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 8), 12, '0'))::uuid,
+      (day_number * 2 - 1)::text,
+      false,
+      1
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 802), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 8), 12, '0'))::uuid,
+      (day_number * 2)::text,
+      true,
+      2
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 803), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 8), 12, '0'))::uuid,
+      (day_number * 2 + 1)::text,
+      false,
+      3
+    ),
+    (
+      ('7f9b0f4b-b75d-4a26-a6df-' || lpad(to_hex(day_number * 4096 + 804), 12, '0'))::uuid,
+      ('7f9b0f4b-b75d-4a26-a6de-' || lpad(to_hex(day_number * 256 + 8), 12, '0'))::uuid,
+      (day_number * 2 + 2)::text,
+      false,
+      4
+    )
+) as options(option_id, question_id, option_text, is_correct, sort_order)
+on conflict (id) do update
+set
+  option_text = excluded.option_text,
+  is_correct = excluded.is_correct,
+  sort_order = excluded.sort_order;

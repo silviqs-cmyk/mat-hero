@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, type Transition } from "framer-motion";
 import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 
 interface FeedbackMascotProps {
@@ -30,14 +30,14 @@ function FloatingAccents({ state }: Pick<FeedbackMascotProps, "state">) {
         <motion.span
           className="absolute left-1 top-4 text-lg font-bold text-amber-200"
           animate={{ y: [0, -5, 0], opacity: [0.55, 1, 0.55], rotate: [0, -6, 0] }}
-          transition={{ duration: 1.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+          transition={{ duration: 1.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" as const }}
         >
           ?
         </motion.span>
         <motion.span
           className="absolute right-1 top-7 text-sm font-bold text-pink-200"
           animate={{ y: [0, -4, 0], opacity: [0.45, 0.95, 0.45], rotate: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 0.15 }}
+          transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" as const, delay: 0.15 }}
         >
           ?
         </motion.span>
@@ -67,7 +67,7 @@ function FloatingAccents({ state }: Pick<FeedbackMascotProps, "state">) {
             transition={{
               duration: 1.2 + index * 0.12,
               repeat: Number.POSITIVE_INFINITY,
-              ease: "easeInOut",
+              ease: "easeInOut" as const,
               delay: index * 0.08,
             }}
           />
@@ -81,14 +81,14 @@ function FloatingAccents({ state }: Pick<FeedbackMascotProps, "state">) {
       <motion.span
         className="absolute left-3 top-5 text-base text-cyan-200"
         animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5], scale: [1, 1.08, 1] }}
-        transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
+        transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" as const }}
       >
         *
       </motion.span>
       <motion.span
         className="absolute right-2 top-6 text-xl text-emerald-200"
         animate={{ y: [0, -7, 0], opacity: [0.35, 0.95, 0.35], rotate: [0, 8, 0] }}
-        transition={{ duration: 1.4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut", delay: 0.12 }}
+        transition={{ duration: 1.4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" as const, delay: 0.12 }}
       >
         +
       </motion.span>
@@ -104,7 +104,7 @@ export function FeedbackMascot({ state, size = "md" }: FeedbackMascotProps) {
         ? { y: [0, -6, 0], scale: [1, 1.03, 1], rotate: [0, -0.6, 0.6, 0] }
         : { y: [0, -2, 0], rotate: [0, -2.2, 2.2, -1.6, 1.6, 0], scale: [1, 0.99, 1] };
 
-  const transition =
+  const transition: Transition =
     state === "incorrect"
       ? { duration: 1.4, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }
       : { duration: state === "completed" ? 1.1 : 1.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" };

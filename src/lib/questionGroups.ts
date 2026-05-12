@@ -5,6 +5,13 @@ interface QuestionGroupLike {
   is_bonus?: boolean | null;
 }
 
+interface SortableQuestionGroupLike extends QuestionGroupLike {
+  sort_order?: number | null;
+}
+
+export const MINI_TEST_PRACTICE_START_INDEX = 14;
+export const MINI_TEST_PRACTICE_END_INDEX = 29;
+
 export function isQuestionGroup(value: string | null | undefined): value is QuestionGroup {
   return value === "practice" || value === "quiz" || value === "bonus";
 }
@@ -32,4 +39,48 @@ export function getQuestionGroupFlags(question: QuestionGroupLike) {
     question_group: questionGroup,
     is_bonus: questionGroup === "bonus",
   };
+}
+
+function sortQuestionsByOrder<T extends SortableQuestionGroupLike>(questions: T[]) {
+  return [...questions].sort((left, right) => (left.sort_order ?? 0) - (right.sort_order ?? 0));
+}
+
+export function getExplicitQuizQuestions<T extends SortableQuestionGroupLike>(questions: T[]) {
+  return sortQuestionsByOrder(
+    questions.filter((question) => resolveQuestionGroup(question) === "quiz"),
+  );
+}
+
+export function getAllPracticeQuestions<T extends SortableQuestionGroupLike>(questions: T[]) {
+  return sortQuestionsByOrder(
+    questions.filter((question) => resolveQuestionGroup(question) === "practice"),
+  );
+}
+
+export function getMiniTestQuestions<T extends SortableQuestionGroupLike>(questions: T[]) {
+  const explicitQuizQuestions = getExplicitQuizQuestions(questions);
+  if (explicitQuizQuestions.length > 0) {
+    return explicitQuizQuestions;
+  }
+
+  const practiceQuestions = getAllPracticeQuestions(questions);
+  return practiceQuestions.slice(MINI_TEST_PRACTICE_START_INDEX, MINI_TEST_PRACTICE_END_INDEX);
+}
+
+export function getPracticeQuestions<T extends SortableQuestionGroupLike>(questions: T[]) {
+  const explicitQuizQuestions = getExplicitQuizQuestions(questions);
+  const practiceQuestions = getAllPracticeQuestions(questions);
+
+  if (explicitQuizQuestions.length > 0) {
+    return practiceQuestions;
+  }
+
+  return [
+    ...practiceQuestions.slice(0, MINI_TEST_PRACTICE_START_INDEX),
+    ...practiceQuestions.slice(MINI_TEST_PRACTICE_END_INDEX),
+  ];
+}
+
+export function hasMiniTestQuestions<T extends SortableQuestionGroupLike>(questions: T[]) {
+  return getMiniTestQuestions(questions).length > 0;
 }

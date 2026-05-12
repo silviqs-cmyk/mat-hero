@@ -211,36 +211,60 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const { data } = await getUserProgress(nextSessionId);
-      const {
-        data: { user },
-      } = await authClient.auth.getUser();
+      try {
+        const { data } = await getUserProgress(nextSessionId);
+        const {
+          data: { user },
+        } = await authClient.auth.getUser();
 
-      if (!active) {
-        return;
+        if (!active) {
+          return;
+        }
+
+        setSessionId(nextSessionId);
+        setProgress({ ...data, session_id: nextSessionId });
+        setLatestResult(localResult);
+        setAuthUser({
+          id: user?.id ?? nextSessionId,
+          email: user?.email ?? null,
+          displayName: toDisplayName(user?.email ?? null, user?.user_metadata),
+          gradeLabel: toGradeLabel(user?.user_metadata),
+          isGuest: false,
+          isReady: true,
+        });
+      } catch (error) {
+        console.error("Supabase auth sync failed", error);
+
+        if (!active) {
+          return;
+        }
+
+        setSessionId(nextSessionId);
+        setProgress(localProgress);
+        setLatestResult(localResult);
+        setAuthUser({ ...GUEST_USER, isReady: true });
       }
-
-      setSessionId(nextSessionId);
-      setProgress({ ...data, session_id: nextSessionId });
-      setLatestResult(localResult);
-      setAuthUser({
-        id: user?.id ?? nextSessionId,
-        email: user?.email ?? null,
-        displayName: toDisplayName(user?.email ?? null, user?.user_metadata),
-        gradeLabel: toGradeLabel(user?.user_metadata),
-        isGuest: false,
-        isReady: true,
-      });
     }
 
     async function bootstrapAuthState() {
-      const {
-        data: { session },
-      } = await authClient.auth.getSession();
+      try {
+        const {
+          data: { session },
+        } = await authClient.auth.getSession();
 
-      const authenticatedUserId = session?.user.id ?? null;
-      const nextSessionId = authenticatedUserId ?? getOrCreateSessionId();
-      await syncForSession(nextSessionId, Boolean(authenticatedUserId));
+        const authenticatedUserId = session?.user.id ?? null;
+        const nextSessionId = authenticatedUserId ?? getOrCreateSessionId();
+        await syncForSession(nextSessionId, Boolean(authenticatedUserId));
+      } catch (error) {
+        console.error("Supabase auth bootstrap failed", error);
+
+        if (!active) {
+          return;
+        }
+
+        const nextSessionId = getOrCreateSessionId();
+        await syncForSession(nextSessionId, false);
+      }
     }
 
     void bootstrapAuthState();
