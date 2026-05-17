@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { signOutAndClearBrowserSession } from "@/lib/auth/browserSession";
 import { createInitialProgress, demoDays, demoLessons, demoQuestions } from "@/lib/demoData";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type {
@@ -143,8 +144,12 @@ export async function signOutUser(): Promise<ApiResponse<boolean>> {
     return withError(true);
   }
 
-  const { error } = await supabase.auth.signOut();
-  return error ? withError(false, error.message) : withError(true);
+  try {
+    await signOutAndClearBrowserSession();
+    return withError(true);
+  } catch (error) {
+    return withError(false, getNetworkErrorMessage(error));
+  }
 }
 
 export async function getDays(): Promise<ApiResponse<Day[]>> {

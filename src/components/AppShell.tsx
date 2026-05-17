@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { BackgroundMathSymbols } from "@/components/BackgroundMathSymbols";
-import { BottomNav } from "@/components/BottomNav";
+import { StudentSideNav } from "@/components/StudentSideNav";
 import { useAppState } from "@/components/providers/AppStateProvider";
 import { TopBarProgressProvider } from "@/components/providers/TopBarProgressProvider";
 import { TopBar } from "@/components/TopBar";
@@ -28,17 +28,33 @@ function isProtectedStudentRoute(pathname: string) {
   );
 }
 
+function isStudentAppRoute(pathname: string) {
+  return (
+    isProtectedStudentRoute(pathname) ||
+    pathname === "/results" ||
+    pathname === "/roadmap" ||
+    pathname.startsWith("/lesson/") ||
+    pathname.startsWith("/quiz/") ||
+    pathname.startsWith("/explanation/")
+  );
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { authUser } = useAppState();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const landing = pathname === "/";
   const admin = pathname.startsWith("/admin");
   const auth = isAuthRoute(pathname);
+  const studentAppRoute = isStudentAppRoute(pathname);
   const protectedStudentRoute = isProtectedStudentRoute(pathname);
-  const canShowProtectedChrome = !protectedStudentRoute || (authUser.isReady && !authUser.isGuest);
-  const showTopBar = !admin && canShowProtectedChrome;
-  const showBottomNav = !landing && !admin && !auth && canShowProtectedChrome;
-  const lockShellViewport = showTopBar || showBottomNav;
+  const canShowProtectedChrome =
+    !protectedStudentRoute || (authUser.isReady && Boolean(authUser.id) && Boolean(authUser.displayName.trim()));
+  const showStudentChrome = !landing && !admin && !auth && studentAppRoute && canShowProtectedChrome;
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   return (
     <TopBarProgressProvider>
@@ -46,32 +62,44 @@ export function AppShell({ children }: { children: ReactNode }) {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className={`relative mx-auto flex w-full max-w-md flex-col overflow-x-hidden border-x border-white/8 bg-[rgba(8,11,22,0.88)] shadow-[0_24px_90px_rgba(0,0,0,0.7)] ${
-          lockShellViewport ? "mh-shell-viewport overflow-y-hidden" : "min-h-screen overflow-y-visible"
-        } ${
-          landing ? "lg:max-w-[1440px]" : admin ? "lg:max-w-[1680px]" : auth ? "lg:max-w-full" : "lg:max-w-7xl"
+        className={`relative mx-auto min-h-screen w-full overflow-x-hidden border-x border-white/8 bg-[rgba(8,11,22,0.88)] shadow-[0_24px_90px_rgba(0,0,0,0.7)] ${
+          landing ? "max-w-md lg:max-w-[1440px]" : admin ? "max-w-md lg:max-w-[1680px]" : auth ? "max-w-md lg:max-w-full" : "max-w-md lg:max-w-7xl"
         }`}
       >
         <BackgroundMathSymbols />
-        {showTopBar ? (
-          <div className="relative z-10">
-            <TopBar />
+
+        {showStudentChrome ? (
+          <div className="relative z-10 grid min-h-screen grid-rows-[auto_minmax(0,1fr)]">
+            <TopBar
+              mobileMenuOpen={mobileMenuOpen}
+              onToggleMenu={() => setMobileMenuOpen((current) => !current)}
+            />
+
+            <div className="flex min-h-0 flex-col lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
+              <div className="hidden lg:block">
+                <StudentSideNav />
+              </div>
+
+              <div className="min-w-0 px-4 pb-8 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-6">
+                {mobileMenuOpen ? (
+                  <div className="mb-4 lg:hidden">
+                    <StudentSideNav mobile onNavigate={() => setMobileMenuOpen(false)} />
+                  </div>
+                ) : null}
+
+                <main className="min-w-0">{children}</main>
+              </div>
+            </div>
           </div>
-        ) : null}
-        <main
-          className={`relative z-10 flex-1 min-h-0 ${
-            landing ? "p-0" : admin ? "p-0" : auth ? "p-0" : "px-4 pb-36 pt-5 sm:pb-32 lg:px-8 lg:pb-12 lg:pt-6"
-          } ${showBottomNav ? "lg:pl-[17.5rem]" : ""} ${
-            lockShellViewport ? "mh-shell-scroll overflow-y-auto overscroll-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden" : ""
-          }`}
-        >
-          {children}
-        </main>
-        {showBottomNav ? (
-          <div className="relative z-10">
-            <BottomNav />
-          </div>
-        ) : null}
+        ) : (
+          <main
+            className={`relative z-10 ${
+              landing ? "p-0" : admin ? "p-0" : auth ? "p-0" : "px-4 py-5 sm:px-6 lg:px-8 lg:py-6"
+            }`}
+          >
+            {children}
+          </main>
+        )}
       </motion.div>
     </TopBarProgressProvider>
   );

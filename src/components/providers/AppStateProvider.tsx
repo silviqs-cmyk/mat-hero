@@ -4,10 +4,20 @@ import {
   createContext,
   useContext,
   useEffect,
+  useEffectEvent,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  getAuthRedirectPath,
+  getSessionWithRecovery,
+  getUserWithRecovery,
+  isProtectedAppRoute,
+} from "@/lib/auth/browserSession";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { createInitialProgress } from "@/lib/demoData";
 import { getOrCreateSessionId } from "@/lib/session";
 import {
@@ -51,7 +61,7 @@ const QUESTION_CORRECT_XP = 10;
 const GUEST_USER: AuthUserProfile = {
   id: null,
   email: null,
-  displayName: "Гост",
+  displayName: "",
   gradeLabel: null,
   isGuest: true,
   isReady: false,
@@ -137,7 +147,7 @@ function toDisplayName(email: string | null, metadata: Record<string, unknown> |
     }
   }
 
-  return "Гост";
+  return "";
 }
 
 function toGradeLabel(metadata: Record<string, unknown> | undefined) {
@@ -153,6 +163,8 @@ function toGradeLabel(metadata: Record<string, unknown> | undefined) {
 }
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const initialState = getInitialState();
   const [sessionId, setSessionId] = useState(initialState.sessionId);
   const [progress, setProgress] = useState<UserProgress>(initialState.progress);
@@ -161,6 +173,42 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   );
   const [authUser, setAuthUser] = useState<AuthUserProfile>(GUEST_USER);
   const [hydrated] = useState(initialState.hydrated);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(false);
+  const redirectTimeoutRef = useRef<number | null>(null);
+
+  const cancelPendingRedirect = useEffectEvent(() => {
+    if (redirectTimeoutRef.current !== null && typeof window !== "undefined") {
+      window.clearTimeout(redirectTimeoutRef.current);
+      redirectTimeoutRef.current = null;
+    }
+
+    setIsCheckingAccess(false);
+  });
+
+  const scheduleLoginRedirect = useEffectEvent(() => {
+    if (!isProtectedAppRoute(pathname)) {
+      cancelPendingRedirect();
+      return;
+    }
+
+    const redirectPath = getAuthRedirectPath(pathname);
+
+    if (pathname === redirectPath) {
+      cancelPendingRedirect();
+      return;
+    }
+
+    setIsCheckingAccess(true);
+
+    if (redirectTimeoutRef.current !== null || typeof window === "undefined") {
+      return;
+    }
+
+    redirectTimeoutRef.current = window.setTimeout(() => {
+      redirectTimeoutRef.current = null;
+      router.replace(redirectPath);
+    }, 150);
+  });
 
   useEffect(() => {
     if (!hydrated) {
@@ -213,9 +261,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
       try {
         const { data } = await getUserProgress(nextSessionId);
-        const {
-          data: { user },
-        } = await authClient.auth.getUser();
+        const user = await getUserWithRecovery({
+          pathname,
+          redirect: true,
+          router,
+        });
 
         if (!active) {
           return;
@@ -232,6 +282,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           isGuest: false,
           isReady: true,
         });
+        cancelPendingRedirect();
       } catch (error) {
         console.error("Supabase auth sync failed", error);
 
@@ -243,18 +294,28 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         setProgress(localProgress);
         setLatestResult(localResult);
         setAuthUser({ ...GUEST_USER, isReady: true });
+        scheduleLoginRedirect();
       }
     }
 
     async function bootstrapAuthState() {
       try {
-        const {
-          data: { session },
-        } = await authClient.auth.getSession();
+        const session = await getSessionWithRecovery({
+          pathname,
+          redirect: true,
+          router,
+        });
 
         const authenticatedUserId = session?.user.id ?? null;
         const nextSessionId = authenticatedUserId ?? getOrCreateSessionId();
         await syncForSession(nextSessionId, Boolean(authenticatedUserId));
+
+        if (authenticatedUserId) {
+          cancelPendingRedirect();
+          return;
+        }
+
+        scheduleLoginRedirect();
       } catch (error) {
         console.error("Supabase auth bootstrap failed", error);
 
@@ -264,6 +325,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         const nextSessionId = getOrCreateSessionId();
         await syncForSession(nextSessionId, false);
+        scheduleLoginRedirect();
       }
     }
 
@@ -274,14 +336,22 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     } = authClient.auth.onAuthStateChange((_event, session) => {
       const authenticatedUserId = session?.user.id ?? null;
       const nextSessionId = authenticatedUserId ?? getOrCreateSessionId();
+
+      if (authenticatedUserId) {
+        cancelPendingRedirect();
+      } else {
+        scheduleLoginRedirect();
+      }
+
       void syncForSession(nextSessionId, Boolean(authenticatedUserId));
     });
 
     return () => {
       active = false;
+      cancelPendingRedirect();
       subscription.unsubscribe();
     };
-  }, [hydrated]);
+  }, [hydrated, pathname, router]);
 
   const value = useMemo<AppStateContextValue>(
     () => ({
@@ -445,7 +515,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     [authUser, latestResult, progress, sessionId],
   );
 
-  return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
+  return (
+    <AppStateContext.Provider value={value}>
+      {isCheckingAccess ? (
+        <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
+          <LoadingState title="Проверявам сесията" lines={4} />
+        </div>
+      ) : (
+        children
+      )}
+    </AppStateContext.Provider>
+  );
 }
 
 export function useAppState(): AppStateContextValue {

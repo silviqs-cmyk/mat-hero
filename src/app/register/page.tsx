@@ -8,8 +8,14 @@ import { FormInput } from "@/components/ui/FormInput";
 import { FormSelect } from "@/components/ui/FormSelect";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { getSessionWithRecovery } from "@/lib/auth/browserSession";
+import {
+  DEFAULT_GOAL_SCORE,
+  DEFAULT_STUDENT_GRADE,
+  getPostAuthRedirectPath,
+  normalizeProfileFullName,
+} from "@/lib/auth/profile";
 import { getClientProfile, getNetworkErrorMessage, signUpStudent } from "@/lib/auth/client";
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const gradeOptions = Array.from({ length: 6 }, (_, index) => index + 5);
 
@@ -19,8 +25,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [grade, setGrade] = useState("7");
-  const [goalScore, setGoalScore] = useState("80");
+  const [grade, setGrade] = useState(String(DEFAULT_STUDENT_GRADE));
+  const [goalScore, setGoalScore] = useState(String(DEFAULT_GOAL_SCORE));
   const [errorText, setErrorText] = useState("");
   const [successText, setSuccessText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,14 +36,15 @@ export default function RegisterPage() {
   useEffect(() => {
     async function checkSession() {
       try {
-        const supabase = getSupabaseBrowserClient();
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const session = await getSessionWithRecovery({
+          pathname: "/register",
+          redirect: true,
+          router,
+        });
 
         if (session?.user) {
           const profile = await getClientProfile(session.user.id);
-          router.replace(profile?.role === "admin" ? "/admin" : "/dashboard");
+          router.replace(getPostAuthRedirectPath(profile));
         }
       } catch (error) {
         setErrorText(getNetworkErrorMessage(error));
@@ -52,13 +59,20 @@ export default function RegisterPage() {
     setErrorText("");
     setSuccessText("");
 
-    if (!fullName.trim()) {
-      setErrorText("Името е задължително.");
+    const normalizedFullName = normalizeProfileFullName(fullName);
+
+    if (normalizedFullName.length < 2) {
+      setErrorText("Името е задължително и трябва да е поне 2 символа.");
       return;
     }
 
     if (!email.trim()) {
       setErrorText("Имейлът е задължителен.");
+      return;
+    }
+
+    if (!password) {
+      setErrorText("Паролата е задължителна.");
       return;
     }
 
@@ -83,7 +97,7 @@ export default function RegisterPage() {
       const result = await signUpStudent({
         email: email.trim(),
         password,
-        fullName: fullName.trim(),
+        fullName: normalizedFullName,
         grade: Number(grade),
         goalScore: normalizedGoalScore,
       });
@@ -115,6 +129,7 @@ export default function RegisterPage() {
             onChange={(event) => setFullName(event.target.value)}
             placeholder="Иван Петров"
             autoComplete="name"
+            required
           />
 
           <FormInput
@@ -124,6 +139,7 @@ export default function RegisterPage() {
             onChange={(event) => setEmail(event.target.value)}
             placeholder="hero@student.bg"
             autoComplete="email"
+            required
           />
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -134,6 +150,7 @@ export default function RegisterPage() {
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Минимум 6 символа"
               autoComplete="new-password"
+              required
             />
 
             <FormInput
@@ -143,6 +160,7 @@ export default function RegisterPage() {
               onChange={(event) => setConfirmPassword(event.target.value)}
               placeholder="Повтори паролата"
               autoComplete="new-password"
+              required
             />
           </div>
 

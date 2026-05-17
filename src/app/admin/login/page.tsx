@@ -7,8 +7,9 @@ import { AdminAuthShell } from "@/components/auth/AdminAuthShell";
 import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { getSessionWithRecovery } from "@/lib/auth/browserSession";
+import { getPostAuthRedirectPath } from "@/lib/auth/profile";
 import { getClientProfile, getNetworkErrorMessage, signInAdmin, signOut } from "@/lib/auth/client";
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -20,10 +21,11 @@ export default function AdminLoginPage() {
   useEffect(() => {
     async function checkSession() {
       try {
-        const supabase = getSupabaseBrowserClient();
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const session = await getSessionWithRecovery({
+          pathname: "/admin/login",
+          redirect: true,
+          router,
+        });
 
         if (!session?.user) {
           return;
@@ -46,8 +48,18 @@ export default function AdminLoginPage() {
 
         const profile = await getClientProfile(session.user.id);
 
-        if (profile?.role === "admin") {
-          router.replace("/admin");
+        if (profile?.role === "admin" || !profile) {
+          router.replace(getPostAuthRedirectPath(profile ?? {
+            id: session.user.id,
+            full_name: null,
+            email: session.user.email ?? null,
+            role: "admin",
+            grade: 7,
+            goal_score: 80,
+            avatar_url: null,
+            created_at: "",
+            updated_at: "",
+          }));
           return;
         }
 

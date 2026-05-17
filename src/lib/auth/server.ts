@@ -3,6 +3,11 @@ import "server-only";
 import { redirect } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import {
+  DEFAULT_GOAL_SCORE,
+  DEFAULT_STUDENT_GRADE,
+  normalizeProfileFullName,
+} from "@/lib/auth/profile";
+import {
   createServerSupabaseClient,
   createServiceRoleSupabaseClient,
 } from "@/lib/supabase/server";
@@ -65,7 +70,7 @@ function getProfileSeedFromUser(user: User) {
         : null;
 
   return {
-    full_name: fullName,
+    full_name: normalizeProfileFullName(fullName) || null,
     email: user.email ?? null,
   };
 }
@@ -78,8 +83,8 @@ async function ensureServerStudentProfile(user: User): Promise<UserProfile> {
     full_name: seed.full_name,
     email: seed.email,
     role: "student" as const,
-    grade: 7,
-    goal_score: 80,
+    grade: DEFAULT_STUDENT_GRADE,
+    goal_score: DEFAULT_GOAL_SCORE,
   };
 
   const { data, error } = await supabase

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { getSessionWithRecovery } from "@/lib/auth/browserSession";
 import {
   getPublicSupabaseEnv,
   getSupabaseEnvDebugFlags,
@@ -94,19 +95,17 @@ export function SupabaseDebugClient() {
       }));
 
       try {
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
+        const session = await getSessionWithRecovery({
+          pathname: "/debug/supabase",
+          redirect: true,
+        });
 
         setState((current) => ({
           ...current,
-          sessionStatus: error ? "error" : "success",
-          sessionMessage: error
-            ? error.message
-            : session
-              ? "Има активна session."
-              : "Няма активна session, но заявката мина успешно.",
+          sessionStatus: "success",
+          sessionMessage: session
+            ? "Има активна session."
+            : "Няма активна session, но заявката мина успешно.",
         }));
       } catch (error) {
         setState((current) => ({

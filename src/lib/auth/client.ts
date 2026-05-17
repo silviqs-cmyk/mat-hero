@@ -1,4 +1,15 @@
 import type { User } from "@supabase/supabase-js";
+import {
+  getUserWithRecovery,
+  signOutAndClearBrowserSession,
+} from "@/lib/auth/browserSession";
+import {
+  DEFAULT_GOAL_SCORE,
+  DEFAULT_STUDENT_GRADE,
+  getPostAuthRedirectPath,
+  hasRequiredProfileName,
+  normalizeProfileFullName,
+} from "@/lib/auth/profile";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getPublicSupabaseEnv } from "@/lib/supabase/env";
 import type { UserProfile } from "@/types/user";
@@ -36,6 +47,10 @@ async function checkAllowedAdminEmail(email: string) {
 
   const data = (await response.json()) as { allowed?: boolean };
   return data.allowed === true;
+}
+
+export async function isCurrentEmailAllowedAdmin(email: string) {
+  return checkAllowedAdminEmail(email.trim().toLowerCase());
 }
 
 function getSupabaseHostname(): string | null {
@@ -144,11 +159,7 @@ function getProfileSeedFromUser(user: User) {
 }
 
 export async function getCurrentUserClient(): Promise<User | null> {
-  const supabase = getSupabaseBrowserClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  return getUserWithRecovery({ redirect: true });
 }
 
 export async function getClientProfile(userId: string): Promise<UserProfile | null> {
@@ -172,13 +183,14 @@ async function ensureStudentProfile(
 ): Promise<UserProfile> {
   const supabase = getSupabaseBrowserClient();
   const seed = getProfileSeedFromUser(user);
+  const normalizedFullName = normalizeProfileFullName(overrides?.full_name ?? seed.full_name);
   const payload = {
     id: user.id,
-    full_name: overrides?.full_name ?? seed.full_name,
+    full_name: normalizedFullName || null,
     email: overrides?.email ?? seed.email,
     role: "student" as const,
-    grade: overrides?.grade ?? 7,
-    goal_score: overrides?.goal_score ?? 80,
+    grade: overrides?.grade ?? DEFAULT_STUDENT_GRADE,
+    goal_score: overrides?.goal_score ?? DEFAULT_GOAL_SCORE,
   };
 
   const { data, error } = await supabase
@@ -222,23 +234,11 @@ export async function signInStudent({
       };
     }
 
-    let profile = await getClientProfile(authUser.id);
-
-    if (!profile) {
-      profile = await ensureStudentProfile(authUser);
-    }
-
-    if (profile.role === "admin") {
-      return {
-        error: null,
-        redirectTo: "/admin",
-        profile,
-      };
-    }
+    const profile = await getClientProfile(authUser.id);
 
     return {
       error: null,
-      redirectTo: "/dashboard",
+      redirectTo: getPostAuthRedirectPath(profile),
       profile,
     };
   } catch (error) {
@@ -301,10 +301,19 @@ export async function signInAdmin({
     const profile = await getClientProfile(authUser.id);
 
     if (!profile) {
-      await supabase.auth.signOut();
       return {
-        error: "Няма админ профил за този потребител.",
-        redirectTo: null,
+        error: null,
+        redirectTo: getPostAuthRedirectPath({
+          id: authUser.id,
+          full_name: null,
+          email: authUser.email ?? normalizedEmail,
+          role: "admin",
+          grade: DEFAULT_STUDENT_GRADE,
+          goal_score: DEFAULT_GOAL_SCORE,
+          avatar_url: null,
+          created_at: "",
+          updated_at: "",
+        }),
         profile: null,
       };
     }
@@ -320,7 +329,7 @@ export async function signInAdmin({
 
     return {
       error: null,
-      redirectTo: "/admin",
+      redirectTo: getPostAuthRedirectPath(profile),
       profile,
     };
   } catch (error) {
@@ -336,10 +345,21 @@ export async function signUpStudent({
   email,
   password,
   fullName,
-  grade = 7,
-  goalScore = 80,
+  grade = DEFAULT_STUDENT_GRADE,
+  goalScore = DEFAULT_GOAL_SCORE,
 }: StudentSignUpInput): Promise<AuthResult> {
   try {
+    const normalizedFullName = normalizeProfileFullName(fullName);
+
+    if (!hasRequiredProfileName(normalizedFullName)) {
+      return {
+        error: "Името е задължително и трябва да е поне 2 символа.",
+        redirectTo: null,
+        profile: null,
+        requiresEmailConfirmation: false,
+      };
+    }
+
     const supabase = getSupabaseBrowserClient();
     const emailRedirectTo = getAuthRedirectUrl();
     const { data, error } = await supabase.auth.signUp({
@@ -348,7 +368,7 @@ export async function signUpStudent({
       options: {
         ...(emailRedirectTo ? { emailRedirectTo } : {}),
         data: {
-          full_name: fullName,
+          full_name: normalizedFullName,
           role: "student",
           grade,
           goal_score: goalScore,
@@ -369,7 +389,7 @@ export async function signUpStudent({
 
     if (data.user && data.session) {
       profile = await ensureStudentProfile(data.user, {
-        full_name: fullName,
+        full_name: normalizedFullName,
         email,
         grade,
         goal_score: goalScore,
@@ -378,7 +398,7 @@ export async function signUpStudent({
 
     return {
       error: null,
-      redirectTo: data.session ? "/dashboard" : null,
+      redirectTo: data.session ? getPostAuthRedirectPath(profile) : null,
       profile,
       requiresEmailConfirmation: !data.session,
     };
@@ -411,11 +431,93 @@ export async function sendPasswordResetEmail(email: string) {
 }
 
 export async function signOut() {
-  const supabase = getSupabaseBrowserClient();
-  const { error } = await supabase.auth.signOut();
-  return {
-    error: error?.message ?? null,
-  };
+  try {
+    await signOutAndClearBrowserSession();
+    return {
+      error: null,
+    };
+  } catch (error) {
+    return {
+      error: getNetworkErrorMessage(error),
+    };
+  }
+}
+
+interface CompleteProfileInput {
+  fullName: string;
+  grade?: number;
+  goalScore?: number;
+}
+
+export async function upsertCurrentUserProfile({
+  fullName,
+  grade = DEFAULT_STUDENT_GRADE,
+  goalScore = DEFAULT_GOAL_SCORE,
+}: CompleteProfileInput): Promise<AuthResult> {
+  try {
+    const normalizedFullName = normalizeProfileFullName(fullName);
+
+    if (!hasRequiredProfileName(normalizedFullName)) {
+      return {
+        error: "Името е задължително и трябва да е поне 2 символа.",
+        redirectTo: null,
+        profile: null,
+      };
+    }
+
+    const user = await getCurrentUserClient();
+
+    if (!user) {
+      return {
+        error: "Сесията липсва. Влез отново.",
+        redirectTo: "/login",
+        profile: null,
+      };
+    }
+
+    const existingProfile = await getClientProfile(user.id);
+    const isAdmin =
+      existingProfile?.role === "admin" ||
+      (user.email ? await isCurrentEmailAllowedAdmin(user.email) : false);
+    const supabase = getSupabaseBrowserClient();
+    const { data, error } = await supabase
+      .from("profiles")
+      .upsert(
+        {
+          id: user.id,
+          full_name: normalizedFullName,
+          email: user.email ?? existingProfile?.email ?? null,
+          role: isAdmin ? "admin" : "student",
+          grade,
+          goal_score: goalScore,
+        },
+        { onConflict: "id" },
+      )
+      .select("*")
+      .single();
+
+    if (error) {
+      return {
+        error: error.message,
+        redirectTo: null,
+        profile: null,
+      };
+    }
+
+    const profile = data as UserProfile;
+
+    return {
+      error: null,
+      redirectTo: getPostAuthRedirectPath(profile),
+      profile,
+    };
+  } catch (error) {
+    return {
+      error: getNetworkErrorMessage(error),
+      redirectTo: null,
+      profile: null,
+    };
+  }
 }
 
 export async function signIn(email: string, password: string) {

@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCurrentUserClient } from "@/lib/auth/client";
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
-import type { CurrentUser, UserProfile } from "@/types/user";
+import { getCurrentUserClient, getClientProfile } from "@/lib/auth/client";
+import type { CurrentUser } from "@/types/user";
 
 const initialState: CurrentUser = {
   profile: null,
@@ -20,7 +19,6 @@ export function useCurrentUser() {
 
     async function load() {
       try {
-        const supabase = getSupabaseBrowserClient();
         const user = await getCurrentUserClient();
         if (!user) {
           if (active) {
@@ -29,12 +27,11 @@ export function useCurrentUser() {
           return;
         }
 
-        const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+        const profile = await getClientProfile(user.id);
         if (!active) {
           return;
         }
 
-        const profile = (data as UserProfile | null) ?? null;
         setState({
           profile,
           isAuthenticated: true,

@@ -6,11 +6,16 @@ interface SidebarItemProps {
   label: string;
   icon: LucideIcon;
   active?: boolean;
+  onClick?: () => void;
 }
 
-export function SidebarItem({ href, label, icon: Icon, active = false }: SidebarItemProps) {
+export function SidebarItem({ href, label, icon: Icon, active = false, onClick }: SidebarItemProps) {
   return (
-    <Link href={href} className={["mh-sidebar-item", active ? "mh-sidebar-item--active" : ""].join(" ")}>
+    <Link
+      href={href}
+      onClick={onClick}
+      className={["mh-sidebar-item", active ? "mh-sidebar-item--active" : ""].join(" ")}
+    >
       <span
         className={`flex h-11 w-11 items-center justify-center rounded-xl border ${
           active

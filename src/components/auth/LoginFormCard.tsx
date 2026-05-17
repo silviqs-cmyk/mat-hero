@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { getSessionWithRecovery } from "@/lib/auth/browserSession";
 import { getNetworkErrorMessage, signIn } from "@/lib/auth/client";
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 interface LoginFormCardProps {
   title?: string;
@@ -27,10 +27,11 @@ export function LoginFormCard({
   useEffect(() => {
     async function checkSession() {
       try {
-        const supabase = getSupabaseBrowserClient();
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const session = await getSessionWithRecovery({
+          pathname: "/login",
+          redirect: true,
+          router,
+        });
 
         if (session) {
           router.replace("/dashboard");

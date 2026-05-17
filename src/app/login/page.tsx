@@ -7,8 +7,9 @@ import { AuthShell } from "@/components/auth/AuthShell";
 import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { getSessionWithRecovery } from "@/lib/auth/browserSession";
+import { getPostAuthRedirectPath } from "@/lib/auth/profile";
 import { getClientProfile, getNetworkErrorMessage, signInStudent } from "@/lib/auth/client";
-import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -20,17 +21,18 @@ export default function LoginPage() {
   useEffect(() => {
     async function checkSession() {
       try {
-        const supabase = getSupabaseBrowserClient();
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        const session = await getSessionWithRecovery({
+          pathname: "/login",
+          redirect: true,
+          router,
+        });
 
         if (!session?.user) {
           return;
         }
 
         const profile = await getClientProfile(session.user.id);
-        router.replace(profile?.role === "admin" ? "/admin" : "/dashboard");
+        router.replace(getPostAuthRedirectPath(profile));
       } catch (error) {
         setErrorText(getNetworkErrorMessage(error));
       }
