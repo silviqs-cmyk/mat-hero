@@ -1,4 +1,4 @@
-import { BookOpen, CheckCircle2, Gift, PenTool, Play, Sparkles, Trophy } from "lucide-react";
+import { BookOpen, CheckCircle2, PenTool, Play, Sparkles, Target, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
@@ -10,7 +10,7 @@ const iconMap = {
   video: Play,
   practice: PenTool,
   quiz: CheckCircle2,
-  bonus: Gift,
+  bonus: Target,
   results: Trophy,
 };
 

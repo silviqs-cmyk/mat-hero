@@ -80,11 +80,13 @@ export interface DatabaseQuestion {
   lesson_id: UUID | null;
   question_type: "multiple_choice" | "open_answer" | "true_false";
   prompt: string;
+  image_url: string | null;
   explanation: string;
   expected_answer: string | null;
   difficulty: "easy" | "medium" | "hard";
   points: number;
   topic: string;
+  source_year: number | null;
   is_bonus: boolean;
   question_group: "practice" | "quiz" | "bonus";
   sort_order: number;

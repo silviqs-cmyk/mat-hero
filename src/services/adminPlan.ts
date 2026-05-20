@@ -352,6 +352,7 @@ export async function savePlanQuestion(questionId: string | null, input: Questio
       difficulty: input.difficulty,
       points: input.points,
       topic: input.topic,
+      source_year: input.source_year,
       ...questionFlags,
       sort_order: input.sort_order,
       is_published: input.is_published,

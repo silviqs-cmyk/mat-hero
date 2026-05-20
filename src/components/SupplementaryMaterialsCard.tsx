@@ -33,7 +33,9 @@ function TaskAccordion({
           </p>
           <h3 className="mt-2 font-display text-2xl text-white">{subtitle}</h3>
         </div>
-        <div className={`rounded-full border border-white/10 px-3 py-1 text-xs font-semibold shadow-[0_0_18px_rgba(255,255,255,0.06)] ${badgeClassName}`}>
+        <div
+          className={`rounded-full border border-white/10 px-3 py-1 text-xs font-semibold shadow-[0_0_18px_rgba(255,255,255,0.06)] ${badgeClassName}`}
+        >
           {tasks.length} задачи
         </div>
       </div>
@@ -61,7 +63,7 @@ function TaskAccordion({
                       </h4>
                     </div>
                     <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-white/60 transition group-open:border-cyan-400/40 group-open:bg-cyan-400/10 group-open:text-cyan-100 group-open:shadow-[0_0_18px_rgba(37,221,255,0.14)]">
-                      Виж решение
+                      Покажи решение
                     </span>
                   </div>
                 </summary>
@@ -114,12 +116,12 @@ export function SupplementaryMaterialsCard({ tasks }: SupplementaryMaterialsCard
       />
 
       <TaskAccordion
-        title="Допълнителни задачи"
-        subtitle="Бонус пакет за по-силен резултат"
+        title="Изпитай се"
+        subtitle="Реални задачи от НВО"
         accentClassName="text-pink-300"
         badgeClassName="bg-pink-400/12 text-pink-100"
         tasks={tasks.extra}
-        emptyText="Още няма качени допълнителни задачи за този ден."
+        emptyText="Още няма качени задачи за Изпитай се за този ден."
       />
     </section>
   );

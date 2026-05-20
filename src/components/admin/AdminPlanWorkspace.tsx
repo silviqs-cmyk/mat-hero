@@ -153,6 +153,14 @@ function getDefaultQuestionOptions(questionType: QuestionInput["question_type"])
   return [];
 }
 
+function getTestYourselfDefaultOptions(): QuestionOptionInput[] {
+  return Array.from({ length: 4 }, (_, index) => ({
+    option_text: "",
+    is_correct: index === 0,
+    sort_order: index + 1,
+  }));
+}
+
 function getEmptyQuestionForm(dayId = "", lessonId: string | null = null, group: AdminQuestionGroup = "practice"): QuestionInput {
   return {
     course_day_id: dayId,
@@ -164,11 +172,12 @@ function getEmptyQuestionForm(dayId = "", lessonId: string | null = null, group:
     difficulty: "medium",
     points: 10,
     topic: "",
+    source_year: null,
     is_bonus: group === "bonus",
     question_group: group,
     sort_order: 1,
     is_published: false,
-    options: getDefaultQuestionOptions("multiple_choice"),
+    options: group === "bonus" ? getTestYourselfDefaultOptions() : getDefaultQuestionOptions("multiple_choice"),
   };
 }
 
@@ -210,7 +219,7 @@ function getQuestionGroupLabel(group: AdminQuestionGroup) {
     return "Тест";
   }
   if (group === "bonus") {
-    return "Бонус";
+    return "Изпитай се";
   }
   return "Задачи";
 }
@@ -220,9 +229,29 @@ function getQuestionEditorTitle(group: AdminQuestionGroup) {
     return "Тестови въпроси";
   }
   if (group === "bonus") {
-    return "Бонус задачи";
+    return "Изпитай се – Реални задачи от НВО";
   }
   return "Основни задачи";
+}
+
+function getQuestionTypeLabel(questionType: QuestionInput["question_type"]) {
+  if (questionType === "multiple_choice") {
+    return "Избор от 4 отговора";
+  }
+  if (questionType === "true_false") {
+    return "Вярно или невярно";
+  }
+  return "Свободен отговор";
+}
+
+function getDifficultyLabel(difficulty: QuestionInput["difficulty"]) {
+  if (difficulty === "easy") {
+    return "Лесна";
+  }
+  if (difficulty === "hard") {
+    return "Трудна";
+  }
+  return "Средна";
 }
 
 function getSectionDisplayTitle(section: Pick<LessonSection, "title" | "section_type">) {
@@ -953,9 +982,31 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       return "Добави текст на задачата.";
     }
 
+    if (currentQuestionGroup === "bonus") {
+      if (questionForm.question_type !== "multiple_choice") {
+        return "За 'Изпитай се' използваме само multiple choice задачи.";
+      }
+
+      if (!questionForm.topic.trim()) {
+        return "Добави тема за НВО задачата.";
+      }
+
+      if (!questionForm.explanation.trim()) {
+        return "Добави подробно решение.";
+      }
+
+      if (!Number.isInteger(questionForm.source_year) || (questionForm.source_year ?? 0) < 2000) {
+        return "Добави валидна година за задачата.";
+      }
+    }
+
     if (questionForm.question_type === "multiple_choice" || questionForm.question_type === "true_false") {
       const options = (questionForm.options ?? []).filter((option) => option.option_text.trim().length > 0);
       const correctAnswers = options.filter((option) => option.is_correct);
+
+      if (currentQuestionGroup === "bonus" && options.length !== 4) {
+        return "За 'Изпитай се' трябва да има точно 4 отговора.";
+      }
 
       if (options.length < 2) {
         return "Добави поне 2 опции.";
@@ -1029,11 +1080,16 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       difficulty: question.difficulty,
       points: question.points,
       topic: question.topic,
+      source_year: question.source_year,
       is_bonus: getResolvedQuestionGroup(question) === "bonus",
       question_group: getResolvedQuestionGroup(question),
       sort_order: question.sort_order,
       is_published: question.is_published,
-      options: questionOptionsById.get(question.id) ?? getDefaultQuestionOptions(question.question_type),
+      options:
+        questionOptionsById.get(question.id) ??
+        (getResolvedQuestionGroup(question) === "bonus"
+          ? getTestYourselfDefaultOptions()
+          : getDefaultQuestionOptions(question.question_type)),
     });
   }
 
@@ -1042,7 +1098,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       ...current,
       question_type: questionType,
       expected_answer: questionType === "open_answer" ? current.expected_answer : null,
-      options: getDefaultQuestionOptions(questionType),
+      options:
+        questionType === "multiple_choice" && current.question_group === "bonus"
+          ? getTestYourselfDefaultOptions()
+          : getDefaultQuestionOptions(questionType),
     }));
   }
 
@@ -1249,8 +1308,8 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         <NeonButton href={buildAdminDayHref(dayIndex, "video")} variant="ghost">Видео</NeonButton>
         <NeonButton href={buildAdminDayHref(dayIndex, "practice")} variant="ghost">Задачи</NeonButton>
         <NeonButton href={buildAdminDayHref(dayIndex, "quiz")} variant="ghost">Тест</NeonButton>
-        <NeonButton href={buildAdminDayHref(dayIndex, "bonus")} variant="ghost">Бонус</NeonButton>
-        <NeonButton href={buildAdminDayHref(dayIndex, "preview")} variant="ghost">Preview</NeonButton>
+        <NeonButton href={buildAdminDayHref(dayIndex, "bonus")} variant="ghost">Изпитай се</NeonButton>
+        <NeonButton href={buildAdminDayHref(dayIndex, "preview")} variant="ghost">{mode === "bonus" ? "Преглед" : "Preview"}</NeonButton>
       </div>
     );
   }
@@ -1271,25 +1330,28 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
 
   function renderQuestionForm() {
     const optionCount = questionForm.options?.length ?? 0;
+    const isTestYourself = currentQuestionGroup === "bonus";
 
     return (
       <NeonCard padding="md" className="space-y-4">
         <SectionHeader
-          label="Question Editor"
+          label={isTestYourself ? "Изпитай се" : "Question Editor"}
           title={editingQuestionId ? "Редакция на задача" : `Нова ${getQuestionGroupLabel(currentQuestionGroup).toLowerCase()} задача`}
         />
         <div className="grid gap-4 lg:grid-cols-2">
           <FormSelect
             label="Тип задача"
             value={questionForm.question_type}
+            disabled={isTestYourself}
+            hint={isTestYourself ? "За 'Изпитай се' използваме 4 отговора и 1 верен избор." : undefined}
             onChange={(event) => {
               const value = event.currentTarget?.value ?? "multiple_choice";
               updateQuestionType(value as QuestionInput["question_type"]);
             }}
           >
-            <option value="multiple_choice">multiple_choice</option>
-            <option value="true_false">true_false</option>
-            <option value="open_answer">open_answer</option>
+            <option value="multiple_choice">{isTestYourself ? "Избор от 4 отговора" : "multiple_choice"}</option>
+            <option value="true_false">{isTestYourself ? "Вярно или невярно" : "true_false"}</option>
+            <option value="open_answer">{isTestYourself ? "Свободен отговор" : "open_answer"}</option>
           </FormSelect>
           <FormSelect
             label="Трудност"
@@ -1302,9 +1364,9 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
               }));
             }}
           >
-            <option value="easy">easy</option>
-            <option value="medium">medium</option>
-            <option value="hard">hard</option>
+            <option value="easy">{isTestYourself ? "Лесна" : "easy"}</option>
+            <option value="medium">{isTestYourself ? "Средна" : "medium"}</option>
+            <option value="hard">{isTestYourself ? "Трудна" : "hard"}</option>
           </FormSelect>
           <FormInput
             label="Тема"
@@ -1312,6 +1374,18 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             onChange={(event) => {
               const value = event.currentTarget?.value ?? "";
               setQuestionForm((current) => ({ ...current, topic: value }));
+            }}
+          />
+          <FormInput
+            label="Година"
+            type="number"
+            min={2000}
+            max={2100}
+            value={questionForm.source_year ?? ""}
+            hint={isTestYourself ? "Например: 2024" : undefined}
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "";
+              setQuestionForm((current) => ({ ...current, source_year: value ? Number(value) : null }));
             }}
           />
           <FormInput
@@ -1325,7 +1399,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             }}
           />
           <FormInput
-            label="Sort order"
+            label={isTestYourself ? "Подредба" : "Sort order"}
             type="number"
             min={1}
             value={questionForm.sort_order}
@@ -1376,10 +1450,12 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
               <div>
                 <p className="text-sm font-semibold text-white">Опции</p>
                 <p className="mt-1 text-xs text-[var(--mh-text-muted)]">
-                  Минимум 2 опции и точно 1 верен отговор.
+                  {isTestYourself
+                    ? "Тук добавяш 4 отговора и маркираш точно 1 верен."
+                    : "Минимум 2 опции и точно 1 верен отговор."}
                 </p>
               </div>
-              {questionForm.question_type === "multiple_choice" ? (
+              {questionForm.question_type === "multiple_choice" && !isTestYourself ? (
                 <NeonButton
                   type="button"
                   variant="ghost"
@@ -1446,7 +1522,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                             })),
                         }))
                       }
-                      disabled={(questionForm.options?.length ?? 0) <= 2}
+                      disabled={isTestYourself || (questionForm.options?.length ?? 0) <= 2}
                       className="self-end"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -2076,7 +2152,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         <SectionHeader
           label={`Ден ${dayNumber}`}
           title={getQuestionEditorTitle(currentQuestionGroup)}
-          action={<NeonButton href={buildAdminDayHref(dayNumber, "preview")} variant="secondary">Preview</NeonButton>}
+          action={<NeonButton href={buildAdminDayHref(dayNumber, "preview")} variant="secondary">{currentQuestionGroup === "bonus" ? "Преглед" : "Preview"}</NeonButton>}
         />
         {filteredQuestions.length === 0 ? (
           <EmptyState
@@ -2090,8 +2166,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone="cyan">{question.question_type}</Badge>
+                      <Badge tone="cyan">{currentQuestionGroup === "bonus" ? getQuestionTypeLabel(question.question_type) : question.question_type}</Badge>
+                      <Badge tone="gold">{currentQuestionGroup === "bonus" ? getDifficultyLabel(question.difficulty) : question.difficulty}</Badge>
                       <Badge tone="purple">{question.points} т.</Badge>
+                      {question.source_year ? <Badge tone="gold">НВО {question.source_year}</Badge> : null}
                       <Badge tone={question.is_published ? "green" : "gold"}>
                         {question.is_published ? "Публикувана" : "Чернова"}
                       </Badge>
@@ -2117,6 +2195,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                           difficulty: question.difficulty,
                           points: question.points,
                           topic: question.topic,
+                          source_year: question.source_year,
                           is_bonus: getResolvedQuestionGroup(question) === "bonus",
                           question_group: getResolvedQuestionGroup(question),
                           sort_order: question.sort_order,
@@ -2132,7 +2211,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                           );
                       }}
                     >
-                      {question.is_published ? "Unpublish" : "Publish"}
+                      {question.is_published ? "Скрий" : "Публикувай"}
                     </NeonButton>
                     <NeonButton type="button" variant="danger" onClick={() => void handleDeleteQuestion(question.id)}>
                       <Trash2 className="h-4 w-4" />
@@ -2341,5 +2420,4 @@ class AdminPlanWorkspaceErrorBoundary extends Component<AdminPlanWorkspaceProps,
 export function AdminPlanWorkspace(props: AdminPlanWorkspaceProps) {
   return <AdminPlanWorkspaceErrorBoundary {...props} />;
 }
-
 

@@ -81,6 +81,12 @@ export function getPracticeQuestions<T extends SortableQuestionGroupLike>(questi
   ];
 }
 
+export function getBonusQuestions<T extends SortableQuestionGroupLike>(questions: T[]) {
+  return sortQuestionsByOrder(
+    questions.filter((question) => resolveQuestionGroup(question) === "bonus"),
+  );
+}
+
 export function hasMiniTestQuestions<T extends SortableQuestionGroupLike>(questions: T[]) {
   return getMiniTestQuestions(questions).length > 0;
 }

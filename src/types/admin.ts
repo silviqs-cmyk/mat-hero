@@ -98,6 +98,7 @@ export interface QuestionInput {
   difficulty: "easy" | "medium" | "hard";
   points: number;
   topic: string;
+  source_year: number | null;
   is_bonus: boolean;
   question_group: "practice" | "quiz" | "bonus";
   sort_order: number;

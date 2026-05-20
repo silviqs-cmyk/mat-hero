@@ -1,4 +1,4 @@
-import { getMiniTestQuestions, getPracticeQuestions } from "@/lib/questionGroups";
+import { getBonusQuestions, getMiniTestQuestions, getPracticeQuestions } from "@/lib/questionGroups";
 import { clampPercentage, getCourseProgressPercent } from "@/lib/progress";
 import type { DayPlanStep, DayTimelineItem, GoalProgressModel, HeroBuddyModel } from "@/types";
 import type { DayContentBundle, Lesson, Question } from "@/types/course";
@@ -95,7 +95,7 @@ function getExampleText(lesson: Lesson, questions: Question[]) {
 export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayPlanStep[] {
   const practiceQuestions = getPracticeQuestions(bundle.questions);
   const quizQuestions = getMiniTestQuestions(bundle.questions);
-  const bonusQuestions: Question[] = [];
+  const bonusQuestions = getBonusQuestions(bundle.questions);
   const hasQuiz = quizQuestions.length > 0;
 
   const steps: DayPlanStep[] = [
@@ -135,26 +135,13 @@ export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayP
     href: buildPracticeHref(courseSlug, bundle.day.day_number),
   });
 
-  if (hasQuiz) {
-    steps.push({
-      id: `${bundle.day.id}-results`,
-      type: "results",
-      eyebrow: "4. РЕЗУЛТАТ",
-      title: "Виж резултата",
-      ctaLabel: "Резултат",
-      tone: "gold",
-      count: null,
-      href: buildResultsHref(courseSlug, bundle.day.day_number),
-    });
-  }
-
   if (bonusQuestions.length > 0) {
     steps.push({
       id: `${bundle.day.id}-bonus`,
       type: "bonus",
-      eyebrow: "БОНУС",
-      title: `${bonusQuestions.length} допълнителни`,
-      ctaLabel: "За още прогрес",
+      eyebrow: hasQuiz ? "4. ИЗПИТАЙ СЕ" : "3. ИЗПИТАЙ СЕ",
+      title: "Реални задачи от НВО",
+      ctaLabel: "Изпитай се",
       tone: "gold",
       count: bonusQuestions.length,
       href: buildBonusHref(courseSlug, bundle.day.day_number),
@@ -178,7 +165,9 @@ export function getPublishedLessonVideoUrl(lesson: Pick<Lesson, "video_status" |
 
 export function getLessonBlocks(bundle: DayContentBundle) {
   const primaryLesson = bundle.lessons[0];
-  const theorySection = primaryLesson?.sections?.find((section) => section.section_type === "theory" && section.content?.trim());
+  const theorySection = primaryLesson?.sections?.find(
+    (section) => section.section_type === "theory" && section.content?.trim(),
+  );
   const summary = bundle.day.description?.trim();
 
   return {
@@ -230,7 +219,10 @@ export function getGoalModel(profile: UserProfile | null, currentScore = 0): Goa
   return {
     title: "МОЯТА ЦЕЛ",
     target: normalizedTargetScore >= 100 ? "100% на НВО" : `${normalizedTargetScore}%+ на НВО`,
-    progress: normalizedTargetScore > 0 ? clampPercentage((currentScore / normalizedTargetScore) * 100) : 0,
+    progress:
+      normalizedTargetScore > 0
+        ? clampPercentage((currentScore / normalizedTargetScore) * 100)
+        : 0,
   };
 }
 

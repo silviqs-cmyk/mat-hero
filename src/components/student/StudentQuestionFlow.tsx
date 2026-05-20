@@ -11,7 +11,7 @@ import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { getMiniTestQuestions } from "@/lib/questionGroups";
+import { getBonusQuestions, getMiniTestQuestions } from "@/lib/questionGroups";
 import {
   buildBonusHref,
   buildDayHref,
@@ -76,23 +76,33 @@ function getFlowCopy(mode: FlowMode) {
     return {
       header: "Тест за деня",
       mascotMessage:
-        "Мини през теста спокойно. След всеки отговор ще виждаш обратната връзка в popup.",
+        "Мини през теста спокойно. След всеки отговор ще виждаш обратна връзка в popup.",
     };
   }
 
   if (mode === "bonus") {
     return {
-      header: "Бонус задачи",
+      header: "Изпитай се",
       mascotMessage:
-        "Това са допълнителни задачи. След всеки отговор ще виждаш обратната връзка в popup.",
+        "Реални задачи от НВО. След всеки отговор ще виждаш обратна връзка и решение.",
     };
   }
 
   return {
     header: "Основни задачи",
     mascotMessage:
-      "Решавай задачите една по една. След всеки отговор ще виждаш обратната връзка в popup.",
+      "Решавай задачите една по една. След всеки отговор ще виждаш обратна връзка в popup.",
   };
+}
+
+function getDifficultyLabel(difficulty: Question["difficulty"]) {
+  if (difficulty === "easy") {
+    return "Лесна";
+  }
+  if (difficulty === "hard") {
+    return "Трудна";
+  }
+  return "Средна";
 }
 
 export function StudentQuestionFlow({
@@ -131,7 +141,7 @@ export function StudentQuestionFlow({
     ? evaluateQuestionAnswer({ ...currentQuestion, options: currentOptions }, submittedAnswer)
     : false;
   const isLastQuestion = currentIndex === totalQuestions - 1;
-  const hasBonusQuestions = false;
+  const hasBonusQuestions = getBonusQuestions(bundle.questions).length > 0;
   const hasQuizQuestions = getMiniTestQuestions(bundle.questions).length > 0;
   const showsCompletionState = isLastQuestion && mode !== "practice";
   const feedbackState = showsCompletionState ? "completed" : isCorrect ? "correct" : "incorrect";
@@ -150,10 +160,10 @@ export function StudentQuestionFlow({
       ? hasQuizQuestions
         ? "Към теста"
         : hasBonusQuestions
-          ? "Към бонуса"
+          ? "Към Изпитай се"
           : "Към деня"
       : mode === "quiz"
-        ? "Към бонуса"
+        ? "Към Изпитай се"
         : "Виж резултата"
     : "Следващ въпрос";
 
@@ -336,11 +346,11 @@ export function StudentQuestionFlow({
       <DayTopBarProgress
         courseSlug={course.slug}
         dayNumber={bundle.day.day_number}
-        label={mode === "quiz" ? "Тест" : mode === "bonus" ? "Бонус" : "Задачи"}
+        label={mode === "quiz" ? "Тест" : mode === "bonus" ? "Изпитай се" : "Задачи"}
         helper={
           mode === "practice"
             ? "Реши задачите за деня докрай, за да се отчетат в прогреса."
-            : "Тестът и бонусът са отделни от дневния прогрес по теория, видео и задачи."
+            : "Тестът и Изпитай се са отделни от дневния прогрес по теория, видео и задачи."
         }
         currentStep={mode === "practice" ? "practice" : undefined}
         currentStepCompleted={mode === "practice" ? practiceCompleted : false}
@@ -349,10 +359,10 @@ export function StudentQuestionFlow({
       <NeonCard padding="sm">
         <SectionHeader
           label={flowCopy.header}
-          title={<h2 className="mh-heading-lg">{bundle.day.title}</h2>}
+          title={<h2 className="mh-heading-lg">{mode === "bonus" ? "Реални задачи от НВО" : bundle.day.title}</h2>}
           action={<Badge tone="cyan">{currentIndex + 1} / {totalQuestions} въпроса</Badge>}
         />
-        <p className="mh-copy-muted mt-2">Тема: {currentQuestion.topic}</p>
+        <p className="mh-copy-muted mt-2">{mode === "bonus" ? `Тема: ${currentQuestion.topic}` : `Тема: ${currentQuestion.topic}`}</p>
       </NeonCard>
 
       <MascotCharacter
@@ -367,7 +377,7 @@ export function StudentQuestionFlow({
             <div>
               <p className="mh-label">ВЪПРОС {currentIndex + 1}/{totalQuestions}</p>
               <Badge tone="purple" className="mt-3">
-                {currentQuestion.difficulty}
+                {mode === "bonus" ? getDifficultyLabel(currentQuestion.difficulty) : currentQuestion.difficulty}
               </Badge>
             </div>
           </div>
@@ -375,6 +385,17 @@ export function StudentQuestionFlow({
           <h2 className="mt-5 font-display text-[1.7rem] leading-8 text-white lg:text-[2rem] lg:leading-10">
             {currentQuestion.prompt}
           </h2>
+
+          {currentQuestion.image_url ? (
+            <div className="mt-5 overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.03]">
+              <img
+                src={currentQuestion.image_url}
+                alt={`Илюстрация към задача ${currentIndex + 1}`}
+                className="block h-auto max-w-full w-full object-contain"
+                loading="lazy"
+              />
+            </div>
+          ) : null}
 
           {currentQuestion.question_type === "open_answer" ? (
             <div className="mt-6">
