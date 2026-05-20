@@ -117,7 +117,7 @@ export function AnswerFeedbackModal({
         aria-modal="true"
         aria-live="polite"
         aria-label={copy.title}
-        className={`mh-card max-h-[80vh] w-full overflow-y-auto rounded-t-[28px] border px-5 py-6 sm:max-w-xl sm:rounded-[28px] sm:px-6 ${
+        className={`mh-card w-full overflow-hidden rounded-t-[28px] border bg-black px-5 py-6 sm:max-w-2xl sm:rounded-[28px] sm:px-6 ${
           state === "completed"
             ? "border-lime-400/30 shadow-[0_0_40px_rgba(132,204,22,0.18)]"
             : state === "correct"
@@ -129,9 +129,7 @@ export function AnswerFeedbackModal({
           <div className="mx-auto h-1.5 w-14 rounded-full bg-white/15 sm:hidden" aria-hidden="true" />
 
           <div className="flex justify-center">
-            <div className="scale-[0.88] sm:scale-100">
-              <FeedbackMascot state={state} size="md" />
-            </div>
+            <FeedbackMascot state={state} size="md" />
           </div>
 
           <div className="space-y-3 text-center">

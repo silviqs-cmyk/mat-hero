@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion, type Transition } from "framer-motion";
+import Image from "next/image";
 import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 
 interface FeedbackMascotProps {
@@ -9,9 +11,9 @@ interface FeedbackMascotProps {
 }
 
 const containerClassNames = {
-  sm: "h-32 w-32",
-  md: "h-40 w-40",
-  lg: "h-52 w-52",
+  sm: "h-48 w-48",
+  md: "h-80 w-80",
+  lg: "h-[26rem] w-[26rem]",
 };
 
 const glowClassNames = {
@@ -22,6 +24,12 @@ const glowClassNames = {
   completed:
     "bg-[radial-gradient(circle,rgba(34,211,238,0.3)_0%,rgba(132,204,22,0.2)_30%,rgba(244,114,182,0.18)_52%,rgba(0,0,0,0)_74%)]",
 };
+
+const feedbackGifByState = {
+  correct: "/images/feedback/success.gif",
+  incorrect: "/images/feedback/error-state.gif",
+  completed: "/images/feedback/success.gif",
+} satisfies Record<FeedbackMascotProps["state"], string>;
 
 function FloatingAccents({ state }: Pick<FeedbackMascotProps, "state">) {
   if (state === "incorrect") {
@@ -97,6 +105,14 @@ function FloatingAccents({ state }: Pick<FeedbackMascotProps, "state">) {
 }
 
 export function FeedbackMascot({ state, size = "md" }: FeedbackMascotProps) {
+  const [gifFailed, setGifFailed] = useState(false);
+  const gifSrc = feedbackGifByState[state];
+  const showGif = !gifFailed;
+
+  useEffect(() => {
+    setGifFailed(false);
+  }, [gifSrc]);
+
   const animation =
     state === "completed"
       ? { y: [0, -9, 0], scale: [1, 1.06, 1], rotate: [0, -1.2, 1.2, 0] }
@@ -117,14 +133,28 @@ export function FeedbackMascot({ state, size = "md" }: FeedbackMascotProps) {
           animate={{ opacity: [0.55, 1, 0.55], scale: [0.95, 1.04, 0.95] }}
           transition={{ duration: 1.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
         />
-        <FloatingAccents state={state} />
-        <motion.div
-          className="relative z-10"
-          animate={animation}
-          transition={transition}
-        >
-          <AnimatedHeroMascot size={size} animated={false} />
-        </motion.div>
+        {!showGif ? <FloatingAccents state={state} /> : null}
+        {showGif ? (
+          <div className="relative z-10">
+            <Image
+              src={gifSrc}
+              alt={`MatHero feedback ${state}`}
+              width={208}
+              height={208}
+              unoptimized
+              className="h-auto w-full rounded-[28px] bg-transparent object-contain mix-blend-screen"
+              onError={() => setGifFailed(true)}
+            />
+          </div>
+        ) : (
+          <motion.div
+            className="relative z-10"
+            animate={animation}
+            transition={transition}
+          >
+            <AnimatedHeroMascot size={size} animated={false} />
+          </motion.div>
+        )}
       </div>
     </div>
   );

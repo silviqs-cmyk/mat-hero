@@ -369,6 +369,8 @@ export function StudentQuestionFlow({
         mood="idle"
         message={flowCopy.mascotMessage}
         xpText={mode === "quiz" ? "+25 XP при завършен тест" : undefined}
+        imageSrc="/images/hero-buddy/hero-buddy.gif"
+        imageAlt="Hero Buddy"
       />
 
       <section className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
