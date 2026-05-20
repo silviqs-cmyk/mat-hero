@@ -3,6 +3,11 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getNetworkErrorMessage } from "@/lib/auth/client";
 import { getQuestionGroupFlags, resolveQuestionGroup, type QuestionGroup } from "@/lib/questionGroups";
+import {
+  normalizeLessonSection,
+  replaceLessonSectionsForLessonCompat,
+  saveLessonSectionCompat,
+} from "@/services/lessonSectionsCompat";
 import type { Course, CourseDay, Lesson, LessonSection, Question, QuestionOption } from "@/types/course";
 import type { CourseDayInput, LessonInput, LessonSectionInput, QuestionInput } from "@/types/admin";
 
@@ -125,7 +130,9 @@ export async function getAdminPlanSnapshot(): Promise<AdminPlanSnapshot> {
     const dayIds = new Set(scopedDays.map((day) => day.id));
     const scopedLessons = ((lessons ?? []) as Lesson[]).filter((lesson) => dayIds.has(lesson.course_day_id));
     const lessonIds = new Set(scopedLessons.map((lesson) => lesson.id));
-    const scopedSections = ((sections ?? []) as LessonSection[]).filter((section) => lessonIds.has(section.lesson_id));
+    const scopedSections = ((sections ?? []) as LessonSection[])
+      .filter((section) => lessonIds.has(section.lesson_id))
+      .map((section) => normalizeLessonSection(section));
     const scopedQuestions = ((questions ?? []) as Question[]).filter((question) => dayIds.has(question.course_day_id));
     const questionIds = new Set(scopedQuestions.map((question) => question.id));
     const scopedQuestionOptions = ((questionOptions ?? []) as QuestionOption[]).filter((option) =>
@@ -264,24 +271,46 @@ export async function savePlanLesson(lessonId: string | null, input: LessonInput
 export async function savePlanSection(sectionId: string | null, input: LessonSectionInput): Promise<LessonSection> {
   return withAdminPlanRequest(async () => {
     const supabase = getSupabaseBrowserClient();
-    if (!sectionId) {
-      const { data, error } = await supabase.from("lesson_sections").insert(input).select("*").single();
-      if (error) {
-        throw new Error(error.message);
-      }
-      return data as LessonSection;
-    }
+    const payload = {
+      ...input,
+      video_provider: input.video_url ? detectVideoProviderFromUrl(input.video_url) : "none",
+      video_status: input.video_url ? input.video_status : "draft",
+    };
+    return saveLessonSectionCompat(supabase, sectionId, payload);
+  });
+}
 
+export async function setAdminCoursePublishedState(courseId: string, isPublished: boolean): Promise<Course> {
+  return withAdminPlanRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
     const { data, error } = await supabase
-      .from("lesson_sections")
-      .update(input)
-      .eq("id", sectionId)
+      .from("courses")
+      .update({ is_published: isPublished })
+      .eq("id", courseId)
       .select("*")
       .single();
+
     if (error) {
       throw new Error(error.message);
     }
-    return data as LessonSection;
+
+    return data as Course;
+  });
+}
+
+export async function replacePlanSectionsForLesson(
+  lessonId: string,
+  inputs: LessonSectionInput[],
+): Promise<LessonSection[]> {
+  return withAdminPlanRequest(async () => {
+    const supabase = getSupabaseBrowserClient();
+    const payload = inputs.map((input) => ({
+      ...input,
+      lesson_id: lessonId,
+      video_provider: input.video_url ? detectVideoProviderFromUrl(input.video_url) : "none",
+      video_status: input.video_url ? input.video_status : "draft",
+    }));
+    return replaceLessonSectionsForLessonCompat(supabase, lessonId, payload);
   });
 }
 

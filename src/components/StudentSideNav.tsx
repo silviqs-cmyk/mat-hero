@@ -1,52 +1,26 @@
 "use client";
 
+import Image from "next/image";
 import { LayoutDashboard, Map, Trophy, User } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { SidebarItem } from "@/components/ui/SidebarItem";
 
-interface StudentSideNavProps {
-  mobile?: boolean;
-  onNavigate?: () => void;
-}
-
 const navItems = [
-  {
-    href: "/dashboard",
-    label: "Табло",
-    icon: LayoutDashboard,
-  },
-  {
-    href: "/roadmap",
-    label: "Карта",
-    icon: Map,
-  },
-  {
-    href: "/results",
-    label: "Резултати",
-    icon: Trophy,
-  },
-  {
-    href: "/profile",
-    label: "Профил",
-    icon: User,
-  },
+  { href: "/dashboard", label: "Табло", icon: LayoutDashboard },
+  { href: "/roadmap", label: "Карта", icon: Map },
+  { href: "/results", label: "Резултати", icon: Trophy },
+  { href: "/profile", label: "Профил", icon: User },
 ];
 
 function isNavItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function StudentSideNav({ mobile = false, onNavigate }: StudentSideNavProps) {
+export function StudentSideNav() {
   const pathname = usePathname();
 
   return (
-    <aside
-      className={`min-w-0 ${
-        mobile
-          ? "rounded-[26px] border border-white/10 bg-[rgba(7,11,22,0.92)] p-3 shadow-[0_18px_40px_rgba(0,0,0,0.24)] backdrop-blur-xl"
-          : "h-full border-r border-white/8 px-4 py-5 lg:px-5 lg:py-6"
-      }`}
-    >
+    <aside className="h-full border-r border-white/8 px-4 py-5 lg:px-5 lg:py-6">
       <nav className="space-y-2">
         {navItems.map((item) => (
           <SidebarItem
@@ -55,16 +29,26 @@ export function StudentSideNav({ mobile = false, onNavigate }: StudentSideNavPro
             label={item.label}
             icon={item.icon}
             active={isNavItemActive(pathname, item.href)}
-            onClick={onNavigate}
           />
         ))}
       </nav>
 
-      {mobile ? (
-        <p className="mt-4 text-center text-xs text-[var(--mh-text-muted)]">
-          Избери секция от приложението.
+      <div className="mt-6 overflow-hidden rounded-[22px] border border-cyan-400/14 bg-[linear-gradient(180deg,rgba(8,12,25,0.96),rgba(11,18,34,0.96))] p-3 shadow-[0_0_28px_rgba(34,211,238,0.08)]">
+        <div className="flex justify-center">
+          <Image
+            src="/choose.gif"
+            alt="MatHero mascot animation"
+            width={220}
+            height={220}
+            className="h-auto w-full max-w-[170px] rounded-[16px] object-contain"
+            priority
+            unoptimized
+          />
+        </div>
+        <p className="mt-3 text-center text-xs font-medium text-[var(--mh-text-muted)]">
+          MatHero мисли за следващата ти победа.
         </p>
-      ) : null}
+      </div>
     </aside>
   );
 }

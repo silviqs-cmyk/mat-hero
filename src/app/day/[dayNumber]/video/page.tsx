@@ -1,5 +1,5 @@
 import { ChevronRight, ExternalLink, PlayCircle } from "lucide-react";
-import { TopBarProgressSync } from "@/components/providers/TopBarProgressSync";
+import { DayTopBarProgress } from "@/components/student/DayTopBarProgress";
 import { StudentFlowDebugCard } from "@/components/student/StudentFlowDebugCard";
 import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -9,7 +9,13 @@ import { NeonCard } from "@/components/ui/NeonCard";
 import { PageHeroHeader } from "@/components/ui/PageHeroHeader";
 import { requireStudent } from "@/lib/auth/server";
 import { hasMiniTestQuestions } from "@/lib/questionGroups";
-import { buildLessonHref, buildPracticeHref, buildQuizHref, getPublishedLessonVideoUrl, parseDayNumberParam } from "@/lib/studentFlow";
+import {
+  buildLessonHref,
+  buildPracticeHref,
+  buildQuizHref,
+  getPublishedLessonVideoUrl,
+  parseDayNumberParam,
+} from "@/lib/studentFlow";
 import { resolveLessonVideo } from "@/lib/video";
 import { getCourseDayByNumberServer, getDefaultPublishedCourseServer } from "@/services/studentContent.server";
 
@@ -101,6 +107,8 @@ export default async function DayVideoPage({
   const practiceHref = buildPracticeHref(course.slug, bundle.day.day_number);
   const quizHref = buildQuizHref(course.slug, bundle.day.day_number);
   const hasQuizQuestions = hasMiniTestQuestions(bundle.questions);
+  const nextHref = hasQuizQuestions ? quizHref : practiceHref;
+  const nextLabel = hasQuizQuestions ? "Към теста" : "Към задачите";
 
   if (!lesson || !resolvedVideo) {
     return (
@@ -119,15 +127,13 @@ export default async function DayVideoPage({
     <div className="mx-auto max-w-6xl space-y-6">
       {debugEnabled ? <StudentFlowDebugCard title="Video Route Debug" items={resolvedDebugItems} /> : null}
 
-      <TopBarProgressSync
-        value={{
-          label: "Видео урок",
-          summary: `Ден ${bundle.day.day_number} от ${course.duration_days}`,
-          helper: "Изгледай видеото и после мини към задачите.",
-          value: 1,
-          max: 3,
-          tone: "cyan",
-        }}
+      <DayTopBarProgress
+        courseSlug={course.slug}
+        dayNumber={bundle.day.day_number}
+        label="Видео урок"
+        helper={hasQuizQuestions ? "Гледай видеото и после мини към теста." : "Гледай видеото и после мини към задачите."}
+        currentStep="video"
+        currentStepCompleted
       />
 
       <NeonCard padding="lg" className="rounded-[30px]">
@@ -170,19 +176,19 @@ export default async function DayVideoPage({
             Към урока
           </NeonButton>
 
-          <NeonButton href={practiceHref} className="min-h-14 w-full px-8 text-[1.15rem] 2xl:flex-1">
-            Към задачите
+          <NeonButton href={nextHref} className="min-h-14 w-full px-8 text-[1.15rem] 2xl:flex-1">
+            {nextLabel}
             <ChevronRight className="h-5 w-5" />
           </NeonButton>
 
           {hasQuizQuestions ? (
             <NeonButton
-              href={quizHref}
+              href={practiceHref}
               variant="ghost"
               className="min-h-14 w-full px-6 text-[1rem] 2xl:w-auto"
             >
               <ExternalLink className="h-5 w-5" />
-              {"Към теста"}
+              Към задачите
             </NeonButton>
           ) : null}
         </div>

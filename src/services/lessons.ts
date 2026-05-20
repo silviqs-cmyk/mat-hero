@@ -1,4 +1,5 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { listPublishedLessonSectionsCompat } from "@/services/lessonSectionsCompat";
 import type { Lesson, LessonSection } from "@/types/course";
 
 export async function getLessonWithSections(lessonId: string): Promise<(Lesson & { sections: LessonSection[] }) | null> {
@@ -9,14 +10,8 @@ export async function getLessonWithSections(lessonId: string): Promise<(Lesson &
     return null;
   }
 
-  const { data: sections } = await supabase
-    .from("lesson_sections")
-    .select("*")
-    .eq("lesson_id", lessonId)
-    .order("sort_order", { ascending: true });
-
   return {
     ...(lesson as Lesson),
-    sections: (sections ?? []) as LessonSection[],
+    sections: await listPublishedLessonSectionsCompat(supabase, lessonId),
   };
 }

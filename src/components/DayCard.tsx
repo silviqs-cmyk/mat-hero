@@ -19,7 +19,7 @@ export function DayCard({
   isCurrent,
   isUnlocked = day.is_active,
 }: DayCardProps) {
-  const progressValue = isCompleted ? 100 : isCurrent ? 40 : 0;
+  const progressValue = isCompleted ? 100 : 0;
   const statusLabel = isCompleted
     ? "Завършен"
     : isCurrent
@@ -30,7 +30,7 @@ export function DayCard({
 
   return (
     <motion.div whileHover={isUnlocked ? { y: -3 } : undefined} whileTap={{ scale: 0.98 }}>
-      <Link href={isUnlocked ? `/lesson/${day.id}` : "/roadmap"} className="block">
+      <Link href={isUnlocked ? `/day/${day.order_index}` : "/roadmap"} className="block">
         <NeonCard
           as="article"
           tone={isCurrent ? "cyan" : "default"}
@@ -40,7 +40,6 @@ export function DayCard({
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="font-display text-xl font-black text-white">Ден {day.order_index}</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--mh-text-muted)]">{day.topic}</p>
             </div>
             <Badge tone={isUnlocked || isCompleted ? "cyan" : "neutral"}>{statusLabel}</Badge>
           </div>

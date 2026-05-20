@@ -1,20 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import {
-  AlertTriangle,
-  BookOpenCheck,
-  ChevronLeft,
-  ChevronRight,
-  Lightbulb,
-  PlayCircle,
-  Sigma,
-  Sparkles,
-} from "lucide-react";
-import { LessonSectionContent } from "@/components/lesson/LessonSectionContent";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ChevronRight, Lightbulb, PlayCircle } from "lucide-react";
+import { LessonSectionContent, renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
 import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { useDayProgress } from "@/hooks/useDayProgress";
+import { resolveLessonVideo } from "@/lib/video";
 import type { LessonSection } from "@/types/course";
 
 interface LessonSectionStepperProps {
@@ -23,57 +16,19 @@ interface LessonSectionStepperProps {
   videoHref?: string;
   finalHref?: string;
   finalLabel?: string;
-}
-
-function getSectionMeta(sectionType: string) {
-  switch (sectionType) {
-    case "example":
-      return {
-        label: "Пример",
-        tone: "purple" as const,
-        badgeTone: "purple" as const,
-        icon: <BookOpenCheck className="h-5 w-5 text-fuchsia-200" />,
-      };
-    case "formula":
-      return {
-        label: "Формула",
-        tone: "gold" as const,
-        badgeTone: "gold" as const,
-        icon: <Sigma className="h-5 w-5 text-amber-200" />,
-      };
-    case "tip":
-      return {
-        label: "\u0421\u044a\u0432\u0435\u0442",
-        tone: "green" as const,
-        badgeTone: "green" as const,
-        icon: <Sparkles className="h-5 w-5 text-emerald-200" />,
-      };
-    case "warning":
-      return {
-        label: "\u0427\u0435\u0441\u0442\u0430 \u0433\u0440\u0435\u0448\u043a\u0430",
-        tone: "muted" as const,
-        badgeTone: "neutral" as const,
-        icon: <AlertTriangle className="h-5 w-5 text-amber-200" />,
-      };
-    case "theory":
-    default:
-      return {
-        label: "\u0422\u0435\u043e\u0440\u0438\u044f",
-        tone: "cyan" as const,
-        badgeTone: "cyan" as const,
-        icon: <Lightbulb className="h-5 w-5 text-cyan-200" />,
-      };
-  }
+  initialSectionIndex?: number;
+  courseSlug: string;
+  dayNumber: number;
 }
 
 function getSectionTitle(section: LessonSection, fallbackIndex: number) {
   const normalizedTitle = section.title?.trim();
 
   if (normalizedTitle) {
-    return normalizedTitle.toLocaleUpperCase("bg-BG");
+    return normalizedTitle;
   }
 
-  return `\u0422\u0415\u041c\u0410 ${fallbackIndex + 1}`;
+  return `ТЕМА ${fallbackIndex + 1}`;
 }
 
 export function LessonSectionStepper({
@@ -82,37 +37,48 @@ export function LessonSectionStepper({
   videoHref,
   finalHref,
   finalLabel,
+  initialSectionIndex = 0,
+  courseSlug,
+  dayNumber,
 }: LessonSectionStepperProps) {
-  const [currentSectionIndex, setCurrentSectionIndex] = useState(0);
+  const [currentSectionIndex, setCurrentSectionIndex] = useState(initialSectionIndex);
+  const { markStepCompleted } = useDayProgress(courseSlug, dayNumber);
 
   const safeIndex = Math.min(currentSectionIndex, Math.max(sections.length - 1, 0));
   const currentSection = sections[safeIndex];
   const isFirstSection = safeIndex === 0;
   const isLastSection = safeIndex === sections.length - 1;
-  const currentMeta = currentSection ? getSectionMeta(currentSection.section_type) : null;
+  const currentTopicVideoUrl =
+    currentSection?.video_status === "published" && currentSection.video_url ? currentSection.video_url : null;
+  const currentTopicVideo = resolveLessonVideo(currentTopicVideoUrl);
   const resolvedFinalHref = finalHref ?? practiceHref;
-  const resolvedFinalLabel = finalLabel ?? "\u041a\u044a\u043c \u0437\u0430\u0434\u0430\u0447\u0438\u0442\u0435";
+  const resolvedFinalLabel = finalLabel ?? "Към задачите";
 
-  if (!currentSection || !currentMeta) {
+  useEffect(() => {
+    if (isLastSection) {
+      markStepCompleted("theory");
+    }
+  }, [isLastSection, markStepCompleted]);
+
+  if (!currentSection) {
     return null;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Badge tone="cyan">
-          {"\u0422\u0435\u043c\u0430"} {safeIndex + 1} {"\u043e\u0442"} {sections.length}
-        </Badge>
-        <Badge tone={currentMeta.badgeTone}>{currentMeta.label}</Badge>
+        <Badge tone="cyan">Тема {safeIndex + 1} от {sections.length}</Badge>
       </div>
 
-      <NeonCard tone={currentMeta.tone} padding="lg" className="rounded-[28px]">
+      <NeonCard tone="cyan" padding="lg" className="rounded-[28px]">
         <div className="flex items-start gap-3">
-          <span className="shrink-0">{currentMeta.icon}</span>
+          <span className="shrink-0">
+            <Lightbulb className="h-5 w-5 text-cyan-200" />
+          </span>
           <div className="min-w-0">
-            <p className="mh-label text-[var(--mh-accent-cyan-soft)]">{currentMeta.label}</p>
+            <p className="mh-label text-[var(--mh-accent-cyan-soft)]">Тема</p>
             <h3 className="mt-3 text-2xl font-semibold tracking-[0.12em] text-[var(--mh-text)]">
-              {getSectionTitle(currentSection, safeIndex)}
+              {renderFormattedInlineText(getSectionTitle(currentSection, safeIndex), `section-title-${safeIndex}`)}
             </h3>
           </div>
         </div>
@@ -120,22 +86,16 @@ export function LessonSectionStepper({
         <div className="mt-6 text-[1.05rem] leading-8 text-[var(--mh-text)]">
           <LessonSectionContent text={currentSection.content} />
         </div>
+
+        {currentTopicVideo ? (
+          <div className="mt-6 flex items-center gap-2">
+            <Badge tone="green">Видео</Badge>
+            <p className="text-sm text-[var(--mh-text-muted)]">Видео към текущата тема</p>
+          </div>
+        ) : null}
       </NeonCard>
 
       <div className="grid gap-3 sm:grid-cols-3">
-        {videoHref ? (
-          <NeonButton
-            href={videoHref}
-            variant="ghost"
-            className="min-h-14 w-full justify-center sm:justify-self-start"
-          >
-            <PlayCircle className="h-5 w-5" />
-            {"\u0412\u0438\u0434\u0435\u043e"}
-          </NeonButton>
-        ) : (
-          <div className="hidden sm:block" aria-hidden="true" />
-        )}
-
         {isFirstSection ? (
           <div className="hidden sm:block" aria-hidden="true" />
         ) : (
@@ -146,8 +106,23 @@ export function LessonSectionStepper({
             onClick={() => setCurrentSectionIndex((index) => Math.max(index - 1, 0))}
           >
             <ChevronLeft className="h-5 w-5" />
-            "Предишна тема"
+            Предишна тема
           </NeonButton>
+        )}
+
+        {currentTopicVideo ? (
+          <NeonButton
+            href={videoHref ?? currentTopicVideo.src}
+            target={videoHref ? undefined : "_blank"}
+            rel={videoHref ? undefined : "noreferrer"}
+            variant="secondary"
+            className="min-h-14 w-full justify-center"
+          >
+            <PlayCircle className="h-5 w-5" />
+            Видео
+          </NeonButton>
+        ) : (
+          <div className="hidden sm:block" aria-hidden="true" />
         )}
 
         {isLastSection ? (
@@ -165,7 +140,7 @@ export function LessonSectionStepper({
             className="min-h-14 w-full justify-center sm:justify-self-end"
             onClick={() => setCurrentSectionIndex((index) => Math.min(index + 1, sections.length - 1))}
           >
-            {"\u0421\u043b\u0435\u0434\u0432\u0430\u0449\u0430 \u0442\u0435\u043c\u0430"}
+            Следваща тема
             <ChevronRight className="h-5 w-5" />
           </NeonButton>
         )}

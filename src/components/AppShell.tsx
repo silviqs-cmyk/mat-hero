@@ -2,8 +2,9 @@
 
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { BackgroundMathSymbols } from "@/components/BackgroundMathSymbols";
+import { BottomNav } from "@/components/BottomNav";
 import { StudentSideNav } from "@/components/StudentSideNav";
 import { useAppState } from "@/components/providers/AppStateProvider";
 import { TopBarProgressProvider } from "@/components/providers/TopBarProgressProvider";
@@ -42,7 +43,6 @@ function isStudentAppRoute(pathname: string) {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { authUser } = useAppState();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const landing = pathname === "/";
   const admin = pathname.startsWith("/admin");
   const auth = isAuthRoute(pathname);
@@ -51,10 +51,6 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canShowProtectedChrome =
     !protectedStudentRoute || (authUser.isReady && Boolean(authUser.id) && Boolean(authUser.displayName.trim()));
   const showStudentChrome = !landing && !admin && !auth && studentAppRoute && canShowProtectedChrome;
-
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [pathname]);
 
   return (
     <TopBarProgressProvider>
@@ -70,26 +66,19 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         {showStudentChrome ? (
           <div className="relative z-10 grid min-h-screen grid-rows-[auto_minmax(0,1fr)]">
-            <TopBar
-              mobileMenuOpen={mobileMenuOpen}
-              onToggleMenu={() => setMobileMenuOpen((current) => !current)}
-            />
+            <TopBar />
 
             <div className="flex min-h-0 flex-col lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
               <div className="hidden lg:block">
                 <StudentSideNav />
               </div>
 
-              <div className="min-w-0 px-4 pb-8 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-6">
-                {mobileMenuOpen ? (
-                  <div className="mb-4 lg:hidden">
-                    <StudentSideNav mobile onNavigate={() => setMobileMenuOpen(false)} />
-                  </div>
-                ) : null}
-
+              <div className="min-w-0 px-4 pb-24 pt-4 sm:px-6 lg:px-8 lg:pb-10 lg:pt-6">
                 <main className="min-w-0">{children}</main>
               </div>
             </div>
+
+            <BottomNav />
           </div>
         ) : (
           <main

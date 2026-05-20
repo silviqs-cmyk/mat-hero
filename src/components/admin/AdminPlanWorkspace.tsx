@@ -24,8 +24,10 @@ import { FormTextarea } from "@/components/ui/FormTextarea";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { RichTextTextarea } from "@/components/ui/RichTextTextarea";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { StatCard } from "@/components/ui/StatCard";
+import { LessonSectionStepper } from "@/components/student/LessonSectionStepper";
 import {
   deleteLessonVideoByUrl,
   getLessonVideoMaxBytes,
@@ -42,6 +44,8 @@ import {
   removePlanQuestion,
   removePlanSection,
   reorderPlanSections,
+  replacePlanSectionsForLesson,
+  setAdminCoursePublishedState,
   savePlanDay,
   savePlanLesson,
   savePlanQuestion,
@@ -50,6 +54,7 @@ import {
   type AdminQuestionGroup,
 } from "@/services/adminPlan";
 import { expandLessonSectionToTopics } from "@/lib/lessonTopics";
+import { buildLessonSectionsFromTheoryContent, parseTheoryContent } from "@/lib/parseTheoryContent";
 import { isValidVideoUrl, resolveLessonVideo } from "@/lib/video";
 import type { Lesson, LessonSection, Question } from "@/types/course";
 import type { CourseDayInput, LessonInput, LessonSectionInput, QuestionInput, QuestionOptionInput } from "@/types/admin";
@@ -74,6 +79,12 @@ interface LessonVideoUploadState {
   progress: number;
   error: string | null;
   success: string | null;
+}
+
+interface TheoryTopicVideoDraft {
+  key: string;
+  video_url: string;
+  video_status: "draft" | "published";
 }
 
 const SECTION_TYPES = ["theory", "example", "formula", "tip", "warning", "common_mistake"] as const;
@@ -117,6 +128,10 @@ function getEmptySectionForm(lessonId = "", sortOrder = 1): LessonSectionInput {
     section_type: "theory",
     content: "",
     sort_order: sortOrder,
+    is_published: false,
+    video_url: null,
+    video_provider: "none",
+    video_status: "draft",
   };
 }
 
@@ -273,6 +288,9 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
   const [questionForm, setQuestionForm] = useState<QuestionInput>(getEmptyQuestionForm("", null));
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [videoUpload, setVideoUpload] = useState<LessonVideoUploadState>(getEmptyVideoUploadState());
+  const [showTheoryPreview, setShowTheoryPreview] = useState(false);
+  const [topicVideoDrafts, setTopicVideoDrafts] = useState<TheoryTopicVideoDraft[]>([]);
+  const [openTopicVideoIndexes, setOpenTopicVideoIndexes] = useState<number[]>([]);
   const currentQuestionGroup: AdminQuestionGroup =
     mode === "quiz" ? "quiz" : mode === "bonus" ? "bonus" : "practice";
   const isValidDayNumber = Number.isInteger(dayNumber) && dayNumber >= 1 && dayNumber <= ADMIN_PLAN_TOTAL_DAYS;
@@ -342,6 +360,8 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       setQuestionForm(getEmptyQuestionForm(nextDay?.id ?? "", nextLesson?.id ?? null, currentQuestionGroup));
       setEditingQuestionId(null);
       setVideoUpload(getEmptyVideoUploadState());
+      setShowTheoryPreview(false);
+      setOpenTopicVideoIndexes([]);
     },
     [currentQuestionGroup, dayNumber],
   );
@@ -407,6 +427,58 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
     () => activeSections.filter((section) => section.section_type === "theory"),
     [activeSections],
   );
+  const parsedTheorySections = useMemo(() => {
+    if (!lessonForm.content.trim()) {
+      return [];
+    }
+
+    const lessonId = activeLesson?.id ?? "draft-lesson";
+
+    return buildLessonSectionsFromTheoryContent(
+      {
+        id: lessonId,
+        lesson_id: lessonId,
+        is_published: lessonForm.is_published,
+        created_at: activeLesson?.created_at ?? "",
+        updated_at: activeLesson?.updated_at ?? "",
+      },
+      lessonForm.content,
+      lessonForm.title || `Ден ${dayNumber}`,
+      activeSections,
+    );
+  }, [activeLesson?.created_at, activeLesson?.id, activeLesson?.updated_at, dayNumber, lessonForm.content, lessonForm.is_published, lessonForm.title]);
+  const parsedTheoryTopics = useMemo(
+    () => parseTheoryContent(lessonForm.content, lessonForm.title || `Ден ${dayNumber}`),
+    [dayNumber, lessonForm.content, lessonForm.title],
+  );
+  useEffect(() => {
+    setTopicVideoDrafts((current) =>
+      parsedTheorySections.map((section, index) => {
+        const nextKey = `${index + 1}:${section.title}:${section.section_type}`;
+        const preservedDraft = current.find((draft) => draft.key === nextKey);
+        if (preservedDraft) {
+          return preservedDraft;
+        }
+
+        return {
+          key: nextKey,
+          video_url: section.video_url ?? "",
+          video_status: section.video_status ?? "draft",
+        };
+      }),
+    );
+  }, [parsedTheorySections]);
+  const previewTheorySections = useMemo(
+    () =>
+      parsedTheorySections.map((section, index) => ({
+        ...section,
+        video_url: topicVideoDrafts[index]?.video_url?.trim() || null,
+        video_status: topicVideoDrafts[index]?.video_url?.trim()
+          ? topicVideoDrafts[index]?.video_status ?? "draft"
+          : "draft",
+      })),
+    [parsedTheorySections, topicVideoDrafts],
+  );
   const activeQuestions = useMemo(
     () =>
       activeDay
@@ -445,6 +517,37 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
   const lessonCount = snapshot?.lessons.length ?? 0;
   const questionCount = snapshot?.questions.length ?? 0;
   const videoCount = snapshot?.lessons.filter((lesson) => lesson.video_url && lesson.video_status === "published").length ?? 0;
+  const videoVisibilityBlockers = useMemo(() => {
+    const blockers: string[] = [];
+
+    if (!snapshot?.course.is_published) {
+      blockers.push("Курсът още е в чернова.");
+    }
+
+    if (activeDay && !activeDay.is_published) {
+      blockers.push(`Ден ${dayNumber} още е в чернова.`);
+    }
+
+    if (activeLesson && !activeLesson.is_published && !lessonForm.is_published) {
+      blockers.push("Урокът още е в чернова.");
+    }
+
+    if (!lessonForm.video_url?.trim()) {
+      blockers.push("Няма качено или въведено видео.");
+    } else if (lessonForm.video_status !== "published") {
+      blockers.push("Видеото още е в чернова.");
+    }
+
+    return blockers;
+  }, [
+    activeDay,
+    activeLesson,
+    dayNumber,
+    lessonForm.is_published,
+    lessonForm.video_status,
+    lessonForm.video_url,
+    snapshot?.course.is_published,
+  ]);
 
   const ensureDayAndReload = useCallback(async () => {
     setIsSaving(true);
@@ -489,10 +592,37 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
 
     setIsSaving(true);
     try {
-      await savePlanLesson(activeLesson?.id ?? null, {
+      const savedLesson = await savePlanLesson(activeLesson?.id ?? null, {
         ...lessonForm,
         course_day_id: activeDay.id,
       });
+      const parsedSectionsForSave = buildLessonSectionsFromTheoryContent(
+        {
+          id: savedLesson.id,
+          lesson_id: savedLesson.id,
+          is_published: savedLesson.is_published,
+          created_at: savedLesson.created_at,
+          updated_at: savedLesson.updated_at,
+        },
+        lessonForm.content,
+        lessonForm.title || `Ден ${dayNumber}`,
+      ).map((section, index) => {
+        const draft = topicVideoDrafts[index];
+        const videoUrl = draft?.video_url?.trim() || null;
+
+        return {
+          lesson_id: savedLesson.id,
+          title: section.title,
+          section_type: section.section_type,
+          content: section.content,
+          sort_order: index + 1,
+          is_published: savedLesson.is_published,
+          video_url: videoUrl,
+          video_provider: videoUrl ? section.video_provider : "none",
+          video_status: videoUrl ? draft?.video_status ?? "draft" : "draft",
+        };
+      });
+      await replacePlanSectionsForLesson(savedLesson.id, parsedSectionsForSave);
       await loadSnapshot();
       showToast("success", "Урокът е запазен.");
     } catch (saveError) {
@@ -582,7 +712,40 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       section_type: section.section_type,
       content: section.content,
       sort_order: section.sort_order,
+      is_published: section.is_published,
+      video_url: section.video_url,
+      video_provider: section.video_provider,
+      video_status: section.video_status,
     });
+  }
+
+  async function handleToggleSectionPublish(section: LessonSection) {
+    const invalidTopicVideo = topicVideoDrafts.find((draft) => draft.video_url.trim() && !isValidVideoUrl(draft.video_url.trim()));
+    if (invalidTopicVideo) {
+      showToast("error", "Поне един topic video URL не е валиден.");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await savePlanSection(section.id, {
+        lesson_id: section.lesson_id,
+        title: section.title,
+        section_type: section.section_type,
+        content: section.content,
+        sort_order: section.sort_order,
+        is_published: !section.is_published,
+        video_url: section.video_url,
+        video_provider: section.video_provider,
+        video_status: section.video_status,
+      });
+      await loadSnapshot();
+      showToast("success", !section.is_published ? "Секцията е публикувана." : "Секцията е скрита.");
+    } catch (publishError) {
+      showToast("error", publishError instanceof Error ? publishError.message : "Не успях да обновя секцията.");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   async function handleCreateTopicsFromLessonContent() {
@@ -603,6 +766,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       section_type: "theory",
       content: lessonForm.content,
       sort_order: activeSections.length + 1,
+      is_published: false,
+      video_url: null,
+      video_provider: "none",
+      video_status: "draft",
       created_at: activeLesson.created_at,
       updated_at: activeLesson.updated_at,
     }).slice(0, 2);
@@ -621,6 +788,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           section_type: "theory",
           content: topic.content,
           sort_order: activeSections.length + index + 1,
+          is_published: false,
+          video_url: null,
+          video_provider: "none",
+          video_status: "draft",
         });
       }
 
@@ -657,6 +828,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       section_type: "theory",
       content: sectionForm.content,
       sort_order: sectionForm.sort_order,
+      is_published: sectionForm.is_published,
+      video_url: sectionForm.video_url,
+      video_provider: sectionForm.video_provider,
+      video_status: sectionForm.video_status,
       created_at: activeLesson.created_at,
       updated_at: activeLesson.updated_at,
     }).slice(0, 2);
@@ -680,6 +855,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           section_type: "theory",
           content: generatedTopics[0].content,
           sort_order: activeSections[currentIndex].sort_order,
+          is_published: sectionForm.is_published,
+          video_url: sectionForm.video_url,
+          video_provider: sectionForm.video_provider,
+          video_status: sectionForm.video_status,
         });
 
         const newIds: string[] = [];
@@ -690,6 +869,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             section_type: "theory",
             content: topic.content,
             sort_order: activeSections[currentIndex].sort_order + index + 1,
+            is_published: sectionForm.is_published,
+            video_url: sectionForm.video_url,
+            video_provider: sectionForm.video_provider,
+            video_status: sectionForm.video_status,
           });
           newIds.push(created.id);
         }
@@ -705,6 +888,10 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             section_type: "theory",
             content: topic.content,
             sort_order: activeSections.length + index + 1,
+            is_published: sectionForm.is_published,
+            video_url: sectionForm.video_url,
+            video_provider: sectionForm.video_provider,
+            video_status: sectionForm.video_status,
           });
         }
       }
@@ -959,6 +1146,66 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
     }
   }
 
+  async function handleToggleVideoPublish() {
+    if (!snapshot || !activeDay) {
+      showToast("error", "Първо създай деня.");
+      return;
+    }
+
+    if (!lessonForm.video_url?.trim()) {
+      showToast("error", "Добави видео URL или качи видео, преди да го публикуваш.");
+      return;
+    }
+
+    if (!activeLesson && !lessonForm.title.trim()) {
+      showToast("error", "Първо добави заглавие на урока.");
+      return;
+    }
+
+    setIsSaving(true);
+    const nextVideoStatus = lessonForm.video_status === "published" ? "draft" : "published";
+
+    try {
+      if (nextVideoStatus === "published") {
+        if (!snapshot.course.is_published) {
+          await setAdminCoursePublishedState(snapshot.course.id, true);
+        }
+
+        if (!activeDay.is_published) {
+          await savePlanDay(activeDay.id, {
+            course_id: activeDay.course_id,
+            day_number: activeDay.day_number,
+            title: activeDay.title,
+            subtitle: activeDay.subtitle,
+            description: activeDay.description,
+            estimated_minutes: activeDay.estimated_minutes,
+            is_published: true,
+            sort_order: activeDay.sort_order,
+          });
+        }
+      }
+
+      await savePlanLesson(activeLesson?.id ?? null, {
+        ...lessonForm,
+        course_day_id: activeDay.id,
+        title: lessonForm.title.trim() || activeLesson?.title || `Видео урок за Ден ${dayNumber}`,
+        video_status: nextVideoStatus,
+        is_published: nextVideoStatus === "published" ? true : lessonForm.is_published,
+      });
+      await loadSnapshot();
+      showToast(
+        "success",
+        nextVideoStatus === "published"
+          ? "Видеото е публикувано и вече е видимо за ученика."
+          : "Видеото е върнато в чернова.",
+      );
+    } catch (saveError) {
+      showToast("error", saveError instanceof Error ? saveError.message : "Не успях да обновя статуса на видеото.");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   if (isLoading) {
     return <LoadingState title="Зареждам admin плана" lines={6} />;
   }
@@ -992,7 +1239,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
   }
 
   const previewVideo = lessonForm.video_url ? resolveLessonVideo(lessonForm.video_url) : null;
-  const previewLessonSections = activeSections.length > 0 ? activeSections : [];
+  const previewLessonSections = activeSections.filter((section) => section.is_published);
 
   function renderDayActions(dayIndex: number) {
     return (
@@ -1399,15 +1646,20 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
               />
             </div>
           </div>
-          <FormTextarea
-            label="Описание"
-            rows={6}
-            value={dayForm.description}
-            onChange={(event) => {
-              const value = event.currentTarget?.value ?? "";
-              setDayForm((current) => ({ ...current, description: value }));
-            }}
-          />
+          <div className="space-y-2">
+            <FormTextarea
+              label="Най-важното"
+              rows={6}
+              value={dayForm.description}
+              onChange={(event) => {
+                const value = event.currentTarget?.value ?? "";
+                setDayForm((current) => ({ ...current, description: value }));
+              }}
+            />
+            <p className="text-sm text-[var(--mh-text-muted)]">
+              Това поле управлява блока `Най-важното` в student екрана за деня.
+            </p>
+          </div>
           <div className="flex flex-wrap gap-3">
             <NeonButton type="button" onClick={() => void handleSaveDay()} disabled={isSaving}>
               <Save className="h-4 w-4" />
@@ -1455,197 +1707,159 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
               />
             </div>
           </div>
-          <FormTextarea
-            label="Intro / content"
-            rows={8}
+          <RichTextTextarea
+            label="Цял текст на теорията"
+            rows={14}
             value={lessonForm.content}
-            onChange={(event) => {
-              const value = event.currentTarget?.value ?? "";
+            hint="Маркирай темите с ##. Форматиране: **bold**, [color=cyan]...[/color], [color=gold]...[/color], [color=green]...[/color], [color=red]...[/color]."
+            onChangeValue={(value) => {
               setLessonForm((current) => ({ ...current, content: value }));
             }}
           />
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge tone="cyan">Разпознати теми: {parsedTheoryTopics.length}</Badge>
+            <Badge tone="neutral">Работи за Ден 1-10</Badge>
+          </div>
+          <p className="text-xs text-[var(--mh-text-muted)]">
+            Поддържани маркери: ## Тема:, ## Пример:, ## Формула:, ## Съвет:, ## Честа грешка:. Ако няма ##, теорията се дели автоматично по заглавия или остава като една тема.
+          </p>
           <NeonButton type="button" onClick={() => void handleSaveLesson()} disabled={isSaving}>
             <Save className="h-4 w-4" />
             Запази теорията
           </NeonButton>
-          {activeLesson && lessonForm.content.trim() ? (
-            <>
-              <NeonButton
-                type="button"
-                variant="ghost"
-                onClick={() => void handleCreateTopicsFromLessonContent()}
-                disabled={isSaving}
-              >
-                Раздели lesson текста на 2 теми
-              </NeonButton>
-              <p className="text-xs text-[var(--mh-text-muted)]">
-                Автоматичното разделяне създава най-много 2 theory sections. Ако ти трябват още, добави ги ръчно.
-              </p>
-            </>
+          <NeonButton
+            type="button"
+            variant="ghost"
+            onClick={() => setShowTheoryPreview((current) => !current)}
+            disabled={parsedTheorySections.length === 0}
+          >
+            {showTheoryPreview ? "Скрий preview" : "Preview като ученик"}
+          </NeonButton>
+          {parsedTheorySections.length > 0 ? (
+            <div className="grid gap-3 lg:grid-cols-2">
+              {parsedTheorySections.map((section, index) => {
+                const draft = topicVideoDrafts[index];
+                const isTopicVideoOpen = openTopicVideoIndexes.includes(index);
+                return (
+                  <div key={`${section.id}-video`} className="rounded-[20px] border border-white/8 bg-slate-950/35 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge tone="neutral">Тема {index + 1}</Badge>
+                        {draft?.video_url?.trim() ? (
+                          <Badge tone={draft.video_status === "published" ? "green" : "gold"}>
+                            {draft.video_status === "published" ? "Видео публикувано" : "Видео чернова"}
+                          </Badge>
+                        ) : null}
+                      </div>
+                      <NeonButton
+                        type="button"
+                        variant={isTopicVideoOpen ? "secondary" : "ghost"}
+                        onClick={() => {
+                          setOpenTopicVideoIndexes((current) =>
+                            current.includes(index) ? current.filter((item) => item !== index) : [...current, index],
+                          );
+                        }}
+                      >
+                        <CirclePlay className="h-4 w-4" />
+                        Видео
+                      </NeonButton>
+                    </div>
+                    <h3 className="mt-3 text-base font-semibold text-white">{section.title}</h3>
+                    {isTopicVideoOpen ? (
+                    <div className="mt-4 grid gap-3">
+                      <FormInput
+                        label="Видео URL към темата"
+                        value={draft?.video_url ?? ""}
+                        placeholder="https://youtube.com/watch?v=..."
+                        onChange={(event) => {
+                          const value = event.currentTarget?.value ?? "";
+                          setTopicVideoDrafts((current) =>
+                            current.map((item, itemIndex) => (itemIndex === index ? { ...item, video_url: value } : item)),
+                          );
+                        }}
+                      />
+                      <FormSelect
+                        label="Video status"
+                        value={draft?.video_status ?? "draft"}
+                        onChange={(event) => {
+                          const value = (event.currentTarget?.value ?? "draft") as TheoryTopicVideoDraft["video_status"];
+                          setTopicVideoDrafts((current) =>
+                            current.map((item, itemIndex) => (itemIndex === index ? { ...item, video_status: value } : item)),
+                          );
+                        }}
+                      >
+                        <option value="draft">Draft</option>
+                        <option value="published">Published</option>
+                      </FormSelect>
+                      <div className="flex flex-wrap gap-3">
+                        <NeonButton
+                          type="button"
+                          variant={draft?.video_status === "published" ? "ghost" : "success"}
+                          disabled={!draft?.video_url?.trim()}
+                          onClick={() => {
+                            setTopicVideoDrafts((current) =>
+                              current.map((item, itemIndex) =>
+                                itemIndex === index
+                                  ? {
+                                      ...item,
+                                      video_status: item.video_status === "published" ? "draft" : "published",
+                                    }
+                                  : item,
+                              ),
+                            );
+                          }}
+                        >
+                          {draft?.video_status === "published" ? "Unpublish" : "Publish"}
+                        </NeonButton>
+                        {!draft?.video_url?.trim() ? (
+                          <p className="self-center text-xs text-[var(--mh-text-muted)]">
+                            Добави URL и после запази теорията, за да се публикува видеото към темата.
+                          </p>
+                        ) : (
+                          <p className="self-center text-xs text-[var(--mh-text-muted)]">
+                            След промяната натисни `Запази теорията`, за да се приложи за ученика.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    ) : (
+                      <p className="mt-4 text-sm text-[var(--mh-text-muted)]">
+                        {draft?.video_url?.trim()
+                          ? "Има зададено видео за тази тема. Натисни `Видео`, за да го редактираш."
+                          : "Натисни `Видео`, за да добавиш видео към тази тема."}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           ) : null}
         </NeonCard>
+
+        {showTheoryPreview && parsedTheorySections.length > 0 ? (
+          <NeonCard padding="md" className="space-y-4">
+            <SectionHeader
+              label="Student preview"
+              title="Preview като ученик"
+            />
+            <LessonSectionStepper
+              sections={previewTheorySections}
+              practiceHref="#"
+              finalHref="#"
+              finalLabel="Към задачите"
+              courseSlug="admin-preview"
+              dayNumber={dayNumber}
+            />
+          </NeonCard>
+        ) : null}
 
         {!activeLesson ? (
           <EmptyState
             title="Още няма урок за този ден"
-            description="Създай урока и после ще можеш да управляваш секции, формули, примери и съвети."
+            description="Създай урока и после ще можеш да запазиш цялата теория отеднъж."
             action={<NeonButton onClick={() => void handleSaveLesson()}>Създай теория</NeonButton>}
           />
-        ) : (
-          <>
-            <NeonCard padding="md" className="space-y-4">
-              <SectionHeader
-                label="Theory sections"
-                title="Подреди теорията на деня"
-              />
-              <p className="text-sm text-[var(--mh-text-muted)]">
-                Теория и Пример отиват в lesson екрана. Най-важното в dashboard се управлява от tip, warning или formula. Автоматичното разделяне тук прави до 2 theory sections.
-              </p>
-              {activeTheorySections.length > 2 ? (
-                <div className="flex flex-wrap items-center gap-3">
-                  <NeonButton type="button" variant="danger" onClick={() => void handleKeepOnlyTwoTheorySections()} disabled={isSaving}>
-                    Остави само 2 theory sections
-                  </NeonButton>
-                  <p className="text-xs text-[var(--mh-text-muted)]">
-                    Ще изтрия всички theory секции след първите 2 и ще пренаредя останалите.
-                  </p>
-                </div>
-              ) : null}
-              {activeSections.length === 0 ? (
-                <EmptyState
-                  title="Няма theory sections"
-                  description="Добави теория, пример, формула или tip, за да подредиш урока."
-                />
-              ) : (
-                <div className="space-y-3">
-                  {activeSections.map((section, index) => (
-                    <div key={section.id} className="rounded-[24px] border border-white/8 bg-slate-950/35 p-4">
-                      <div className="flex flex-wrap items-start justify-between gap-3">
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Badge tone="cyan">{getSectionTypeLabel(section.section_type)}</Badge>
-                            <Badge tone="neutral">#{section.sort_order}</Badge>
-                          </div>
-                          <h3 className="mt-3 text-lg font-semibold text-white">{getSectionDisplayTitle(section)}</h3>
-                          <p className="mt-2 text-xs text-[var(--mh-text-muted)]">{getSectionPlacementHint(section.section_type)}</p>
-                          <p className="mt-2 line-clamp-3 text-sm text-[var(--mh-text-muted)]">{section.content}</p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          <NeonButton type="button" variant="ghost" onClick={() => openSectionEditor(section)}>
-                            Редактирай
-                          </NeonButton>
-                          <NeonButton
-                            type="button"
-                            variant="ghost"
-                            onClick={() => void handleReorderSections(section.id, "up")}
-                            disabled={index === 0}
-                          >
-                            <ArrowUp className="h-4 w-4" />
-                          </NeonButton>
-                          <NeonButton
-                            type="button"
-                            variant="ghost"
-                            onClick={() => void handleReorderSections(section.id, "down")}
-                            disabled={index === activeSections.length - 1}
-                          >
-                            <ArrowDown className="h-4 w-4" />
-                          </NeonButton>
-                          <NeonButton type="button" variant="danger" onClick={() => void handleDeleteSection(section.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </NeonButton>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </NeonCard>
-
-            <NeonCard padding="md" className="space-y-4">
-              <SectionHeader
-                label="Theory section editor"
-                title={editingSectionId ? "Редакция на секция" : "Нова секция"}
-              />
-              <div className="grid gap-4 lg:grid-cols-2">
-                <FormInput
-                  label="Заглавие"
-                  value={sectionForm.title}
-                  onChange={(event) => {
-                    const value = event.currentTarget?.value ?? "";
-                    setSectionForm((current) => ({ ...current, title: value }));
-                  }}
-                />
-                <FormSelect
-                  label="Тип секция"
-                  value={sectionForm.section_type}
-                  onChange={(event) => {
-                    const value = event.currentTarget?.value ?? "theory";
-                    setSectionForm((current) => ({ ...current, section_type: value }));
-                  }}
-                >
-                  {SECTION_TYPES.map((sectionType) => (
-                    <option key={sectionType} value={sectionType}>
-                      {getSectionTypeLabel(sectionType)}
-                    </option>
-                  ))}
-                </FormSelect>
-                <FormInput
-                  label="Sort order"
-                  type="number"
-                  min={1}
-                  value={sectionForm.sort_order}
-                  onChange={(event) => {
-                    const value = event.currentTarget?.value ?? "1";
-                    setSectionForm((current) => ({ ...current, sort_order: Number(value) || 1 }));
-                  }}
-                />
-              </div>
-              <FormTextarea
-                label="Съдържание"
-                rows={8}
-                value={sectionForm.content}
-                onChange={(event) => {
-                  const value = event.currentTarget?.value ?? "";
-                  setSectionForm((current) => ({ ...current, content: value }));
-                }}
-              />
-              <p className="text-sm text-[var(--mh-text-muted)]">{getSectionPlacementHint(sectionForm.section_type)}</p>
-              <div className="flex flex-wrap gap-3">
-                <NeonButton type="button" onClick={() => void handleSaveSection()} disabled={isSaving}>
-                  <Save className="h-4 w-4" />
-                  {editingSectionId ? "Запази секцията" : "Добави секция"}
-                </NeonButton>
-                {sectionForm.section_type === "theory" && sectionForm.content.trim() ? (
-                  <NeonButton
-                    type="button"
-                    variant="ghost"
-                    onClick={() => void handleSplitSectionIntoTopics()}
-                    disabled={isSaving}
-                  >
-                    Раздели секцията на 2 теми
-                  </NeonButton>
-                ) : null}
-                {sectionForm.section_type === "theory" ? (
-                  <p className="w-full text-xs text-[var(--mh-text-muted)]">
-                    Автоматичното разделяне прави най-много 2 theory sections. Останалите теми ги добави ръчно.
-                  </p>
-                ) : null}
-                {editingSectionId ? (
-                  <NeonButton
-                    type="button"
-                    variant="ghost"
-                    onClick={() => {
-                      setEditingSectionId(null);
-                      setSectionForm(getEmptySectionForm(activeLesson?.id ?? "", activeSections.length + 1));
-                    }}
-                  >
-                    Отказ
-                  </NeonButton>
-                ) : null}
-              </div>
-            </NeonCard>
-          </>
-        )}
+        ) : null}
       </div>
     );
   } else if (mode === "video") {
@@ -1665,6 +1879,21 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
             />
           ) : (
             <>
+              <NeonCard tone={videoVisibilityBlockers.length === 0 ? "cyan" : "gold"} padding="sm" className="space-y-2">
+                <p className="mh-label">Student visibility</p>
+                <p className="text-sm text-[var(--mh-text-soft)]">
+                  {videoVisibilityBlockers.length === 0
+                    ? "Това видео вече има всички нужни publish флагове, за да се вижда отпред."
+                    : "За да се вижда отпред, курсът, денят, урокът и самото видео трябва да са публикувани."}
+                </p>
+                {videoVisibilityBlockers.length > 0 ? (
+                  <div className="space-y-1 text-sm text-[var(--mh-text-muted)]">
+                    {videoVisibilityBlockers.map((blocker) => (
+                      <p key={blocker}>- {blocker}</p>
+                    ))}
+                  </div>
+                ) : null}
+              </NeonCard>
               <div className="grid gap-4 lg:grid-cols-2">
                 <FormSelect
                   label="Video provider"
@@ -1789,6 +2018,14 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                 <NeonButton type="button" onClick={() => void handleSaveVideo()} disabled={isSaving || videoUpload.isUploading}>
                   <Save className="h-4 w-4" />
                   Запази видео настройките
+                </NeonButton>
+                <NeonButton
+                  type="button"
+                  variant={lessonForm.video_status === "published" ? "ghost" : "success"}
+                  onClick={() => void handleToggleVideoPublish()}
+                  disabled={isSaving || videoUpload.isUploading}
+                >
+                  {lessonForm.video_status === "published" ? "Unpublish" : "Publish"}
                 </NeonButton>
                 <NeonButton type="button" variant="ghost" onClick={() => void handleRemoveVideo()}>
                   Премахни видео
@@ -1985,35 +2222,13 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
               )}
             </NeonCard>
 
-            <NeonCard padding="md" className="space-y-4">
-              <p className="mh-label">Theory sections</p>
-              {previewLessonSections.length === 0 ? (
-                <EmptyState
-                  title="Няма theory sections"
-                  description="Добави теория, пример или формула, за да попълниш урока."
-                />
-              ) : (
-                <div className="space-y-3">
-                  {previewLessonSections.map((section) => (
-                    <div key={section.id} className="rounded-[20px] border border-white/8 bg-slate-950/35 p-4">
-                      <div className="flex items-center gap-2">
-                        <Badge tone="cyan">{section.section_type}</Badge>
-                      </div>
-                      <h4 className="mt-3 text-lg font-semibold text-white">{getSectionDisplayTitle(section)}</h4>
-                      <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--mh-text-soft)]">{section.content}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </NeonCard>
-
             <div className="grid gap-4 xl:grid-cols-3">
               {(["practice", "quiz", "bonus"] as const).map((group) => (
                 <NeonCard key={group} padding="md" className="space-y-3">
                   <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="mh-label">{getQuestionGroupLabel(group)}</p>
-                      <h4 className="mt-2 text-lg font-semibold text-white">{previewQuestions[group].length} въпроса</h4>
+                      <h4 className="mt-2 text-lg font-semibold text-white">{previewQuestions[group].length} items</h4>
                     </div>
                     <Badge tone={group === "practice" ? "purple" : group === "quiz" ? "green" : "gold"}>
                       {group}
@@ -2021,15 +2236,15 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
                   </div>
                   {previewQuestions[group].length === 0 ? (
                     <EmptyState
-                      title="Няма съдържание"
-                      description="Тук ученикът ще види EmptyState, докато не добавиш въпроси."
+                      title="No content yet"
+                      description="The student will see an empty state here until you add questions."
                     />
                   ) : (
                     <div className="space-y-2">
                       {previewQuestions[group].slice(0, 3).map((question) => (
                         <div key={question.id} className="rounded-[18px] border border-white/8 bg-slate-950/35 px-4 py-3">
                           <p className="text-sm font-medium text-white">{question.prompt}</p>
-                          <p className="mt-1 text-xs text-[var(--mh-text-muted)]">{question.topic || "Без тема"}</p>
+                          <p className="mt-1 text-xs text-[var(--mh-text-muted)]">{question.topic || "No topic"}</p>
                         </div>
                       ))}
                     </div>
@@ -2126,3 +2341,5 @@ class AdminPlanWorkspaceErrorBoundary extends Component<AdminPlanWorkspaceProps,
 export function AdminPlanWorkspace(props: AdminPlanWorkspaceProps) {
   return <AdminPlanWorkspaceErrorBoundary {...props} />;
 }
+
+

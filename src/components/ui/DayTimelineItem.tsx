@@ -7,7 +7,7 @@ interface DayTimelineItemProps {
 }
 
 export function DayTimelineItem({ item, isLast = false }: DayTimelineItemProps) {
-  const href = item.href ?? (item.dayNumber === 1 ? "/dashboard" : `/lesson/${item.dayNumber}`);
+  const href = item.href ?? (item.dayNumber === 1 ? "/dashboard" : `/day/${item.dayNumber}`);
 
   return (
     <div className="relative pl-9">

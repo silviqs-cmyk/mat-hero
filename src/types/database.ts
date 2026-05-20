@@ -66,6 +66,10 @@ export interface DatabaseLessonSection {
   section_type: string;
   content: string;
   sort_order: number;
+  is_published: boolean;
+  video_url: string | null;
+  video_provider: "youtube" | "vimeo" | "external" | "uploaded" | "none";
+  video_status: "draft" | "published";
   created_at: string;
   updated_at: string;
 }

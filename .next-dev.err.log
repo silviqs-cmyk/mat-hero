@@ -1,0 +1,23 @@
+⨯ Error: SUPABASE_SERVICE_ROLE_KEY липсва. Той е нужен само за server-side admin операции, migration helper-и или jobs.
+
+Debug env flags: hasPublicUrl=true, hasPublicAnonKey=true, hasServiceRoleKey=false, publicUrlLooksValid=true, publicKeyLooksValid=true
+
+Ако току-що си редактирал .env.local, рестартирай dev сървъра.
+
+Очакван .env.local формат:
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=   # optional, само за server-side admin операции
+    at getRequiredServiceRoleKey (src\lib\supabase\env.ts:132:11)
+    at createServiceRoleSupabaseClient (src\lib\supabase\server.ts:42:30)
+    at POST (src\app\api\student\reset-progress\route.ts:12:51)
+  130 |
+  131 |   if (!serviceRoleKey) {
+> 132 |     throw new Error(
+      |           ^
+  133 |       formatEnvSetupMessage([
+  134 |         `${SERVICE_ROLE_KEY} липсва. Той е нужен само за server-side admin операции, migr...
+  135 |       ]),
+[browser] ⨯ unhandledRejection: Error: Не успях да зануля прогреса.
+    at resetStudentProgress (file://C:/New folder/maturohero/.next/dev/static/chunks/_01rhkx-._.js:282:15)
+    at async handleReset (file://C:/New folder/maturohero/.next/dev/static/chunks/_01rhkx-._.js:570:17)

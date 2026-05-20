@@ -1,6 +1,7 @@
 import "server-only";
 
 import { DEFAULT_COURSE_SLUG } from "@/services/courses";
+import { listPublishedLessonSectionsCompat } from "@/services/lessonSectionsCompat";
 import { resolveQuestionGroup, type QuestionGroup } from "@/lib/questionGroups";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { Course, CourseDay, CourseWithDays, DayContentBundle, Lesson, Question, QuestionOption } from "@/types/course";
@@ -111,19 +112,9 @@ export async function getCourseDayServer(courseSlug: string, dayNumber: number):
 
   const lessonsWithSections = await Promise.all(
     ((lessons ?? []) as Lesson[]).map(async (lesson) => {
-      const { data: sections, error: sectionsError } = await supabase
-        .from("lesson_sections")
-        .select("*")
-        .eq("lesson_id", lesson.id)
-        .order("sort_order", { ascending: true });
-
-      if (sectionsError) {
-        throw new Error(sectionsError.message);
-      }
-
       return {
         ...lesson,
-        sections: sections ?? [],
+        sections: await listPublishedLessonSectionsCompat(supabase, lesson.id),
       };
     }),
   );

@@ -1,4 +1,4 @@
-import { TopBarProgressSync } from "@/components/providers/TopBarProgressSync";
+import { DayTopBarProgress } from "@/components/student/DayTopBarProgress";
 import { LessonSectionStepper } from "@/components/student/LessonSectionStepper";
 import { StudentFlowDebugCard } from "@/components/student/StudentFlowDebugCard";
 import { Badge } from "@/components/ui/Badge";
@@ -8,28 +8,25 @@ import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { requireStudent } from "@/lib/auth/server";
-import {
-  buildPracticeHref,
-  getPublishedLessonVideoUrl,
-  parseDayNumberParam,
-} from "@/lib/studentFlow";
-import { resolveQuestionGroup } from "@/lib/questionGroups";
-import { resolveLessonVideo } from "@/lib/video";
+import { buildLessonSectionsFromTheoryContent } from "@/lib/parseTheoryContent";
+import { buildPracticeHref, buildQuizHref, buildVideoHref, parseDayNumberParam } from "@/lib/studentFlow";
+import { findLessonSectionIndexForTopic } from "@/lib/topicLabels";
+import { hasMiniTestQuestions } from "@/lib/questionGroups";
 import { getCourseDayServer, getPublishedCourseBySlugServer } from "@/services/studentContent.server";
-import type { LessonSection } from "@/types/course";
 
 export default async function CourseLessonPage({
   params,
   searchParams,
 }: {
   params: Promise<{ courseSlug: string; dayNumber: string }>;
-  searchParams: Promise<{ debug?: string }>;
+  searchParams: Promise<{ debug?: string; topic?: string }>;
 }) {
   await requireStudent();
 
   const { courseSlug, dayNumber: rawDayNumber } = await params;
   const resolvedSearchParams = await searchParams;
   const debugEnabled = resolvedSearchParams.debug === "1" || resolvedSearchParams.debug === "true";
+  const selectedTopic = resolvedSearchParams.topic;
   const dayNumber = parseDayNumberParam(rawDayNumber);
 
   const baseDebugItems = [
@@ -63,8 +60,6 @@ export default async function CourseLessonPage({
     }));
 
   const lesson = loadResult.data?.bundle?.lessons[0] ?? null;
-  const publishedVideoUrl = getPublishedLessonVideoUrl(lesson);
-  const allQuestions = loadResult.data?.bundle?.questions ?? [];
   const resolvedDebugItems = [
     ...baseDebugItems,
     { label: "load error", value: loadResult.error },
@@ -73,24 +68,7 @@ export default async function CourseLessonPage({
     { label: "lesson found", value: Boolean(lesson) },
     { label: "lesson id", value: lesson?.id },
     { label: "lesson title", value: lesson?.title },
-    { label: "video status", value: lesson?.video_status },
-    { label: "video url", value: lesson?.video_url },
-    { label: "published video url", value: publishedVideoUrl },
-    { label: "resolved video", value: Boolean(resolveLessonVideo(publishedVideoUrl)) },
     { label: "lesson sections", value: lesson?.sections?.length ?? 0 },
-    { label: "questions total", value: allQuestions.length },
-    {
-      label: "practice count",
-      value: allQuestions.filter((question) => resolveQuestionGroup(question) === "practice").length,
-    },
-    {
-      label: "quiz count",
-      value: allQuestions.filter((question) => resolveQuestionGroup(question) === "quiz").length,
-    },
-    {
-      label: "bonus count",
-      value: allQuestions.filter((question) => resolveQuestionGroup(question) === "bonus").length,
-    },
   ];
 
   if (loadResult.error) {
@@ -133,39 +111,65 @@ export default async function CourseLessonPage({
 
   const course = loadResult.data.course;
   const bundle = loadResult.data.bundle;
-  const theorySections = (lesson.sections ?? [])
-    .filter((section) => section.section_type === "theory" && Boolean(section.content?.trim()))
+  const videoHref = buildVideoHref(course.slug, bundle.day.day_number);
+  const nextHref = hasMiniTestQuestions(bundle.questions)
+    ? buildQuizHref(course.slug, bundle.day.day_number)
+    : buildPracticeHref(course.slug, bundle.day.day_number);
+  const nextLabel = hasMiniTestQuestions(bundle.questions) ? "Към теста" : "Към задачите";
+  const parsedSections = lesson.content?.trim()
+    ? buildLessonSectionsFromTheoryContent(
+        {
+          id: lesson.id,
+          lesson_id: lesson.id,
+          is_published: true,
+          created_at: lesson.created_at,
+          updated_at: lesson.updated_at,
+        },
+        lesson.content,
+        lesson.title,
+        lesson.sections ?? [],
+      )
+    : [];
+  const stepperSections = (parsedSections.length > 0 ? parsedSections : lesson.sections ?? [])
+    .filter((section) => Boolean(section.content?.trim()))
+    .map((section) => ({ ...section, section_type: "theory" }))
     .sort((left, right) => left.sort_order - right.sort_order);
+  const resolvedSections = stepperSections.map((section, index) =>
+    index === 0 && lesson.video_status === "published" && lesson.video_url && !section.video_url
+      ? {
+          ...section,
+          video_url: lesson.video_url,
+          video_provider: lesson.video_provider,
+          video_status: "published" as const,
+        }
+      : section,
+  );
+  const initialSectionIndex = findLessonSectionIndexForTopic(resolvedSections, selectedTopic);
 
-  const fallbackSection: LessonSection = {
-    id: `${lesson.id}-fallback-theory`,
-    lesson_id: lesson.id,
-    title: lesson.title,
-    section_type: "theory",
-    content: lesson.content,
-    sort_order: 0,
-    created_at: lesson.created_at,
-    updated_at: lesson.updated_at,
-  };
-
-  const stepperSections = theorySections.length > 0 ? theorySections : [fallbackSection];
+  if (resolvedSections.length === 0) {
+    return (
+      <div className="space-y-6">
+        {debugEnabled ? <StudentFlowDebugCard title="Lesson Route Debug" items={resolvedDebugItems} /> : null}
+        <EmptyState
+          title="Няма съдържание за този урок"
+          description="Добави теория или съдържание към урока, за да се покаже тук."
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       {debugEnabled ? <StudentFlowDebugCard title="Lesson Route Debug" items={resolvedDebugItems} /> : null}
 
-      <TopBarProgressSync
-        value={{
-          label: "Теория",
-          summary: `Ден ${bundle.day.day_number} от ${course.duration_days}`,
-          helper: "Мини през темите една по една и накрая продължи към задачите.",
-          value: 1,
-          max: 3,
-          tone: "cyan",
-        }}
+      <DayTopBarProgress
+        courseSlug={course.slug}
+        dayNumber={bundle.day.day_number}
+        label="Урок"
+        helper="Мини през темите и стигни до края на теорията."
       />
 
-      <section>
+      <section className="space-y-6">
         <NeonCard padding="lg" className="rounded-[30px]">
           <SectionHeader
             label="Урок"
@@ -174,12 +178,16 @@ export default async function CourseLessonPage({
             align="center"
           />
 
-          <p className="mh-copy-muted mt-4">{bundle.day.description}</p>
-
           <div className="mt-6">
             <LessonSectionStepper
-              sections={stepperSections}
-              practiceHref={buildPracticeHref(course.slug, bundle.day.day_number)}
+              sections={resolvedSections}
+              practiceHref={nextHref}
+              videoHref={videoHref}
+              finalHref={nextHref}
+              finalLabel={nextLabel}
+              initialSectionIndex={initialSectionIndex}
+              courseSlug={course.slug}
+              dayNumber={bundle.day.day_number}
             />
           </div>
         </NeonCard>

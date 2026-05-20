@@ -8,7 +8,7 @@ interface DayTimelineProps {
 }
 
 function getTimelineHref(day: DayTimelineItemModel) {
-  return day.href ?? (day.dayNumber === 1 ? "/dashboard" : `/lesson/${day.dayNumber}`);
+  return day.href ?? (day.dayNumber === 1 ? "/dashboard" : `/day/${day.dayNumber}`);
 }
 
 export function DayTimeline({ items, variant = "vertical" }: DayTimelineProps) {

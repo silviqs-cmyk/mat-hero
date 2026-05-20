@@ -3,11 +3,12 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { requireStudent } from "@/lib/auth/server";
-import { getCurrentDayNumber } from "@/lib/studentFlow";
+import { resolveCourseProgress } from "@/lib/progress";
 import {
   getCourseDayServer,
   getDefaultPublishedCourseServer,
   getUserCourseProgressServer,
+  listUserResultsServer,
 } from "@/services/studentContent.server";
 
 export default async function DashboardPage() {
@@ -32,8 +33,17 @@ export default async function DashboardPage() {
       return { course: null, progress: null, bundle: null };
     }
 
-    const progress = await getUserCourseProgressServer(profile.id, course.id);
-    const activeDayNumber = getCurrentDayNumber(progress, course.duration_days);
+    const [progress, results] = await Promise.all([
+      getUserCourseProgressServer(profile.id, course.id),
+      listUserResultsServer(profile.id, course.id),
+    ]);
+    const dayNumberByCourseDayId = new Map(course.days.map((day) => [day.id, day.day_number]));
+    const resolvedProgress = resolveCourseProgress({
+      progress,
+      resultDayNumbers: results.map((result) => dayNumberByCourseDayId.get(result.course_day_id) ?? null),
+      totalDays: course.duration_days,
+    });
+    const activeDayNumber = resolvedProgress.currentDayNumber;
     const bundle = await getCourseDayServer(course.slug, activeDayNumber);
     return { course, progress, bundle };
   })()

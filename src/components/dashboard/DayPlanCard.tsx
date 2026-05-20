@@ -1,4 +1,4 @@
-import { BookOpen, CheckCircle2, Gift, PenTool, Play, Sparkles } from "lucide-react";
+import { BookOpen, CheckCircle2, Gift, PenTool, Play, Sparkles, Trophy } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
@@ -11,6 +11,7 @@ const iconMap = {
   practice: PenTool,
   quiz: CheckCircle2,
   bonus: Gift,
+  results: Trophy,
 };
 
 const toneMap = {

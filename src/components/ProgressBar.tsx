@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { calculatePercentage } from "@/lib/progress";
 
 interface ProgressBarProps {
   value: number;
@@ -26,7 +27,7 @@ export function ProgressBar({
   accent = "cyan",
   compact = false,
 }: ProgressBarProps) {
-  const percentage = Math.min(100, Math.round((value / max) * 100));
+  const percentage = calculatePercentage(value, max);
 
   return (
     <div className={compact ? "mh-progress" : "mh-card rounded-[26px] p-5"}>

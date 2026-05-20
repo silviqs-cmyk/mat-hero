@@ -130,7 +130,7 @@ export interface ApiResponse<T> {
 }
 
 export type DayPlanStepTone = "purple" | "cyan" | "green" | "gold";
-export type DayPlanStepType = "lesson" | "video" | "practice" | "quiz" | "bonus";
+export type DayPlanStepType = "lesson" | "video" | "practice" | "quiz" | "bonus" | "results";
 
 export interface DayTimelineItem {
   id: string;

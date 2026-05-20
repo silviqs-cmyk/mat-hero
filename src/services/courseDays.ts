@@ -1,4 +1,5 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { listPublishedLessonSectionsCompat } from "@/services/lessonSectionsCompat";
 import type { CourseDay, DayContentBundle } from "@/types/course";
 
 export async function getCourseDay(courseSlug: string, dayNumber: number): Promise<DayContentBundle | null> {
@@ -43,15 +44,9 @@ export async function getCourseDay(courseSlug: string, dayNumber: number): Promi
 
   const lessonsWithSections = await Promise.all(
     ((lessons ?? []) as DayContentBundle["lessons"]).map(async (lesson) => {
-      const { data: sections } = await supabase
-        .from("lesson_sections")
-        .select("*")
-        .eq("lesson_id", lesson.id)
-        .order("sort_order", { ascending: true });
-
       return {
         ...lesson,
-        sections: sections ?? [],
+        sections: await listPublishedLessonSectionsCompat(supabase, lesson.id),
       };
     }),
   );

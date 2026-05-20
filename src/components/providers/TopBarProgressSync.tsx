@@ -1,7 +1,8 @@
 "use client";
 
-import { useLayoutEffect } from "react";
-import { useTopBarProgress, type TopBarProgressState } from "@/components/providers/TopBarProgressProvider";
+import { useEffect } from "react";
+import type { TopBarProgressState } from "@/components/providers/TopBarProgressProvider";
+import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
 
 interface TopBarProgressSyncProps {
   value: TopBarProgressState | null;
@@ -10,7 +11,7 @@ interface TopBarProgressSyncProps {
 export function TopBarProgressSync({ value }: TopBarProgressSyncProps) {
   const { setProgress } = useTopBarProgress();
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setProgress(value);
 
     return () => {

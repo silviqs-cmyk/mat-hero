@@ -1,20 +1,21 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnswerOption } from "@/components/AnswerOption";
 import { MascotCharacter } from "@/components/MascotCharacter";
-import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
 import { AnswerFeedbackModal } from "@/components/quiz/AnswerFeedbackModal";
+import { DayTopBarProgress } from "@/components/student/DayTopBarProgress";
 import { Badge } from "@/components/ui/Badge";
 import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { getMiniTestQuestions } from "@/lib/questionGroups";
 import {
   buildBonusHref,
   buildDayHref,
-  buildQuizHref,
+  buildPracticeHref,
   buildResultsHref,
   evaluateQuestionAnswer,
   getResolvedCorrectAnswer,
@@ -22,7 +23,7 @@ import {
 } from "@/lib/studentFlow";
 import { saveUserAnswer } from "@/services/questions";
 import { upsertUserCourseProgress } from "@/services/progress";
-import { saveDayResult } from "@/services/results";
+import { getUserDayResult, saveDayResult } from "@/services/results";
 import type { CourseWithDays, DayContentBundle, Question } from "@/types/course";
 import type { UserProfile, UserProgress } from "@/types/user";
 
@@ -54,8 +55,16 @@ interface SubmitOverrides {
 function buildQuestionOptions(question: Question) {
   if (question.question_type === "true_false" && (!question.options || question.options.length === 0)) {
     return [
-      { id: "true", option_text: "Вярно", is_correct: normalizeAnswer(question.expected_answer ?? "") === "вярно" },
-      { id: "false", option_text: "Невярно", is_correct: normalizeAnswer(question.expected_answer ?? "") === "невярно" },
+      {
+        id: "true",
+        option_text: "Вярно",
+        is_correct: normalizeAnswer(question.expected_answer ?? "") === "вярно",
+      },
+      {
+        id: "false",
+        option_text: "Невярно",
+        is_correct: normalizeAnswer(question.expected_answer ?? "") === "невярно",
+      },
     ];
   }
 
@@ -66,26 +75,23 @@ function getFlowCopy(mode: FlowMode) {
   if (mode === "quiz") {
     return {
       header: "Тест за деня",
-      progressLabel: "Напредък в теста",
-      progressHelper: "Всеки верен отговор носи точки.",
-      mascotMessage: "Мини през теста спокойно. След всеки отговор ще виждаш обратната връзка в popup.",
+      mascotMessage:
+        "Мини през теста спокойно. След всеки отговор ще виждаш обратната връзка в popup.",
     };
   }
 
   if (mode === "bonus") {
     return {
       header: "Бонус задачи",
-      progressLabel: "Напредък в бонуса",
-      progressHelper: "Ползвай бонус задачите за още увереност.",
-      mascotMessage: "Това са допълнителни задачи. След всеки отговор ще виждаш обратната връзка в popup.",
+      mascotMessage:
+        "Това са допълнителни задачи. След всеки отговор ще виждаш обратната връзка в popup.",
     };
   }
 
   return {
     header: "Основни задачи",
-    progressLabel: "Напредък в задачите",
-    progressHelper: "Фокус върху правилния подход.",
-    mascotMessage: "Решавай задачите една по една. След всеки отговор ще виждаш обратната връзка в popup.",
+    mascotMessage:
+      "Решавай задачите една по една. След всеки отговор ще виждаш обратната връзка в popup.",
   };
 }
 
@@ -98,7 +104,6 @@ export function StudentQuestionFlow({
   progress,
 }: StudentQuestionFlowProps) {
   const router = useRouter();
-  const { setProgress: setTopBarProgress } = useTopBarProgress();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [answerText, setAnswerText] = useState("");
@@ -106,12 +111,14 @@ export function StudentQuestionFlow({
   const [saving, setSaving] = useState(false);
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [lastSubmittedAnswer, setLastSubmittedAnswer] = useState<AnswerRecord | null>(null);
+  const [practiceCompleted, setPracticeCompleted] = useState(false);
 
   const currentQuestion = questions[currentIndex];
-  const currentOptions = useMemo(() => (currentQuestion ? buildQuestionOptions(currentQuestion) : []), [currentQuestion]);
+  const currentOptions = useMemo(
+    () => (currentQuestion ? buildQuestionOptions(currentQuestion) : []),
+    [currentQuestion],
+  );
   const flowCopy = getFlowCopy(mode);
-  const safeProgressLabel = flowCopy.progressLabel ?? "";
-  const safeProgressHelper = flowCopy.progressHelper ?? "";
   const totalQuestions = questions.length;
   const submittedAnswer =
     currentQuestion?.question_type === "open_answer"
@@ -125,45 +132,43 @@ export function StudentQuestionFlow({
     : false;
   const isLastQuestion = currentIndex === totalQuestions - 1;
   const hasBonusQuestions = false;
+  const hasQuizQuestions = getMiniTestQuestions(bundle.questions).length > 0;
   const showsCompletionState = isLastQuestion && mode !== "practice";
   const feedbackState = showsCompletionState ? "completed" : isCorrect ? "correct" : "incorrect";
-  const shouldReturnToQuizFromPractice = false;
   const completionHref =
     mode === "practice"
-      ? shouldReturnToQuizFromPractice
-        ? buildQuizHref(course.slug, bundle.day.day_number)
+      ? hasQuizQuestions
+        ? buildResultsHref(course.slug, bundle.day.day_number)
         : hasBonusQuestions
           ? buildBonusHref(course.slug, bundle.day.day_number)
           : buildDayHref(course.slug, bundle.day.day_number)
-      : mode === "quiz" && hasBonusQuestions
-        ? buildBonusHref(course.slug, bundle.day.day_number)
+      : mode === "quiz"
+        ? buildPracticeHref(course.slug, bundle.day.day_number)
         : buildResultsHref(course.slug, bundle.day.day_number);
   const primaryLabel = isLastQuestion
     ? mode === "practice"
-      ? shouldReturnToQuizFromPractice
+      ? hasQuizQuestions
         ? "Към теста"
         : hasBonusQuestions
           ? "Към бонуса"
           : "Към деня"
-      : mode === "quiz" && hasBonusQuestions
+      : mode === "quiz"
         ? "Към бонуса"
         : "Виж резултата"
     : "Следващ въпрос";
 
-  useLayoutEffect(() => {
-    setTopBarProgress({
-      label: safeProgressLabel,
-      summary: `${currentIndex + 1} / ${totalQuestions} въпроса`,
-      helper: safeProgressHelper,
-      value: currentIndex + 1,
-      max: totalQuestions,
-      tone: mode === "practice" ? "cyan" : "lime",
-    });
+  const resolvedPrimaryLabel =
+    isLastQuestion && mode === "quiz"
+      ? "Към задачите"
+      : isLastQuestion && mode === "practice" && hasQuizQuestions
+        ? "Към резултата"
+        : primaryLabel;
 
-    return () => {
-      setTopBarProgress(null);
-    };
-  }, [currentIndex, safeProgressHelper, safeProgressLabel, mode, totalQuestions, setTopBarProgress]);
+  useEffect(() => {
+    if (mode === "practice" && isLastQuestion && showFeedback && lastSubmittedAnswer) {
+      setPracticeCompleted(true);
+    }
+  }, [isLastQuestion, lastSubmittedAnswer, mode, showFeedback]);
 
   async function handleSubmit(overrides?: SubmitOverrides) {
     if (!currentQuestion || saving || showFeedback) {
@@ -250,16 +255,20 @@ export function StudentQuestionFlow({
     const weakTopics = Array.from(
       new Set(finalAnswerRecords.filter((answer) => !answer.isCorrect).map((answer) => answer.topic).filter(Boolean)),
     ).slice(0, 4);
-    const completedDays = Array.from(new Set([...(progress?.completed_days ?? []), bundle.day.day_number])).sort(
-      (left, right) => left - right,
-    );
-    const currentDayNumber = Math.min(
-      course.duration_days,
-      Math.max(progress?.current_day_number ?? 1, bundle.day.day_number + 1),
-    );
 
     setSaving(true);
     try {
+      const existingResult = await getUserDayResult(profile.id, bundle.day.id);
+      const previousScore = existingResult?.score ?? 0;
+      const scoreDelta = Math.max(0, earnedPoints - previousScore);
+      const isFirstCompletion = !existingResult;
+      const completedDays = Array.from(
+        new Set([...(progress?.completed_days ?? []), bundle.day.day_number]),
+      ).sort((left, right) => left - right);
+      const currentDayNumber = isFirstCompletion
+        ? Math.min(course.duration_days, Math.max(progress?.current_day_number ?? 1, bundle.day.day_number + 1))
+        : progress?.current_day_number ?? 1;
+
       await Promise.all([
         saveDayResult({
           user_id: profile.id,
@@ -275,8 +284,8 @@ export function StudentQuestionFlow({
           course_id: course.id,
           current_day_number: currentDayNumber,
           completed_days: completedDays,
-          total_xp: (progress?.total_xp ?? 0) + earnedPoints + 25,
-          streak_days: (progress?.streak_days ?? 0) + 1,
+          total_xp: (progress?.total_xp ?? 0) + scoreDelta + (isFirstCompletion ? 25 : 0),
+          streak_days: isFirstCompletion ? (progress?.streak_days ?? 0) + 1 : progress?.streak_days ?? 0,
           last_active_at: new Date().toISOString(),
         }),
       ]);
@@ -324,6 +333,19 @@ export function StudentQuestionFlow({
         handleEnterSubmit();
       }}
     >
+      <DayTopBarProgress
+        courseSlug={course.slug}
+        dayNumber={bundle.day.day_number}
+        label={mode === "quiz" ? "Тест" : mode === "bonus" ? "Бонус" : "Задачи"}
+        helper={
+          mode === "practice"
+            ? "Реши задачите за деня докрай, за да се отчетат в прогреса."
+            : "Тестът и бонусът са отделни от дневния прогрес по теория, видео и задачи."
+        }
+        currentStep={mode === "practice" ? "practice" : undefined}
+        currentStepCompleted={mode === "practice" ? practiceCompleted : false}
+      />
+
       <NeonCard padding="sm">
         <SectionHeader
           label={flowCopy.header}
@@ -408,7 +430,7 @@ export function StudentQuestionFlow({
           <div className="mt-5 rounded-[22px] border border-white/8 bg-white/[0.03] p-4">
             <p className="mh-copy text-slate-300">
               {currentQuestion.question_type === "open_answer"
-                ? "При свободен отговор мини спокойно през пресмятането и въведи крайния резултат."
+                ? "При свободен отговор мини спокойно през смятането и въведи крайния резултат."
                 : "Прочети всички варианти и избери този, който можеш да защитиш с решение."}
             </p>
           </div>
@@ -422,7 +444,7 @@ export function StudentQuestionFlow({
         explanation={currentQuestion.explanation}
         correctAnswer={resolvedCorrectAnswer}
         pointsEarned={isCorrect ? currentQuestion.points : 0}
-        primaryLabel={primaryLabel}
+        primaryLabel={resolvedPrimaryLabel}
         onContinue={() => void handleContinue()}
       />
     </div>

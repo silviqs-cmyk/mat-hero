@@ -75,6 +75,10 @@ export interface LessonSectionInput {
   section_type: string;
   content: string;
   sort_order: number;
+  is_published: boolean;
+  video_url: string | null;
+  video_provider: "youtube" | "vimeo" | "external" | "uploaded" | "none";
+  video_status: "draft" | "published";
 }
 
 export interface QuestionOptionInput {
