@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { AnswerOption } from "@/components/AnswerOption";
+import { FormattedMathText } from "@/components/math/FormattedMathText";
 import { Badge } from "@/components/ui/Badge";
 import { NeonCard } from "@/components/ui/NeonCard";
 import type { Question } from "@/types";
@@ -42,7 +43,7 @@ export function QuestionCard({
         </div>
 
         <h2 className="mt-5 font-display text-[1.7rem] leading-8 text-white lg:text-[2rem] lg:leading-10">
-          {question.question_text}
+          <FormattedMathText text={question.question_text} as="span" inline />
         </h2>
 
         <div className="mt-6 space-y-4">
@@ -50,7 +51,7 @@ export function QuestionCard({
             <AnswerOption
               key={option.id}
               optionId={option.id}
-              optionText={option.text}
+              optionText={<FormattedMathText text={option.text} as="span" inline />}
               isSelected={selectedAnswer === option.text}
               isCorrect={question.correct_answer === option.text}
               showFeedback={showFeedback}

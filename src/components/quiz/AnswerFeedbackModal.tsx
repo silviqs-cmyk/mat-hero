@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { FormattedMathText } from "@/components/math/FormattedMathText";
 import { FeedbackMascot } from "@/components/quiz/FeedbackMascot";
 
 interface AnswerFeedbackModalProps {
@@ -27,7 +28,7 @@ function getModalCopy(state: AnswerFeedbackModalProps["state"]) {
   if (state === "completed") {
     return {
       title: "Тестът е завършен!",
-      message: "Супер работа. Продължи към резултата си.",
+      message: "Продължи към резултата си.",
     };
   }
 
@@ -40,7 +41,7 @@ function getModalCopy(state: AnswerFeedbackModalProps["state"]) {
 
   return {
     title: "Не съвсем",
-    message: "Виж обяснението и продължи.",
+    message: "Виж правилния отговор и обяснението.",
   };
 }
 
@@ -152,11 +153,13 @@ export function AnswerFeedbackModal({
           </div>
 
           {!isCorrect || state === "incorrect" ? (
-            <div className="space-y-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left">
+            <div className="max-h-[28vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-none">
               {correctAnswer ? (
-                <p className="text-sm font-semibold text-white">Верен отговор: {correctAnswer}</p>
+                <p className="text-sm font-semibold text-white">
+                  Верен отговор: <FormattedMathText text={correctAnswer} as="span" inline />
+                </p>
               ) : null}
-              {explanation ? <p className="mh-copy-muted">{explanation}</p> : null}
+              {explanation ? <FormattedMathText text={explanation} className="mh-copy-muted" /> : null}
             </div>
           ) : null}
 

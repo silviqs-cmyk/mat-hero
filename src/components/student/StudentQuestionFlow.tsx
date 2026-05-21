@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnswerOption } from "@/components/AnswerOption";
+import { FormattedMathText } from "@/components/math/FormattedMathText";
 import { MascotCharacter } from "@/components/MascotCharacter";
 import { AnswerFeedbackModal } from "@/components/quiz/AnswerFeedbackModal";
 import { DayTopBarProgress } from "@/components/student/DayTopBarProgress";
@@ -12,10 +13,10 @@ import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { getBonusQuestions, getMiniTestQuestions } from "@/lib/questionGroups";
+import { buildLessonTopicHref, formatTopicLabel } from "@/lib/topicLabels";
 import {
   buildBonusHref,
   buildDayHref,
-  buildPracticeHref,
   buildResultsHref,
   evaluateQuestionAnswer,
   getResolvedCorrectAnswer,
@@ -122,6 +123,7 @@ export function StudentQuestionFlow({
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [lastSubmittedAnswer, setLastSubmittedAnswer] = useState<AnswerRecord | null>(null);
   const [practiceCompleted, setPracticeCompleted] = useState(false);
+  const submissionLockRef = useRef(false);
 
   const currentQuestion = questions[currentIndex];
   const currentOptions = useMemo(
@@ -153,26 +155,9 @@ export function StudentQuestionFlow({
           ? buildBonusHref(course.slug, bundle.day.day_number)
           : buildDayHref(course.slug, bundle.day.day_number)
       : mode === "quiz"
-        ? buildPracticeHref(course.slug, bundle.day.day_number)
+        ? buildResultsHref(course.slug, bundle.day.day_number)
         : buildResultsHref(course.slug, bundle.day.day_number);
-  const primaryLabel = isLastQuestion
-    ? mode === "practice"
-      ? hasQuizQuestions
-        ? "Към теста"
-        : hasBonusQuestions
-          ? "Към Изпитай се"
-          : "Към деня"
-      : mode === "quiz"
-        ? "Към Изпитай се"
-        : "Виж резултата"
-    : "Следващ въпрос";
-
-  const resolvedPrimaryLabel =
-    isLastQuestion && mode === "quiz"
-      ? "Към задачите"
-      : isLastQuestion && mode === "practice" && hasQuizQuestions
-        ? "Към резултата"
-        : primaryLabel;
+  const resolvedPrimaryLabel = isLastQuestion ? "Виж резултата" : "Следваща задача";
 
   useEffect(() => {
     if (mode === "practice" && isLastQuestion && showFeedback && lastSubmittedAnswer) {
@@ -181,7 +166,7 @@ export function StudentQuestionFlow({
   }, [isLastQuestion, lastSubmittedAnswer, mode, showFeedback]);
 
   async function handleSubmit(overrides?: SubmitOverrides) {
-    if (!currentQuestion || saving || showFeedback) {
+    if (!currentQuestion || saving || showFeedback || submissionLockRef.current) {
       return;
     }
 
@@ -204,6 +189,7 @@ export function StudentQuestionFlow({
       return;
     }
 
+    submissionLockRef.current = true;
     setSaving(true);
     try {
       const answerRecord = {
@@ -231,6 +217,7 @@ export function StudentQuestionFlow({
         pointsEarned: answerRecord.pointsEarned,
       });
     } finally {
+      submissionLockRef.current = false;
       setSaving(false);
     }
   }
@@ -310,9 +297,14 @@ export function StudentQuestionFlow({
     return null;
   }
 
-  const buttonDisabled =
-    saving ||
-    (currentQuestion.question_type === "open_answer" ? answerText.trim().length === 0 : !selectedOptionId);
+  const buttonDisabled = saving || answerText.trim().length === 0;
+  const questionTopicLabel = currentQuestion.topic?.trim() ? formatTopicLabel(currentQuestion.topic) : null;
+  const questionSourceLabel = currentQuestion.source_year ? `НВО ${currentQuestion.source_year}` : null;
+  const difficultyLabel = getDifficultyLabel(currentQuestion.difficulty);
+  const topicHref =
+    currentQuestion.topic?.trim()
+      ? buildLessonTopicHref(course.slug, bundle.day.day_number, currentQuestion.topic)
+      : null;
 
   function handleEnterSubmit() {
     if (showFeedback || buttonDisabled) {
@@ -330,7 +322,7 @@ export function StudentQuestionFlow({
           return;
         }
 
-        if (showFeedback) {
+        if (showFeedback || currentQuestion.question_type !== "open_answer") {
           return;
         }
 
@@ -362,7 +354,6 @@ export function StudentQuestionFlow({
           title={<h2 className="mh-heading-lg">{mode === "bonus" ? "Реални задачи от НВО" : bundle.day.title}</h2>}
           action={<Badge tone="cyan">{currentIndex + 1} / {totalQuestions} въпроса</Badge>}
         />
-        <p className="mh-copy-muted mt-2">{mode === "bonus" ? `Тема: ${currentQuestion.topic}` : `Тема: ${currentQuestion.topic}`}</p>
       </NeonCard>
 
       <MascotCharacter
@@ -378,29 +369,40 @@ export function StudentQuestionFlow({
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="mh-label">ВЪПРОС {currentIndex + 1}/{totalQuestions}</p>
-              <Badge tone="purple" className="mt-3">
-                {mode === "bonus" ? getDifficultyLabel(currentQuestion.difficulty) : currentQuestion.difficulty}
-              </Badge>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {questionSourceLabel ? <Badge tone="gold">{questionSourceLabel}</Badge> : null}
+                {questionTopicLabel ? <Badge tone="cyan">{questionTopicLabel}</Badge> : null}
+                <Badge tone="purple">{difficultyLabel}</Badge>
+              </div>
             </div>
           </div>
 
-          <h2 className="mt-5 font-display text-[1.7rem] leading-8 text-white lg:text-[2rem] lg:leading-10">
-            {currentQuestion.prompt}
-          </h2>
-
-          {currentQuestion.image_url ? (
-            <div className="mt-5 overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.03]">
-              <img
-                src={currentQuestion.image_url}
-                alt={`Илюстрация към задача ${currentIndex + 1}`}
-                className="block h-auto max-w-full w-full object-contain"
-                loading="lazy"
+          <div className="mt-6 rounded-[24px] border border-white/8 bg-white/[0.03] p-5 lg:p-6">
+            <p className="mh-label">Условие</p>
+            <div className="mt-4 max-w-3xl text-white">
+              <FormattedMathText
+                text={currentQuestion.prompt}
+                className="text-[1.05rem] leading-8 lg:text-[1.12rem] lg:leading-9"
               />
             </div>
-          ) : null}
+
+            {currentQuestion.image_url ? (
+              <div className="mt-5 flex justify-center">
+                <div className="w-full max-w-3xl overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.03]">
+                  <img
+                    src={currentQuestion.image_url}
+                    alt={`Илюстрация към задача ${currentIndex + 1}`}
+                    className="block h-auto max-w-full w-full object-contain"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            ) : null}
+          </div>
 
           {currentQuestion.question_type === "open_answer" ? (
             <div className="mt-6">
+              <p className="mh-label mb-3">Твоят отговор</p>
               <FormInput
                 value={answerText}
                 onChange={(event) => setAnswerText(event.currentTarget.value)}
@@ -418,20 +420,19 @@ export function StudentQuestionFlow({
             </div>
           ) : (
             <div className="mt-6 space-y-4">
+              <p className="mh-label">Избери отговор</p>
               {currentOptions.map((option, optionIndex) => (
                 <AnswerOption
                   key={option.id}
                   optionId={String.fromCharCode(65 + optionIndex)}
-                  optionText={option.option_text}
+                  optionText={<FormattedMathText text={option.option_text} as="span" inline />}
                   isSelected={selectedOptionId === option.id}
                   isCorrect={Boolean(option.is_correct)}
                   showFeedback={false}
                   onClick={() => {
                     if (!showFeedback && !saving) {
                       setSelectedOptionId(option.id);
-                      if (mode === "quiz") {
-                        void handleSubmit({ selectedOptionId: option.id });
-                      }
+                      void handleSubmit({ selectedOptionId: option.id });
                     }
                   }}
                 />
@@ -439,7 +440,7 @@ export function StudentQuestionFlow({
             </div>
           )}
 
-          {!showFeedback ? (
+          {!showFeedback && currentQuestion.question_type === "open_answer" ? (
             <div className="mt-6">
               <NeonButton type="button" onClick={() => void handleSubmit()} disabled={buttonDisabled}>
                 {saving ? "Запазване..." : "Провери отговора"}
@@ -457,6 +458,14 @@ export function StudentQuestionFlow({
                 : "Прочети всички варианти и избери този, който можеш да защитиш с решение."}
             </p>
           </div>
+
+          {topicHref ? (
+            <div className="mt-4">
+              <NeonButton href={topicHref} variant="ghost" className="w-full justify-center">
+                Към темата
+              </NeonButton>
+            </div>
+          ) : null}
         </NeonCard>
       </section>
 

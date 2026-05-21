@@ -1,3 +1,4 @@
+import { FormattedMathText } from "@/components/math/FormattedMathText";
 import type { DailyTaskSet, PracticeTask } from "@/types";
 
 interface SupplementaryMaterialsCardProps {
@@ -59,7 +60,7 @@ function TaskAccordion({
                         Задача {index + 1}
                       </p>
                       <h4 className="mt-2 text-base font-semibold leading-6 text-white">
-                        {task.question}
+                        <FormattedMathText text={task.question} as="span" inline />
                       </h4>
                     </div>
                     <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-semibold text-white/60 transition group-open:border-cyan-400/40 group-open:bg-cyan-400/10 group-open:text-cyan-100 group-open:shadow-[0_0_18px_rgba(37,221,255,0.14)]">
@@ -82,7 +83,7 @@ function TaskAccordion({
                         }`}
                       >
                         <span className="font-semibold">{String.fromCharCode(65 + answerIndex)}.</span>{" "}
-                        {answer}
+                        <FormattedMathText text={answer} as="span" inline />
                       </div>
                     );
                   })}
@@ -92,7 +93,7 @@ function TaskAccordion({
                   <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
                     Обяснение
                   </p>
-                  <p className="panel-copy mt-2 text-slate-200">{task.explanation}</p>
+                  <FormattedMathText text={task.explanation} className="panel-copy mt-2 text-slate-200" />
                 </div>
               </details>
             );

@@ -1,7 +1,6 @@
 import { DayTopBarProgress } from "@/components/student/DayTopBarProgress";
 import { LessonSectionStepper } from "@/components/student/LessonSectionStepper";
 import { StudentFlowDebugCard } from "@/components/student/StudentFlowDebugCard";
-import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { NeonButton } from "@/components/ui/NeonButton";
@@ -116,6 +115,9 @@ export default async function CourseLessonPage({
     ? buildQuizHref(course.slug, bundle.day.day_number)
     : buildPracticeHref(course.slug, bundle.day.day_number);
   const nextLabel = hasMiniTestQuestions(bundle.questions) ? "Към теста" : "Към задачите";
+  const publishedSections = (lesson.sections ?? [])
+    .filter((section) => Boolean(section.content?.trim()))
+    .sort((left, right) => left.sort_order - right.sort_order);
   const parsedSections = lesson.content?.trim()
     ? buildLessonSectionsFromTheoryContent(
         {
@@ -130,7 +132,7 @@ export default async function CourseLessonPage({
         lesson.sections ?? [],
       )
     : [];
-  const stepperSections = (parsedSections.length > 0 ? parsedSections : lesson.sections ?? [])
+  const stepperSections = (publishedSections.length > 0 ? publishedSections : parsedSections)
     .filter((section) => Boolean(section.content?.trim()))
     .map((section) => ({ ...section, section_type: "theory" }))
     .sort((left, right) => left.sort_order - right.sort_order);
@@ -174,7 +176,6 @@ export default async function CourseLessonPage({
           <SectionHeader
             label="Урок"
             title={lesson.title}
-            action={<Badge tone="cyan">{lesson.type}</Badge>}
             align="center"
           />
 

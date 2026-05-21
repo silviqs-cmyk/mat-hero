@@ -1,4 +1,5 @@
 import { ExplanationSteps } from "@/components/ExplanationSteps";
+import { FormattedMathText } from "@/components/math/FormattedMathText";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
@@ -48,7 +49,7 @@ export default async function ExplanationPage({
       <NeonCard padding="md">
         <SectionHeader
           label="Задача"
-          title={<h2 className="mh-heading-lg">{question.question_text}</h2>}
+          title={<h2 className="mh-heading-lg"><FormattedMathText text={question.question_text} as="span" inline /></h2>}
         />
         <p className="mt-3 text-[1rem] text-slate-400">Тема: {question.topic}</p>
       </NeonCard>

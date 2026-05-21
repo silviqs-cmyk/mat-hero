@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Lightbulb, PlayCircle } from "lucide-react";
-import { LessonSectionContent, renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
+import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
+import { FormattedTheoryContent } from "@/components/student/FormattedTheoryContent";
 import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
@@ -83,16 +84,9 @@ export function LessonSectionStepper({
           </div>
         </div>
 
-        <div className="mt-6 text-[1.05rem] leading-8 text-[var(--mh-text)]">
-          <LessonSectionContent text={currentSection.content} />
+        <div className="mt-6">
+          <FormattedTheoryContent content={currentSection.content} />
         </div>
-
-        {currentTopicVideo ? (
-          <div className="mt-6 flex items-center gap-2">
-            <Badge tone="green">Видео</Badge>
-            <p className="text-sm text-[var(--mh-text-muted)]">Видео към текущата тема</p>
-          </div>
-        ) : null}
       </NeonCard>
 
       <div className="grid gap-3 sm:grid-cols-3">

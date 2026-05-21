@@ -20,8 +20,28 @@ const SUPERSCRIPT_MAP: Record<string, string> = {
   "\u207f": "n",
 };
 
+const TO_SUPERSCRIPT_MAP: Record<string, string> = {
+  "0": "\u2070",
+  "1": "\u00b9",
+  "2": "\u00b2",
+  "3": "\u00b3",
+  "4": "\u2074",
+  "5": "\u2075",
+  "6": "\u2076",
+  "7": "\u2077",
+  "8": "\u2078",
+  "9": "\u2079",
+  "+": "\u207a",
+  "-": "\u207b",
+  "=": "\u207c",
+  "(": "\u207d",
+  ")": "\u207e",
+  n: "\u207f",
+};
+
 const SUPERSCRIPT_PATTERN = /[\u00b2\u00b3\u00b9\u2070\u2074-\u2079\u207a-\u207f]+/gu;
 const SIMPLE_BASE_PATTERN = /[\p{L}\p{N}]+/u;
+const CARET_EXPONENT_PATTERN = /\^(?:\((-?[0-9]+)\)|(-?[0-9]+))/gu;
 
 function isSimpleBaseCharacter(character: string | undefined) {
   return typeof character === "string" && SIMPLE_BASE_PATTERN.test(character);
@@ -37,6 +57,17 @@ function canAttachLeadingSign(previousCharacter: string | undefined) {
 
 function normalizeSuperscript(exponent: string) {
   return Array.from(exponent, (character) => SUPERSCRIPT_MAP[character] ?? character).join("");
+}
+
+function convertExponentToSuperscript(exponent: string) {
+  return Array.from(exponent, (character) => TO_SUPERSCRIPT_MAP[character] ?? character).join("");
+}
+
+function normalizeCaretPowers(text: string) {
+  return text.replaceAll(CARET_EXPONENT_PATTERN, (_, groupedExponent: string | undefined, bareExponent: string | undefined) => {
+    const exponent = groupedExponent ?? bareExponent ?? "";
+    return convertExponentToSuperscript(exponent);
+  });
 }
 
 function findParenthesizedBaseStart(text: string, closingParenIndex: number) {
@@ -110,26 +141,27 @@ function findPowerBaseStart(text: string, exponentStart: number) {
 }
 
 export function renderInlineSuperscripts(text: string): ReactNode[] {
+  const normalizedText = normalizeCaretPowers(text);
   const content: ReactNode[] = [];
   let lastIndex = 0;
 
-  for (const match of text.matchAll(SUPERSCRIPT_PATTERN)) {
+  for (const match of normalizedText.matchAll(SUPERSCRIPT_PATTERN)) {
     const exponentStart = match.index ?? 0;
     const exponentEnd = exponentStart + match[0].length;
-    const baseStart = findPowerBaseStart(text, exponentStart);
+    const baseStart = findPowerBaseStart(normalizedText, exponentStart);
 
     if (baseStart === null || baseStart < lastIndex) {
       continue;
     }
 
     if (baseStart > lastIndex) {
-      content.push(text.slice(lastIndex, baseStart));
+      content.push(normalizedText.slice(lastIndex, baseStart));
     }
 
     content.push(
       <Power
         key={`${baseStart}-${match[0]}`}
-        base={text.slice(baseStart, exponentStart)}
+        base={normalizedText.slice(baseStart, exponentStart)}
         exponent={normalizeSuperscript(match[0])}
       />,
     );
@@ -137,8 +169,8 @@ export function renderInlineSuperscripts(text: string): ReactNode[] {
     lastIndex = exponentEnd;
   }
 
-  if (lastIndex < text.length) {
-    content.push(text.slice(lastIndex));
+  if (lastIndex < normalizedText.length) {
+    content.push(normalizedText.slice(lastIndex));
   }
 
   return content;

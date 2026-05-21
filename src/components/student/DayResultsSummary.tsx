@@ -1,4 +1,5 @@
 import { Star, Target, TriangleAlert } from "lucide-react";
+import { FormattedMathText } from "@/components/math/FormattedMathText";
 import { ProgressBar } from "@/components/ProgressBar";
 import { ScoreCard } from "@/components/ScoreCard";
 import { Badge } from "@/components/ui/Badge";
@@ -116,10 +117,8 @@ export function DayResultsSummary({
                   <p className="text-sm font-semibold uppercase tracking-[0.08em] text-rose-200">
                     {formatTopicLabel(question.topic)}
                   </p>
-                  <p className="mt-3 text-white">{question.prompt}</p>
-                  <p className="mt-3 text-sm leading-6 text-slate-300">
-                    {question.explanation || "Преговори урока и опитай отново."}
-                  </p>
+                  <FormattedMathText text={question.prompt} className="mt-3 text-white" />
+                  <FormattedMathText text={question.explanation || "Преговори урока и опитай отново."} className="mt-3 text-sm leading-6 text-slate-300" />
                 </div>
               ))
             ) : (

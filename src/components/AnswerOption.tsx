@@ -1,5 +1,7 @@
+import type { ReactNode } from "react";
+
 interface AnswerOptionProps {
-  optionText: string;
+  optionText: ReactNode;
   optionId: string;
   isSelected: boolean;
   isCorrect: boolean;
