@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
-import { FormattedMathText } from "@/components/math/FormattedMathText";
+import { MathText } from "@/components/math/MathText";
 import { FeedbackMascot } from "@/components/quiz/FeedbackMascot";
 
 interface AnswerFeedbackModalProps {
@@ -57,8 +57,30 @@ export function AnswerFeedbackModal({
 }: AnswerFeedbackModalProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
+  const continueClickedRef = useRef(false);
   const copy = getModalCopy(state);
   const portalRoot = typeof window === "undefined" ? null : window.document.body;
+
+  useEffect(() => {
+    if (isOpen) {
+      continueClickedRef.current = false;
+    }
+  }, [isOpen, correctAnswer, explanation, primaryLabel]);
+
+  function handlePrimaryClick() {
+    console.log("[AnswerFeedbackModal] primary-click", {
+      continueClicked: continueClickedRef.current,
+      primaryLabel,
+      isOpen,
+    });
+
+    if (continueClickedRef.current) {
+      return;
+    }
+
+    continueClickedRef.current = true;
+    onContinue();
+  }
 
   useEffect(() => {
     if (!isOpen) {
@@ -72,7 +94,6 @@ export function AnswerFeedbackModal({
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         event.preventDefault();
-        onContinue();
         return;
       }
 
@@ -156,10 +177,10 @@ export function AnswerFeedbackModal({
             <div className="max-h-[28vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-none">
               {correctAnswer ? (
                 <p className="text-sm font-semibold text-white">
-                  Верен отговор: <FormattedMathText text={correctAnswer} as="span" inline />
+                  Верен отговор: <MathText text={correctAnswer} as="span" inline />
                 </p>
               ) : null}
-              {explanation ? <FormattedMathText text={explanation} className="mh-copy-muted" /> : null}
+              {explanation ? <MathText text={explanation} className="mh-copy-muted" /> : null}
             </div>
           ) : null}
 
@@ -167,7 +188,8 @@ export function AnswerFeedbackModal({
             <button
               ref={primaryButtonRef}
               type="button"
-              onClick={onContinue}
+              onClick={handlePrimaryClick}
+              disabled={continueClickedRef.current}
               className="mh-btn mh-btn-primary w-full sm:w-auto"
             >
               {primaryLabel}

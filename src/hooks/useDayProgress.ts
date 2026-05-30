@@ -15,11 +15,13 @@ import {
 
 export function useDayProgress(courseSlug: string, dayNumber: number) {
   const [progress, setProgress] = useState<DayProgressState>(EMPTY_DAY_PROGRESS);
+  const [loadedStorageKey, setLoadedStorageKey] = useState<string | null>(null);
 
   useEffect(() => {
-    setProgress(readDayProgress(courseSlug, dayNumber));
-
     const storageKey = getDayProgressStorageKey(courseSlug, dayNumber);
+    setProgress(readDayProgress(courseSlug, dayNumber));
+    setLoadedStorageKey(storageKey);
+
     const eventName = getDayProgressEventName();
     const handleProgressChange = (event: Event) => {
       const customEvent = event as CustomEvent<{ storageKey?: string; value?: DayProgressState }>;
@@ -37,6 +39,15 @@ export function useDayProgress(courseSlug: string, dayNumber: number) {
     };
   }, [courseSlug, dayNumber]);
 
+  useEffect(() => {
+    const storageKey = getDayProgressStorageKey(courseSlug, dayNumber);
+    if (loadedStorageKey !== storageKey) {
+      return;
+    }
+
+    writeDayProgress(courseSlug, dayNumber, progress);
+  }, [courseSlug, dayNumber, loadedStorageKey, progress]);
+
   const markStepCompleted = useCallback(
     (step: DayProgressStep) => {
       setProgress((current) => {
@@ -44,12 +55,10 @@ export function useDayProgress(courseSlug: string, dayNumber: number) {
           return current;
         }
 
-        const next = { ...current, [step]: true };
-        writeDayProgress(courseSlug, dayNumber, next);
-        return next;
+        return { ...current, [step]: true };
       });
     },
-    [courseSlug, dayNumber],
+    [],
   );
 
   const completedSteps = useMemo(() => countCompletedDayProgressSteps(progress), [progress]);

@@ -1,4 +1,5 @@
 import { type ReactNode } from "react";
+import { formatMathDisplayText } from "@/components/math/formatMathDisplayText";
 import { Power } from "@/components/lesson/Power";
 
 const SUPERSCRIPT_MAP: Record<string, string> = {
@@ -155,13 +156,13 @@ export function renderInlineSuperscripts(text: string): ReactNode[] {
     }
 
     if (baseStart > lastIndex) {
-      content.push(normalizedText.slice(lastIndex, baseStart));
+      content.push(formatMathDisplayText(normalizedText.slice(lastIndex, baseStart)));
     }
 
     content.push(
       <Power
         key={`${baseStart}-${match[0]}`}
-        base={normalizedText.slice(baseStart, exponentStart)}
+        base={formatMathDisplayText(normalizedText.slice(baseStart, exponentStart))}
         exponent={normalizeSuperscript(match[0])}
       />,
     );
@@ -170,7 +171,7 @@ export function renderInlineSuperscripts(text: string): ReactNode[] {
   }
 
   if (lastIndex < normalizedText.length) {
-    content.push(normalizedText.slice(lastIndex));
+    content.push(formatMathDisplayText(normalizedText.slice(lastIndex)));
   }
 
   return content;

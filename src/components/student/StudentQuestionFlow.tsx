@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnswerOption } from "@/components/AnswerOption";
-import { FormattedMathText } from "@/components/math/FormattedMathText";
+import { MathText } from "@/components/math/MathText";
 import { MascotCharacter } from "@/components/MascotCharacter";
 import { AnswerFeedbackModal } from "@/components/quiz/AnswerFeedbackModal";
 import { DayTopBarProgress } from "@/components/student/DayTopBarProgress";
@@ -12,17 +12,17 @@ import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
-import { getBonusQuestions, getMiniTestQuestions } from "@/lib/questionGroups";
+import { getBonusQuestions, getPracticeQuestions } from "@/lib/questionGroups";
 import { buildLessonTopicHref, formatTopicLabel } from "@/lib/topicLabels";
 import {
   buildBonusHref,
-  buildDayHref,
+  buildPracticeHref,
   buildResultsHref,
   evaluateQuestionAnswer,
   getResolvedCorrectAnswer,
   normalizeAnswer,
 } from "@/lib/studentFlow";
-import { saveUserAnswer } from "@/services/questions";
+import { listUserAnswersForDay, saveUserAnswer } from "@/services/questions";
 import { upsertUserCourseProgress } from "@/services/progress";
 import { getUserDayResult, saveDayResult } from "@/services/results";
 import type { CourseWithDays, DayContentBundle, Question } from "@/types/course";
@@ -106,6 +106,32 @@ function getDifficultyLabel(difficulty: Question["difficulty"]) {
   return "Средна";
 }
 
+function getNextRouteAfterSection(
+  mode: FlowMode,
+  courseSlug: string,
+  dayNumber: number,
+  hasPracticeQuestions: boolean,
+  hasBonusQuestions: boolean,
+) {
+  if (mode === "quiz") {
+    if (hasPracticeQuestions) {
+      return buildPracticeHref(courseSlug, dayNumber);
+    }
+
+    if (hasBonusQuestions) {
+      return buildBonusHref(courseSlug, dayNumber);
+    }
+
+    return buildResultsHref(courseSlug, dayNumber);
+  }
+
+  if (mode === "practice") {
+    return hasBonusQuestions ? buildBonusHref(courseSlug, dayNumber) : buildResultsHref(courseSlug, dayNumber);
+  }
+
+  return buildResultsHref(courseSlug, dayNumber);
+}
+
 export function StudentQuestionFlow({
   mode,
   course,
@@ -124,6 +150,10 @@ export function StudentQuestionFlow({
   const [lastSubmittedAnswer, setLastSubmittedAnswer] = useState<AnswerRecord | null>(null);
   const [practiceCompleted, setPracticeCompleted] = useState(false);
   const submissionLockRef = useRef(false);
+  const submittedQuestionIdsRef = useRef<Set<string>>(new Set());
+  const continueLockRef = useRef(false);
+  const continuedQuestionIdsRef = useRef<Set<string>>(new Set());
+  const postContinueGuardUntilRef = useRef(0);
 
   const currentQuestion = questions[currentIndex];
   const currentOptions = useMemo(
@@ -132,6 +162,7 @@ export function StudentQuestionFlow({
   );
   const flowCopy = getFlowCopy(mode);
   const totalQuestions = questions.length;
+  const questionIdsSignature = useMemo(() => questions.map((question) => question.id).join("|"), [questions]);
   const submittedAnswer =
     currentQuestion?.question_type === "open_answer"
       ? answerText
@@ -143,21 +174,50 @@ export function StudentQuestionFlow({
     ? evaluateQuestionAnswer({ ...currentQuestion, options: currentOptions }, submittedAnswer)
     : false;
   const isLastQuestion = currentIndex === totalQuestions - 1;
+  const hasPracticeQuestions = getPracticeQuestions(bundle.questions).length > 0;
   const hasBonusQuestions = getBonusQuestions(bundle.questions).length > 0;
-  const hasQuizQuestions = getMiniTestQuestions(bundle.questions).length > 0;
   const showsCompletionState = isLastQuestion && mode !== "practice";
   const feedbackState = showsCompletionState ? "completed" : isCorrect ? "correct" : "incorrect";
-  const completionHref =
-    mode === "practice"
-      ? hasQuizQuestions
-        ? buildResultsHref(course.slug, bundle.day.day_number)
+  const nextRoute = getNextRouteAfterSection(
+    mode,
+    course.slug,
+    bundle.day.day_number,
+    hasPracticeQuestions,
+    hasBonusQuestions,
+  );
+  const resultsHref = buildResultsHref(course.slug, bundle.day.day_number);
+  const isFinalSection =
+    mode === "bonus" ||
+    (mode === "practice" && !hasBonusQuestions) ||
+    (mode === "quiz" && !hasPracticeQuestions && !hasBonusQuestions);
+  const resolvedPrimaryLabel = isLastQuestion
+    ? mode === "quiz"
+      ? hasPracticeQuestions
+        ? "Към задачите"
         : hasBonusQuestions
-          ? buildBonusHref(course.slug, bundle.day.day_number)
-          : buildDayHref(course.slug, bundle.day.day_number)
-      : mode === "quiz"
-        ? buildResultsHref(course.slug, bundle.day.day_number)
-        : buildResultsHref(course.slug, bundle.day.day_number);
-  const resolvedPrimaryLabel = isLastQuestion ? "Виж резултата" : "Следваща задача";
+          ? "Към бонуса"
+          : "Виж резултата"
+      : mode === "practice"
+        ? hasBonusQuestions
+          ? "Към бонуса"
+          : "Виж резултата"
+        : "Виж резултата"
+    : "Следваща задача";
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setSelectedOptionId(null);
+    setAnswerText("");
+    setShowFeedback(false);
+    setSaving(false);
+    setAnswers([]);
+    setLastSubmittedAnswer(null);
+    setPracticeCompleted(false);
+    submissionLockRef.current = false;
+    submittedQuestionIdsRef.current = new Set();
+    continuedQuestionIdsRef.current = new Set();
+    postContinueGuardUntilRef.current = 0;
+  }, [mode, bundle.day.id, questionIdsSignature]);
 
   useEffect(() => {
     if (mode === "practice" && isLastQuestion && showFeedback && lastSubmittedAnswer) {
@@ -166,7 +226,13 @@ export function StudentQuestionFlow({
   }, [isLastQuestion, lastSubmittedAnswer, mode, showFeedback]);
 
   async function handleSubmit(overrides?: SubmitOverrides) {
-    if (!currentQuestion || saving || showFeedback || submissionLockRef.current) {
+    if (
+      !currentQuestion ||
+      saving ||
+      showFeedback ||
+      submissionLockRef.current ||
+      submittedQuestionIdsRef.current.has(currentQuestion.id)
+    ) {
       return;
     }
 
@@ -190,6 +256,7 @@ export function StudentQuestionFlow({
     }
 
     submissionLockRef.current = true;
+    submittedQuestionIdsRef.current.add(currentQuestion.id);
     setSaving(true);
     try {
       const answerRecord = {
@@ -206,6 +273,7 @@ export function StudentQuestionFlow({
       }
       setAnswers((previous) => [...previous, answerRecord]);
       setLastSubmittedAnswer(answerRecord);
+      continueLockRef.current = false;
       setShowFeedback(true);
 
       await saveUserAnswer({
@@ -216,45 +284,45 @@ export function StudentQuestionFlow({
         isCorrect: answerRecord.isCorrect,
         pointsEarned: answerRecord.pointsEarned,
       });
+    } catch (error) {
+      submittedQuestionIdsRef.current.delete(currentQuestion.id);
+      throw error;
     } finally {
       submissionLockRef.current = false;
       setSaving(false);
     }
   }
 
-  async function handleContinue() {
-    if (!currentQuestion || saving) {
-      return;
-    }
-
-    if (!isLastQuestion) {
-      setCurrentIndex((index) => index + 1);
-      setSelectedOptionId(null);
-      setAnswerText("");
-      setLastSubmittedAnswer(null);
-      setShowFeedback(false);
-      return;
-    }
-
-    if (mode === "practice" || mode === "bonus") {
-      router.push(completionHref);
-      return;
-    }
-
-    const finalAnswerRecords =
-      lastSubmittedAnswer && !answers.some((answer) => answer.questionId === lastSubmittedAnswer.questionId)
-        ? [...answers, lastSubmittedAnswer]
-        : answers;
-    const totalAnsweredQuestions = finalAnswerRecords.length;
-    const earnedPoints = finalAnswerRecords.reduce((sum, answer) => sum + answer.pointsEarned, 0);
-    const totalPossiblePoints = questions.reduce((sum, question) => sum + question.points, 0);
-    const percentage = totalPossiblePoints > 0 ? Math.round((earnedPoints / totalPossiblePoints) * 100) : 0;
-    const weakTopics = Array.from(
-      new Set(finalAnswerRecords.filter((answer) => !answer.isCorrect).map((answer) => answer.topic).filter(Boolean)),
-    ).slice(0, 4);
-
+  async function finalizeDayAndGoToResults(fallbackWeakTopics: string[]) {
     setSaving(true);
     try {
+      const allAnswers = await listUserAnswersForDay(profile.id, bundle.day.id);
+      const latestAnswersByQuestionId = new Map<string, (typeof allAnswers)[number]>();
+
+      for (const answer of allAnswers) {
+        if (!latestAnswersByQuestionId.has(answer.question_id)) {
+          latestAnswersByQuestionId.set(answer.question_id, answer);
+        }
+      }
+
+      const publishedQuestionsById = new Map(bundle.questions.map((question) => [question.id, question]));
+      const latestPublishedAnswers = Array.from(latestAnswersByQuestionId.values()).filter((answer) =>
+        publishedQuestionsById.has(answer.question_id),
+      );
+      const totalAnsweredQuestions = latestPublishedAnswers.length;
+      const correctAnswersCount = latestPublishedAnswers.filter((answer) => answer.is_correct).length;
+      const earnedPoints = latestPublishedAnswers.reduce((sum, answer) => sum + (answer.points_earned ?? 0), 0);
+      const resolvedWeakTopics = Array.from(
+        new Set(
+          latestPublishedAnswers
+            .filter((answer) => !answer.is_correct)
+            .map((answer) => publishedQuestionsById.get(answer.question_id)?.topic?.trim() ?? "")
+            .filter((topic) => topic.length > 0),
+        ),
+      ).slice(0, 4);
+      const percentage =
+        totalAnsweredQuestions > 0 ? Math.round((correctAnswersCount / totalAnsweredQuestions) * 100) : 0;
+
       const existingResult = await getUserDayResult(profile.id, bundle.day.id);
       const previousScore = existingResult?.score ?? 0;
       const scoreDelta = Math.max(0, earnedPoints - previousScore);
@@ -273,7 +341,7 @@ export function StudentQuestionFlow({
           score: earnedPoints,
           total_questions: totalAnsweredQuestions,
           percentage,
-          weak_topics: weakTopics,
+          weak_topics: resolvedWeakTopics.length > 0 ? resolvedWeakTopics : fallbackWeakTopics,
           completed_at: new Date().toISOString(),
         }),
         upsertUserCourseProgress({
@@ -286,11 +354,72 @@ export function StudentQuestionFlow({
           last_active_at: new Date().toISOString(),
         }),
       ]);
-
-      router.push(completionHref);
+      router.push(resultsHref);
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleContinue() {
+    if (!currentQuestion) {
+      return;
+    }
+
+    if (saving) {
+      return;
+    }
+
+    if (!showFeedback) {
+      return;
+    }
+
+    if (continueLockRef.current) {
+      return;
+    }
+
+    if (continuedQuestionIdsRef.current.has(currentQuestion.id)) {
+      return;
+    }
+
+    continuedQuestionIdsRef.current.add(currentQuestion.id);
+    continueLockRef.current = true;
+
+    if (!isLastQuestion) {
+      postContinueGuardUntilRef.current = Date.now() + 350;
+      console.log("[StudentQuestionFlow] handleContinue:advance", {
+        mode,
+        currentIndexBefore: currentIndex,
+        currentIndexAfter: currentIndex + 1,
+        questionId: currentQuestion.id,
+        showFeedback,
+      });
+      setCurrentIndex((index) => index + 1);
+      setSelectedOptionId(null);
+      setAnswerText("");
+      setLastSubmittedAnswer(null);
+      setShowFeedback(false);
+      return;
+    }
+
+    const finalAnswerRecords =
+      lastSubmittedAnswer && !answers.some((answer) => answer.questionId === lastSubmittedAnswer.questionId)
+        ? [...answers, lastSubmittedAnswer]
+        : answers;
+    const weakTopics = Array.from(
+      new Set(finalAnswerRecords.filter((answer) => !answer.isCorrect).map((answer) => answer.topic).filter(Boolean)),
+    ).slice(0, 4);
+
+    if (!isFinalSection) {
+      console.log("[StudentQuestionFlow] handleContinue:router.push", {
+        mode,
+        route: nextRoute,
+        reason: "section-completed",
+      });
+      router.push(nextRoute);
+      return;
+    }
+
+    await finalizeDayAndGoToResults(weakTopics);
   }
 
   if (!currentQuestion) {
@@ -299,7 +428,19 @@ export function StudentQuestionFlow({
 
   const buttonDisabled = saving || answerText.trim().length === 0;
   const questionTopicLabel = currentQuestion.topic?.trim() ? formatTopicLabel(currentQuestion.topic) : null;
-  const questionSourceLabel = currentQuestion.source_year ? `НВО ${currentQuestion.source_year}` : null;
+  const questionWithSourceMeta = currentQuestion as Question & {
+    exam_type?: string | null;
+    source?: string | null;
+  };
+  const showRealNvoSourceLabel =
+    mode === "bonus" &&
+    (
+      currentQuestion.source_year !== null ||
+      questionWithSourceMeta.exam_type?.trim() === "НВО" ||
+      (questionWithSourceMeta.source?.toLocaleUpperCase("bg-BG").includes("НВО") ?? false)
+    );
+  const questionSourceLabel =
+    mode === "bonus" ? null : currentQuestion.source_year ? `НВО ${currentQuestion.source_year}` : null;
   const difficultyLabel = getDifficultyLabel(currentQuestion.difficulty);
   const topicHref =
     currentQuestion.topic?.trim()
@@ -368,6 +509,7 @@ export function StudentQuestionFlow({
         <NeonCard as="article" padding="md" className="lg:p-7">
           <div className="flex items-start justify-between gap-4">
             <div>
+              <p className="mh-label">ДЕН {bundle.day.day_number}</p>
               <p className="mh-label">ВЪПРОС {currentIndex + 1}/{totalQuestions}</p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {questionSourceLabel ? <Badge tone="gold">{questionSourceLabel}</Badge> : null}
@@ -380,7 +522,7 @@ export function StudentQuestionFlow({
           <div className="mt-6 rounded-[24px] border border-white/8 bg-white/[0.03] p-5 lg:p-6">
             <p className="mh-label">Условие</p>
             <div className="mt-4 max-w-3xl text-white">
-              <FormattedMathText
+              <MathText
                 text={currentQuestion.prompt}
                 className="text-[1.05rem] leading-8 lg:text-[1.12rem] lg:leading-9"
               />
@@ -425,12 +567,12 @@ export function StudentQuestionFlow({
                 <AnswerOption
                   key={option.id}
                   optionId={String.fromCharCode(65 + optionIndex)}
-                  optionText={<FormattedMathText text={option.option_text} as="span" inline />}
+                  optionText={<MathText text={option.option_text} as="span" inline />}
                   isSelected={selectedOptionId === option.id}
                   isCorrect={Boolean(option.is_correct)}
                   showFeedback={false}
                   onClick={() => {
-                    if (!showFeedback && !saving) {
+                    if (!showFeedback && !saving && Date.now() >= postContinueGuardUntilRef.current) {
                       setSelectedOptionId(option.id);
                       void handleSubmit({ selectedOptionId: option.id });
                     }
@@ -446,6 +588,12 @@ export function StudentQuestionFlow({
                 {saving ? "Запазване..." : "Провери отговора"}
               </NeonButton>
             </div>
+          ) : null}
+
+          {showRealNvoSourceLabel ? (
+            <p className="mt-6 text-sm leading-6 text-slate-500">
+              Източник: реална НВО задача
+            </p>
           ) : null}
         </NeonCard>
 

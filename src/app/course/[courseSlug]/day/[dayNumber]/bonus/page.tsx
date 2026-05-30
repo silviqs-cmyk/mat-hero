@@ -74,7 +74,7 @@ export default async function CourseBonusPage({
       getUserCourseProgressServer(profile.id, course.id),
       getCourseDayServer(course.slug, dayNumber),
     ]);
-    const questions = bundle ? await getQuestionsWithOptionsForDayServer(bundle.day.id, false, "bonus") : [];
+    const questions = bundle ? await getQuestionsWithOptionsForDayServer(bundle.day.id, true, "bonus") : [];
     return { course, progress, bundle, questions };
   })()
     .then((data) => ({ data, error: null as string | null }))

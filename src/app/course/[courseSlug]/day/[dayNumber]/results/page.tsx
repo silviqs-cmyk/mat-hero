@@ -57,7 +57,7 @@ export default async function CourseDayResultsPage({
     const [result, answers, questions] = await Promise.all([
       getUserDayResultServer(profile.id, bundle.day.id),
       listUserAnswersForDayServer(profile.id, bundle.day.id),
-      getQuestionsWithOptionsForDayServer(bundle.day.id, false, "quiz"),
+      getQuestionsWithOptionsForDayServer(bundle.day.id, true),
     ]);
 
     return { course, bundle, result, answers, questions };

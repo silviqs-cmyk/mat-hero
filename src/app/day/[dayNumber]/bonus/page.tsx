@@ -83,6 +83,13 @@ export default async function DayBonusPage({
     }));
 
   const allQuestions = loadResult.data?.bundle?.questions ?? [];
+  console.log("[DayBonusPage] loaded", {
+    dayNumber,
+    bundleQuestionsCount: allQuestions.length,
+    bundleBonusQuestionsCount: allQuestions.filter((question) => resolveQuestionGroup(question) === "bonus").length,
+    loadedBonusQuestionsCount: loadResult.data?.questions.length ?? 0,
+    loadError: loadResult.error,
+  });
   const resolvedDebugItems = [
     ...baseDebugItems,
     { label: "load error", value: loadResult.error },
@@ -129,6 +136,13 @@ export default async function DayBonusPage({
   }
 
   if (loadResult.data.questions.length === 0) {
+    console.log("[DayBonusPage] empty-state", {
+      dayNumber,
+      reason: "no-bonus-questions-loaded",
+      bundleQuestionsCount: allQuestions.length,
+      bundleBonusQuestionsCount: allQuestions.filter((question) => resolveQuestionGroup(question) === "bonus").length,
+      loadedBonusQuestionsCount: loadResult.data.questions.length,
+    });
     return (
       <div className="space-y-6">
         {debugEnabled ? <StudentFlowDebugCard title="Изпитай се Debug" items={resolvedDebugItems} /> : null}
