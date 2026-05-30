@@ -121,7 +121,7 @@ export default async function DayLessonPage({
   const nextHref = hasMiniTestQuestions(bundle.questions)
     ? buildQuizHref(course.slug, bundle.day.day_number)
     : buildPracticeHref(course.slug, bundle.day.day_number);
-  const nextLabel = hasMiniTestQuestions(bundle.questions) ? "Към теста" : "Към задачите";
+  const nextLabel = hasMiniTestQuestions(bundle.questions) ? "Към теста" : "Към упражненията";
   const publishedSections = (lesson.sections ?? [])
     .filter((section) => Boolean(section.content?.trim()))
     .sort((left, right) => left.sort_order - right.sort_order);

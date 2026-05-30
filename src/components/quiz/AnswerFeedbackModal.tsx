@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MathText } from "@/components/math/MathText";
+import { NeonButton } from "@/components/ui/NeonButton";
 import { FeedbackMascot } from "@/components/quiz/FeedbackMascot";
 
 interface AnswerFeedbackModalProps {
@@ -13,6 +14,7 @@ interface AnswerFeedbackModalProps {
   correctAnswer: string | null;
   pointsEarned?: number;
   primaryLabel: string;
+  showAskMat?: boolean;
   onContinue: () => void;
 }
 
@@ -53,17 +55,23 @@ export function AnswerFeedbackModal({
   correctAnswer,
   pointsEarned = 0,
   primaryLabel,
+  showAskMat = false,
   onContinue,
 }: AnswerFeedbackModalProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
   const continueClickedRef = useRef(false);
+  const [showAskMatDetails, setShowAskMatDetails] = useState(false);
   const copy = getModalCopy(state);
   const portalRoot = typeof window === "undefined" ? null : window.document.body;
+  const hasAskMatDetails = Boolean(correctAnswer || explanation);
+  const shouldRenderAskMat = showAskMat && hasAskMatDetails;
+  const shouldShowDetails = shouldRenderAskMat ? showAskMatDetails : !isCorrect || state === "incorrect";
 
   useEffect(() => {
     if (isOpen) {
       continueClickedRef.current = false;
+      setShowAskMatDetails(false);
     }
   }, [isOpen, correctAnswer, explanation, primaryLabel]);
 
@@ -173,7 +181,7 @@ export function AnswerFeedbackModal({
             ) : null}
           </div>
 
-          {!isCorrect || state === "incorrect" ? (
+          {shouldShowDetails ? (
             <div className="max-h-[28vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-none">
               {correctAnswer ? (
                 <p className="text-sm font-semibold text-white">
@@ -185,6 +193,16 @@ export function AnswerFeedbackModal({
           ) : null}
 
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+            {shouldRenderAskMat ? (
+              <NeonButton
+                type="button"
+                variant="ghost"
+                className="min-h-11 w-full justify-center px-4 text-sm sm:w-auto"
+                onClick={() => setShowAskMatDetails((current) => !current)}
+              >
+                Питай МАТ
+              </NeonButton>
+            ) : null}
             <button
               ref={primaryButtonRef}
               type="button"

@@ -129,7 +129,7 @@ export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayP
     type: "practice",
     eyebrow: hasQuiz ? "3. УПРАЖНИ" : "2. УПРАЖНИ",
     title: `${practiceQuestions.length} основни задачи`,
-    ctaLabel: "Задачи",
+    ctaLabel: "Упражни",
     tone: "cyan",
     count: practiceQuestions.length,
     href: buildPracticeHref(courseSlug, bundle.day.day_number),

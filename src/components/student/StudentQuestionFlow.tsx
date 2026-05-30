@@ -90,7 +90,7 @@ function getFlowCopy(mode: FlowMode) {
   }
 
   return {
-    header: "Основни задачи",
+    header: "Упражни",
     mascotMessage:
       "Решавай задачите една по една. След всеки отговор ще виждаш обратна връзка в popup.",
   };
@@ -193,16 +193,20 @@ export function StudentQuestionFlow({
   const resolvedPrimaryLabel = isLastQuestion
     ? mode === "quiz"
       ? hasPracticeQuestions
-        ? "Към задачите"
+        ? "Към упражненията"
         : hasBonusQuestions
-          ? "Към бонуса"
+          ? "Към Изпитай се"
           : "Виж резултата"
       : mode === "practice"
         ? hasBonusQuestions
-          ? "Към бонуса"
+          ? "Към Изпитай се"
           : "Виж резултата"
         : "Виж резултата"
     : "Следваща задача";
+  const showAskMatInFeedback =
+    showFeedback &&
+    Boolean(currentQuestion?.explanation?.trim() || resolvedCorrectAnswer?.trim()) &&
+    (mode === "bonus" || !isCorrect);
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -479,7 +483,7 @@ export function StudentQuestionFlow({
       <DayTopBarProgress
         courseSlug={course.slug}
         dayNumber={bundle.day.day_number}
-        label={mode === "quiz" ? "Тест" : mode === "bonus" ? "Изпитай се" : "Задачи"}
+        label={mode === "quiz" ? "Тест" : mode === "bonus" ? "Изпитай се" : "Упражни"}
         helper={
           mode === "practice"
             ? "Реши задачите за деня докрай, за да се отчетат в прогреса."
@@ -625,6 +629,7 @@ export function StudentQuestionFlow({
         correctAnswer={resolvedCorrectAnswer}
         pointsEarned={isCorrect ? currentQuestion.points : 0}
         primaryLabel={resolvedPrimaryLabel}
+        showAskMat={showAskMatInFeedback}
         onContinue={() => void handleContinue()}
       />
     </div>

@@ -109,7 +109,7 @@ export default async function CourseVideoPage({
   const quizHref = buildQuizHref(course.slug, bundle.day.day_number);
   const hasQuizQuestions = hasMiniTestQuestions(bundle.questions);
   const nextHref = hasQuizQuestions ? quizHref : practiceHref;
-  const nextLabel = hasQuizQuestions ? "Към теста" : "Към задачите";
+  const nextLabel = hasQuizQuestions ? "Към теста" : "Към упражненията";
 
   if (!lesson || !resolvedVideo) {
     return (
@@ -132,7 +132,7 @@ export default async function CourseVideoPage({
         courseSlug={course.slug}
         dayNumber={bundle.day.day_number}
         label="Видео урок"
-        helper={hasQuizQuestions ? "Гледай видеото и после мини към теста." : "Гледай видеото и после мини към задачите."}
+        helper={hasQuizQuestions ? "Гледай видеото и после мини към теста." : "Гледай видеото и после мини към упражненията."}
         currentStep="video"
         currentStepCompleted
       />
@@ -189,7 +189,7 @@ export default async function CourseVideoPage({
               className="min-h-14 w-full px-6 text-[1rem] 2xl:w-auto"
             >
               <ExternalLink className="h-5 w-5" />
-              Към задачите
+              Към упражненията
             </NeonButton>
           ) : publishedVideoUrl ? (
             <NeonButton

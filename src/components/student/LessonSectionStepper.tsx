@@ -53,7 +53,7 @@ export function LessonSectionStepper({
     currentSection?.video_status === "published" && currentSection.video_url ? currentSection.video_url : null;
   const currentTopicVideo = resolveLessonVideo(currentTopicVideoUrl);
   const resolvedFinalHref = finalHref ?? practiceHref;
-  const resolvedFinalLabel = finalLabel ?? "Към задачите";
+  const resolvedFinalLabel = finalLabel ?? "Към упражненията";
 
   useEffect(() => {
     if (isLastSection) {
@@ -66,7 +66,7 @@ export function LessonSectionStepper({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Badge tone="cyan">Тема {safeIndex + 1} от {sections.length}</Badge>
       </div>
@@ -78,13 +78,13 @@ export function LessonSectionStepper({
           </span>
           <div className="min-w-0">
             <p className="mh-label text-[var(--mh-accent-cyan-soft)]">Тема</p>
-            <h3 className="mt-3 text-2xl font-semibold tracking-[0.12em] text-[var(--mh-text)]">
+            <h3 className="mt-2 text-xl font-semibold leading-snug tracking-normal text-[var(--mh-text)] sm:text-[1.35rem]">
               {renderFormattedInlineText(getSectionTitle(currentSection, safeIndex), `section-title-${safeIndex}`)}
             </h3>
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-5">
           <FormattedTheoryContent content={currentSection.content} />
         </div>
       </NeonCard>

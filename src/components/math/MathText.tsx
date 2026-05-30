@@ -57,8 +57,8 @@ export function MathText({
                 key={`paragraph-${paragraphIndex}-${lineIndex}`}
                 className={
                   lineIndex > 0
-                    ? "mt-1 overflow-hidden whitespace-normal break-normal [overflow-wrap:normal] [word-break:normal]"
-                    : "overflow-hidden whitespace-normal break-normal [overflow-wrap:normal] [word-break:normal]"
+                    ? "mt-1 whitespace-normal break-normal [overflow-wrap:normal] [word-break:normal]"
+                    : "whitespace-normal break-normal [overflow-wrap:normal] [word-break:normal]"
                 }
               >
                 {renderInlineLine(line, `paragraph-${paragraphIndex}-${lineIndex}`, inlineFractions)}

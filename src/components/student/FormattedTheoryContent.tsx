@@ -1,5 +1,6 @@
 import { Fragment, type ReactNode } from "react";
 import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
+import { NeonButton } from "@/components/ui/NeonButton";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
 interface FormattedTheoryContentProps {
@@ -16,6 +17,7 @@ const ORDERED_LIST_PATTERN = /^(\d+)\.\s+/u;
 const UNORDERED_LIST_PATTERN = /^([-\u2022])\s+/u;
 const IMPORTANT_PATTERN = /^Важно:\s*(.*)$/iu;
 const EXAMPLES_PATTERN = /^Примери?:\s*(.*)$/iu;
+const STANDALONE_BOLD_PATTERN = /^\*\*([\s\S]+?)\*\*$/u;
 
 function isOrderedListItem(line: string) {
   return ORDERED_LIST_PATTERN.test(line);
@@ -75,6 +77,31 @@ function renderInline(line: string, keyPrefix: string) {
   return renderFormattedInlineText(line, keyPrefix).map((node, index) => (
     <Fragment key={`${keyPrefix}-${index}`}>{node}</Fragment>
   ));
+}
+
+function getStandaloneBoldText(line: string) {
+  return line.match(STANDALONE_BOLD_PATTERN)?.[1]?.trim() ?? null;
+}
+
+function normalizeBlockLine(block: ContentBlock) {
+  if (block.type === "list") {
+    return "";
+  }
+
+  if (block.lines.length === 0) {
+    return "";
+  }
+
+  return (block.lines[0] ?? "").trim().toLocaleLowerCase("bg-BG");
+}
+
+function isMiniTaskBlock(block: ContentBlock) {
+  return normalizeBlockLine(block).startsWith("мини задача:");
+}
+
+function isAnswerBlock(block: ContentBlock) {
+  const normalized = normalizeBlockLine(block);
+  return normalized.startsWith("отговор:") || normalized.startsWith("решение:");
 }
 
 function buildBlocks(content: string): ContentBlock[] {
@@ -172,21 +199,49 @@ function buildBlocks(content: string): ContentBlock[] {
 
 export function FormattedTheoryContent({ content }: FormattedTheoryContentProps) {
   const blocks = buildBlocks(content);
+  const firstAnswerBlockIndex = blocks.findIndex((block) => isAnswerBlock(block));
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {blocks.map((block, blockIndex) => {
+        const hasAskMatJump = isMiniTaskBlock(block) && firstAnswerBlockIndex > blockIndex;
+        const answerAnchorId = hasAskMatJump ? `theory-answer-${firstAnswerBlockIndex}` : undefined;
+
         if (block.type === "paragraph") {
           return (
-            <div key={`paragraph-${blockIndex}`} className="space-y-2">
+            <div
+              key={`paragraph-${blockIndex}`}
+              id={isAnswerBlock(block) ? `theory-answer-${blockIndex}` : undefined}
+              className="space-y-3"
+            >
               {block.lines.map((line, lineIndex) => (
-                <p
-                  key={`paragraph-${blockIndex}-${lineIndex}`}
-                  className="overflow-hidden break-words text-base leading-8 text-[var(--mh-text)]"
-                >
-                  {renderInline(line, `paragraph-${blockIndex}-${lineIndex}`)}
-                </p>
+                getStandaloneBoldText(line) ? (
+                  <h4
+                    key={`paragraph-${blockIndex}-${lineIndex}`}
+                    className="break-words pt-1 text-lg font-semibold leading-snug tracking-normal text-white"
+                  >
+                    {renderInline(getStandaloneBoldText(line) ?? line, `paragraph-${blockIndex}-${lineIndex}`)}
+                  </h4>
+                ) : (
+                  <p
+                    key={`paragraph-${blockIndex}-${lineIndex}`}
+                    className="break-words text-[1rem] leading-relaxed text-[var(--mh-text)] sm:text-[1.02rem] sm:leading-8"
+                  >
+                    {renderInline(line, `paragraph-${blockIndex}-${lineIndex}`)}
+                  </p>
+                )
               ))}
+              {hasAskMatJump && answerAnchorId ? (
+                <div className="pt-1">
+                  <NeonButton
+                    href={`#${answerAnchorId}`}
+                    variant="ghost"
+                    className="min-h-10 px-4 text-sm"
+                  >
+                    Не съм сигурен — питай МАТ
+                  </NeonButton>
+                </div>
+              ) : null}
             </div>
           );
         }
@@ -199,12 +254,12 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
               key={`list-${blockIndex}`}
               className={
                 block.ordered
-                  ? "ml-5 list-decimal space-y-2 text-base leading-8 text-[var(--mh-text)] marker:text-cyan-200"
-                  : "ml-5 list-disc space-y-2 text-base leading-8 text-[var(--mh-text)] marker:text-cyan-200"
+                  ? "ml-5 list-decimal space-y-2.5 text-[1rem] leading-relaxed text-[var(--mh-text)] marker:text-cyan-200 sm:leading-8"
+                  : "ml-5 list-disc space-y-2.5 text-[1rem] leading-relaxed text-[var(--mh-text)] marker:text-cyan-200 sm:leading-8"
               }
             >
               {block.items.map((item, itemIndex) => (
-                <li key={`list-${blockIndex}-${itemIndex}`} className="overflow-hidden break-words pl-1">
+                <li key={`list-${blockIndex}-${itemIndex}`} className="break-words pl-1">
                   {renderInline(item, `list-${blockIndex}-${itemIndex}`)}
                 </li>
               ))}
@@ -216,9 +271,9 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
           return (
             <div
               key={`formula-${blockIndex}`}
-              className="overflow-x-auto rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-3"
+              className="overflow-x-auto rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-4"
             >
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {block.lines.map((line, lineIndex) => (
                   <div
                     key={`formula-${blockIndex}-${lineIndex}`}
@@ -235,19 +290,40 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
         return (
           <div
             key={`callout-${blockIndex}`}
+            id={isAnswerBlock(block) ? `theory-answer-${blockIndex}` : undefined}
             className="rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-4"
           >
             <SectionLabel className="text-[var(--mh-accent-cyan-soft)]">{block.label}</SectionLabel>
-            <div className="mt-3 space-y-2">
+            <div className="mt-3 space-y-3">
               {block.lines.map((line, lineIndex) => (
-                <p
-                  key={`callout-${blockIndex}-${lineIndex}`}
-                  className="overflow-hidden break-words text-base leading-8 text-[var(--mh-text)]"
-                >
-                  {renderInline(line, `callout-${blockIndex}-${lineIndex}`)}
-                </p>
+                getStandaloneBoldText(line) ? (
+                  <h4
+                    key={`callout-${blockIndex}-${lineIndex}`}
+                    className="break-words text-base font-semibold leading-snug tracking-normal text-white"
+                  >
+                    {renderInline(getStandaloneBoldText(line) ?? line, `callout-${blockIndex}-${lineIndex}`)}
+                  </h4>
+                ) : (
+                  <p
+                    key={`callout-${blockIndex}-${lineIndex}`}
+                    className="break-words text-[1rem] leading-relaxed text-[var(--mh-text)] sm:leading-8"
+                  >
+                    {renderInline(line, `callout-${blockIndex}-${lineIndex}`)}
+                  </p>
+                )
               ))}
             </div>
+            {hasAskMatJump && answerAnchorId ? (
+              <div className="mt-3">
+                <NeonButton
+                  href={`#${answerAnchorId}`}
+                  variant="ghost"
+                  className="min-h-10 px-4 text-sm"
+                >
+                  Не съм сигурен — питай МАТ
+                </NeonButton>
+              </div>
+            ) : null}
           </div>
         );
       })}
