@@ -83,6 +83,11 @@ function getStandaloneBoldText(line: string) {
   return line.match(STANDALONE_BOLD_PATTERN)?.[1]?.trim() ?? null;
 }
 
+function normalizeLineText(line: string) {
+  const standaloneBold = getStandaloneBoldText(line);
+  return (standaloneBold ?? line).trim().toLocaleLowerCase("bg-BG");
+}
+
 function normalizeBlockLine(block: ContentBlock) {
   if (block.type === "list") {
     return "";
@@ -92,7 +97,7 @@ function normalizeBlockLine(block: ContentBlock) {
     return "";
   }
 
-  return (block.lines[0] ?? "").trim().toLocaleLowerCase("bg-BG");
+  return normalizeLineText(block.lines[0] ?? "");
 }
 
 function isMiniTaskBlock(block: ContentBlock) {
@@ -200,9 +205,18 @@ function buildBlocks(content: string): ContentBlock[] {
 export function FormattedTheoryContent({ content }: FormattedTheoryContentProps) {
   const blocks = buildBlocks(content);
   const firstAnswerBlockIndex = blocks.findIndex((block) => isAnswerBlock(block));
+  const theoryAnswerAnchorId = firstAnswerBlockIndex >= 0 ? `theory-answer-${firstAnswerBlockIndex}` : null;
 
   return (
     <div className="space-y-5">
+      {theoryAnswerAnchorId ? (
+        <div className="flex justify-start">
+          <NeonButton href={`#${theoryAnswerAnchorId}`} variant="ghost" className="min-h-10 px-4 text-sm">
+            Питай МАТ
+          </NeonButton>
+        </div>
+      ) : null}
+
       {blocks.map((block, blockIndex) => {
         const hasAskMatJump = isMiniTaskBlock(block) && firstAnswerBlockIndex > blockIndex;
         const answerAnchorId = hasAskMatJump ? `theory-answer-${firstAnswerBlockIndex}` : undefined;
@@ -225,7 +239,7 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
                 ) : (
                   <p
                     key={`paragraph-${blockIndex}-${lineIndex}`}
-                    className="break-words text-[1rem] leading-relaxed text-[var(--mh-text)] sm:text-[1.02rem] sm:leading-8"
+                    className="break-words text-base leading-7 text-[var(--mh-text)]"
                   >
                     {renderInline(line, `paragraph-${blockIndex}-${lineIndex}`)}
                   </p>
@@ -254,8 +268,8 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
               key={`list-${blockIndex}`}
               className={
                 block.ordered
-                  ? "ml-5 list-decimal space-y-2.5 text-[1rem] leading-relaxed text-[var(--mh-text)] marker:text-cyan-200 sm:leading-8"
-                  : "ml-5 list-disc space-y-2.5 text-[1rem] leading-relaxed text-[var(--mh-text)] marker:text-cyan-200 sm:leading-8"
+                  ? "ml-5 list-decimal space-y-2.5 text-base leading-7 text-[var(--mh-text)] marker:text-cyan-200"
+                  : "ml-5 list-disc space-y-2.5 text-base leading-7 text-[var(--mh-text)] marker:text-cyan-200"
               }
             >
               {block.items.map((item, itemIndex) => (
@@ -277,7 +291,7 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
                 {block.lines.map((line, lineIndex) => (
                   <div
                     key={`formula-${blockIndex}-${lineIndex}`}
-                    className="min-w-max whitespace-pre text-[1rem] font-semibold leading-8 text-white"
+                    className="min-w-max whitespace-pre text-base font-semibold leading-8 text-white"
                   >
                     {renderInline(line, `formula-${blockIndex}-${lineIndex}`)}
                   </div>
@@ -306,7 +320,7 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
                 ) : (
                   <p
                     key={`callout-${blockIndex}-${lineIndex}`}
-                    className="break-words text-[1rem] leading-relaxed text-[var(--mh-text)] sm:leading-8"
+                    className="break-words text-base leading-7 text-[var(--mh-text)]"
                   >
                     {renderInline(line, `callout-${blockIndex}-${lineIndex}`)}
                   </p>

@@ -67,6 +67,8 @@ export function AnswerFeedbackModal({
   const hasAskMatDetails = Boolean(correctAnswer || explanation);
   const shouldRenderAskMat = showAskMat && hasAskMatDetails;
   const shouldShowDetails = shouldRenderAskMat ? showAskMatDetails : !isCorrect || state === "incorrect";
+  const askMatGifSrc = shouldRenderAskMat && showAskMatDetails ? "/images/feedback/ask-mat.gif" : null;
+  const shouldShowTitle = !(shouldRenderAskMat && showAskMatDetails);
 
   useEffect(() => {
     if (isOpen) {
@@ -159,22 +161,23 @@ export function AnswerFeedbackModal({
           <div className="mx-auto h-1.5 w-14 rounded-full bg-white/15 sm:hidden" aria-hidden="true" />
 
           <div className="flex justify-center">
-            <FeedbackMascot state={state} size="md" />
+            <FeedbackMascot state={state} size="md" gifSrcOverride={askMatGifSrc} />
           </div>
 
           <div className="space-y-3 text-center">
-            <p className="mh-label">Обратна връзка</p>
-            <h2
-              className={`font-display text-3xl leading-tight ${
-                state === "completed"
-                  ? "text-lime-100"
-                  : state === "correct"
-                    ? "text-cyan-100"
-                    : "text-rose-300"
-              }`}
-            >
-              {copy.title}
-            </h2>
+            {shouldShowTitle ? (
+              <h2
+                className={`font-display text-3xl leading-tight ${
+                  state === "completed"
+                    ? "text-lime-100"
+                    : state === "correct"
+                      ? "text-cyan-100"
+                      : "text-rose-300"
+                }`}
+              >
+                {copy.title}
+              </h2>
+            ) : null}
             <p className="mh-copy-muted">{copy.message}</p>
             {isCorrect && state !== "completed" && pointsEarned > 0 ? (
               <p className="text-sm font-semibold text-cyan-200">+{pointsEarned} точки</p>
@@ -184,11 +187,11 @@ export function AnswerFeedbackModal({
           {shouldShowDetails ? (
             <div className="max-h-[28vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-none">
               {correctAnswer ? (
-                <p className="text-sm font-semibold text-white">
+                <p className="text-base font-semibold text-white">
                   Верен отговор: <MathText text={correctAnswer} as="span" inline />
                 </p>
               ) : null}
-              {explanation ? <MathText text={explanation} className="mh-copy-muted" /> : null}
+              {explanation ? <MathText text={explanation} className="mh-copy-muted text-base" /> : null}
             </div>
           ) : null}
 

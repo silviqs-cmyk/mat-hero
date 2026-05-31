@@ -8,13 +8,20 @@ import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
 interface FeedbackMascotProps {
   state: "correct" | "incorrect" | "completed";
   size?: "sm" | "md" | "lg";
+  gifSrcOverride?: string | null;
 }
 
 const containerClassNames = {
-  sm: "h-48 w-48",
-  md: "h-80 w-80",
-  lg: "h-[26rem] w-[26rem]",
+  sm: "h-40 w-40",
+  md: "h-64 w-64",
+  lg: "h-[21rem] w-[21rem]",
 };
+
+const imageClassNames = {
+  correct: "mx-auto h-auto w-[82%] rounded-[28px] bg-transparent object-contain mix-blend-screen",
+  incorrect: "mx-auto h-auto w-[72%] rounded-[28px] bg-transparent object-contain mix-blend-screen",
+  completed: "mx-auto h-auto w-[82%] rounded-[28px] bg-transparent object-contain mix-blend-screen",
+} satisfies Record<FeedbackMascotProps["state"], string>;
 
 const glowClassNames = {
   correct:
@@ -104,9 +111,9 @@ function FloatingAccents({ state }: Pick<FeedbackMascotProps, "state">) {
   );
 }
 
-export function FeedbackMascot({ state, size = "md" }: FeedbackMascotProps) {
+export function FeedbackMascot({ state, size = "md", gifSrcOverride = null }: FeedbackMascotProps) {
   const [gifFailed, setGifFailed] = useState(false);
-  const gifSrc = feedbackGifByState[state];
+  const gifSrc = gifSrcOverride ?? feedbackGifByState[state];
   const showGif = !gifFailed;
 
   useEffect(() => {
@@ -142,7 +149,7 @@ export function FeedbackMascot({ state, size = "md" }: FeedbackMascotProps) {
               width={208}
               height={208}
               unoptimized
-              className="h-auto w-full rounded-[28px] bg-transparent object-contain mix-blend-screen"
+              className={imageClassNames[state]}
               onError={() => setGifFailed(true)}
             />
           </div>

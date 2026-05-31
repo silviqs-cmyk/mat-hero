@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { BarChart3, Map, Trophy, User } from "lucide-react";
+import { BarChart3, Map, Trophy } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Табло", icon: BarChart3 },
   { href: "/roadmap", label: "Карта", icon: Map },
   { href: "/results", label: "Резултати", icon: Trophy },
-  { href: "/profile", label: "Профил", icon: User },
 ];
 
 export function BottomNav() {

@@ -18,7 +18,7 @@ export function ExplanationSteps({ steps }: ExplanationStepsProps) {
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-cyan-400/30 bg-cyan-400/12 font-bold text-cyan-100">
                 {index + 1}
               </div>
-              <FormattedMathText text={step} className="text-[1rem] leading-7 text-slate-200" />
+              <FormattedMathText text={step} className="text-base leading-7 text-slate-200" />
             </div>
           </NeonCard>
         </motion.div>

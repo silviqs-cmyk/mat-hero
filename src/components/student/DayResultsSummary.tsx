@@ -212,7 +212,7 @@ export function DayResultsSummary({
                         <MathText text={question.prompt} className="mt-3 text-white" inlineFractions />
                         <MathText
                           text={question.explanation || "Преговори урока и опитай отново."}
-                          className="mt-3 text-sm leading-6 text-slate-300"
+                          className="mt-3 text-base leading-7 text-slate-300"
                           inlineFractions
                         />
                       </div>
@@ -221,7 +221,7 @@ export function DayResultsSummary({
                 </details>
               </>
             ) : (
-              <p className="rounded-[24px] border border-white/8 bg-white/5 p-5 text-[1rem] leading-7 text-slate-200">
+              <p className="rounded-[24px] border border-white/8 bg-white/5 p-5 text-base leading-7 text-slate-200">
                 Нямаш грешки по задачите, теста и бонуса за този ден.
               </p>
             )}

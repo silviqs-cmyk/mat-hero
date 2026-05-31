@@ -12,6 +12,7 @@ interface MascotCharacterProps {
   title?: string;
   imageSrc?: string;
   imageAlt?: string;
+  showVisual?: boolean;
 }
 
 export function MascotCharacter({
@@ -21,6 +22,7 @@ export function MascotCharacter({
   title,
   imageSrc,
   imageAlt = "MatHero mascot",
+  showVisual = true,
 }: MascotCharacterProps) {
   const isHappy = mood === "happy" || mood === "cheering" || mood === "celebrating";
   const isCheering = mood === "cheering" || mood === "celebrating";
@@ -28,55 +30,57 @@ export function MascotCharacter({
   return (
     <NeonCard padding="md">
       <div className="flex items-center gap-4">
-        <motion.div
-          animate={
-            isCheering
-              ? { y: [0, -10, 0], scale: [1, 1.06, 1] }
-              : isHappy
-                ? { y: [0, -5, 0] }
-                : { rotate: [0, -2, 2, 0] }
-          }
-          transition={{
-            duration: isCheering ? 1 : 2.6,
-            repeat: Number.POSITIVE_INFINITY,
-            ease: "easeInOut",
-          }}
-          className="relative flex h-28 w-24 shrink-0 items-center justify-center"
-        >
-          {isCheering ? (
-            <>
-              <motion.span
-                className="absolute left-1 top-2 text-lg text-lime-200"
-                animate={{ opacity: [0.35, 1, 0.35], y: [0, -4, 0] }}
-                transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY }}
-              >
-                *
-              </motion.span>
-              <motion.span
-                className="absolute right-1 top-3 text-lg text-pink-200"
-                animate={{ opacity: [0.35, 1, 0.35], y: [0, -4, 0] }}
-                transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY, delay: 0.15 }}
-              >
-                *
-              </motion.span>
-            </>
-          ) : null}
+        {showVisual ? (
+          <motion.div
+            animate={
+              isCheering
+                ? { y: [0, -10, 0], scale: [1, 1.06, 1] }
+                : isHappy
+                  ? { y: [0, -5, 0] }
+                  : { rotate: [0, -2, 2, 0] }
+            }
+            transition={{
+              duration: isCheering ? 1 : 2.6,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeInOut",
+            }}
+            className="relative flex h-28 w-24 shrink-0 items-center justify-center"
+          >
+            {isCheering ? (
+              <>
+                <motion.span
+                  className="absolute left-1 top-2 text-lg text-lime-200"
+                  animate={{ opacity: [0.35, 1, 0.35], y: [0, -4, 0] }}
+                  transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY }}
+                >
+                  *
+                </motion.span>
+                <motion.span
+                  className="absolute right-1 top-3 text-lg text-pink-200"
+                  animate={{ opacity: [0.35, 1, 0.35], y: [0, -4, 0] }}
+                  transition={{ duration: 0.7, repeat: Number.POSITIVE_INFINITY, delay: 0.15 }}
+                >
+                  *
+                </motion.span>
+              </>
+            ) : null}
 
-          {imageSrc ? (
-            <Image
-              src={imageSrc}
-              alt={imageAlt}
-              width={96}
-              height={96}
-              unoptimized
-              className="h-auto w-full max-w-[96px] rounded-[18px]"
-            />
-          ) : (
-            <AnimatedHeroMascot size="sm" animated />
-          )}
-        </motion.div>
+            {imageSrc ? (
+              <Image
+                src={imageSrc}
+                alt={imageAlt}
+                width={96}
+                height={96}
+                unoptimized
+                className="h-auto w-full max-w-[96px] rounded-[18px]"
+              />
+            ) : (
+              <AnimatedHeroMascot size="sm" animated />
+            )}
+          </motion.div>
+        ) : null}
 
-        <div>
+        <div className="min-w-0 flex-1">
           <p className="mh-label text-indigo-300">Hero Buddy</p>
           <h3 className="mt-2 font-display text-[2rem] text-white">
             {title ?? (isHappy ? "Супер ход!" : "Хайде, герой!")}
