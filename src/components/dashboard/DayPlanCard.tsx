@@ -1,6 +1,11 @@
-import { BookOpen, CheckCircle2, PenTool, Play, Sparkles, Target, Trophy } from "lucide-react";
+"use client";
+
+import { BookOpen, CheckCircle2, ChevronDown, ChevronRight, PenTool, Play, Sparkles, Target, Trophy } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDayProgress } from "@/hooks/useDayProgress";
 import { Badge } from "@/components/ui/Badge";
-import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import type { DayPlanStep } from "@/types";
@@ -16,28 +21,52 @@ const iconMap = {
 
 const toneMap = {
   purple: {
-    card: "purple" as const,
-    icon: "mh-icon-shell--purple",
-    badge: "purple" as const,
     title: "mh-tone-title--purple",
+    activeCircle:
+      "border-fuchsia-300/95 bg-slate-900/96 text-fuchsia-50 shadow-[0_0_0_1px_rgba(244,114,182,0.34),0_0_24px_rgba(217,70,239,0.52),0_0_38px_rgba(168,85,247,0.34)]",
+    hoverCircle:
+      "hover:border-fuchsia-100 hover:text-fuchsia-50 hover:shadow-[0_0_0_1px_rgba(244,114,182,0.52),0_0_38px_rgba(217,70,239,0.92),0_0_68px_rgba(168,85,247,0.68)]",
+    completedCircle:
+      "border-fuchsia-300/70 bg-slate-900/88 text-fuchsia-100 shadow-[0_0_18px_rgba(217,70,239,0.2)]",
+    activeLine: "bg-fuchsia-300 shadow-[0_0_14px_rgba(217,70,239,0.9),0_0_24px_rgba(168,85,247,0.48)]",
+    completedLine: "bg-fuchsia-300/60 shadow-[0_0_10px_rgba(217,70,239,0.28)]",
+    connector: "bg-gradient-to-r from-fuchsia-300/95 to-violet-300/44 shadow-[0_0_18px_rgba(217,70,239,0.24)]",
   },
   cyan: {
-    card: "cyan" as const,
-    icon: "mh-icon-shell--cyan",
-    badge: "cyan" as const,
     title: "mh-tone-title--cyan",
+    activeCircle:
+      "border-cyan-200/95 bg-slate-900/96 text-cyan-50 shadow-[0_0_0_1px_rgba(34,211,238,0.36),0_0_24px_rgba(34,211,238,0.52),0_0_38px_rgba(59,130,246,0.34)]",
+    hoverCircle:
+      "hover:border-cyan-50 hover:text-cyan-50 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.54),0_0_38px_rgba(34,211,238,0.92),0_0_68px_rgba(59,130,246,0.68)]",
+    completedCircle:
+      "border-cyan-300/72 bg-slate-900/88 text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.2)]",
+    activeLine: "bg-cyan-300 shadow-[0_0_14px_rgba(34,211,238,0.95),0_0_22px_rgba(59,130,246,0.4)]",
+    completedLine: "bg-cyan-300/60 shadow-[0_0_10px_rgba(34,211,238,0.28)]",
+    connector: "bg-gradient-to-r from-cyan-300/95 to-sky-300/44 shadow-[0_0_18px_rgba(34,211,238,0.24)]",
   },
   green: {
-    card: "green" as const,
-    icon: "mh-icon-shell--green",
-    badge: "green" as const,
     title: "mh-tone-title--green",
+    activeCircle:
+      "border-emerald-300/95 bg-slate-900/96 text-emerald-50 shadow-[0_0_0_1px_rgba(74,222,128,0.32),0_0_24px_rgba(74,222,128,0.52),0_0_38px_rgba(16,185,129,0.34)]",
+    hoverCircle:
+      "hover:border-emerald-100 hover:text-emerald-50 hover:shadow-[0_0_0_1px_rgba(74,222,128,0.5),0_0_38px_rgba(74,222,128,0.9),0_0_68px_rgba(16,185,129,0.64)]",
+    completedCircle:
+      "border-emerald-300/72 bg-slate-900/88 text-emerald-100 shadow-[0_0_18px_rgba(74,222,128,0.2)]",
+    activeLine: "bg-emerald-300 shadow-[0_0_14px_rgba(74,222,128,0.88),0_0_22px_rgba(16,185,129,0.34)]",
+    completedLine: "bg-emerald-300/60 shadow-[0_0_10px_rgba(74,222,128,0.24)]",
+    connector: "bg-gradient-to-r from-emerald-300/95 to-lime-300/40 shadow-[0_0_18px_rgba(74,222,128,0.22)]",
   },
   gold: {
-    card: "gold" as const,
-    icon: "mh-icon-shell--gold",
-    badge: "gold" as const,
     title: "mh-tone-title--gold",
+    activeCircle:
+      "border-amber-300/95 bg-slate-900/96 text-amber-50 shadow-[0_0_0_1px_rgba(252,211,77,0.3),0_0_24px_rgba(251,191,36,0.52),0_0_38px_rgba(245,158,11,0.34)]",
+    hoverCircle:
+      "hover:border-amber-100 hover:text-amber-50 hover:shadow-[0_0_0_1px_rgba(252,211,77,0.5),0_0_38px_rgba(251,191,36,0.88),0_0_68px_rgba(245,158,11,0.64)]",
+    completedCircle:
+      "border-amber-300/72 bg-slate-900/88 text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.2)]",
+    activeLine: "bg-amber-300 shadow-[0_0_14px_rgba(251,191,36,0.84),0_0_22px_rgba(245,158,11,0.32)]",
+    completedLine: "bg-amber-300/60 shadow-[0_0_10px_rgba(251,191,36,0.22)]",
+    connector: "bg-gradient-to-r from-amber-300/95 to-orange-300/40 shadow-[0_0_18px_rgba(251,191,36,0.22)]",
   },
 };
 
@@ -47,64 +76,128 @@ interface DayPlanCardProps {
   steps: DayPlanStep[];
 }
 
+function getCurrentStepId(pathname: string, steps: DayPlanStep[]) {
+  const directMatch = steps.find((step) => step.href && (pathname === step.href || pathname.startsWith(`${step.href}/`)));
+  if (directMatch) {
+    return directMatch.id;
+  }
+
+  if (pathname.includes("/bonus")) {
+    return steps.find((step) => step.type === "bonus")?.id ?? null;
+  }
+
+  if (pathname.includes("/practice")) {
+    return steps.find((step) => step.type === "practice")?.id ?? null;
+  }
+
+  if (pathname.includes("/quiz")) {
+    return steps.find((step) => step.type === "quiz")?.id ?? null;
+  }
+
+  if (pathname.includes("/lesson") || pathname.includes("/video")) {
+    return steps.find((step) => step.type === "lesson")?.id ?? null;
+  }
+
+  return null;
+}
+
 export function DayPlanCard({ badge, title, steps }: DayPlanCardProps) {
+  const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+  const dayMatch = pathname.match(/\/day\/(\d+)/);
+  const courseMatch = pathname.match(/\/course\/([^/]+)\/day\/(\d+)/);
+  const dayNumber = Number(courseMatch?.[2] ?? dayMatch?.[1] ?? 1);
+  const courseSlug = courseMatch?.[1] ?? "default";
+  const { progress } = useDayProgress(courseSlug, dayNumber);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const activeStepId = mounted
+    ? getCurrentStepId(pathname, steps) ?? steps.find((step) => !progress.practice || step.type !== "bonus")?.id ?? steps[0]?.id
+    : steps[0]?.id;
+  const activeIndex = Math.max(
+    0,
+    steps.findIndex((step) => step.id === activeStepId),
+  );
+
   return (
-    <NeonCard padding="lg">
+    <NeonCard padding="lg" className="overflow-hidden">
       <SectionHeader
         label="План за деня"
         title={title}
         action={
-          <Badge tone="cyan">
-            <Sparkles className="h-5 w-5" />
-            {badge}
-          </Badge>
+          badge ? (
+            <Badge tone="cyan">
+              <Sparkles className="h-5 w-5" />
+              {badge}
+            </Badge>
+          ) : undefined
         }
       />
 
-      <div className="mt-7 grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
-        {steps.map((step) => {
-          const Icon = iconMap[step.type];
-          const tones = toneMap[step.tone];
+      <div className="relative mt-8 px-0 py-2 sm:mt-10 sm:px-2 sm:pt-4">
+        <div className="grid gap-6 px-1 sm:grid-cols-4 sm:gap-9 sm:px-0 lg:gap-14">
+          {steps.map((step, index) => {
+            const Icon = iconMap[step.type];
+            const tones = toneMap[step.tone];
+            const stepContent = (
+              <div className="group flex flex-col items-center text-center rounded-[26px] px-1 py-2 sm:px-1.5 sm:py-1">
+                <div
+                  className={[
+                    "relative z-10 flex h-[4.6rem] w-[4.6rem] items-center justify-center rounded-[22px] border transition-all duration-200 sm:h-[4.35rem] sm:w-[4.35rem] sm:rounded-[24px]",
+                    tones.activeCircle,
+                    tones.hoverCircle,
+                  ].join(" ")}
+                >
+                  <Icon className="h-7 w-7 sm:h-7 sm:w-7" />
+                </div>
 
-          return (
-            <NeonCard
-              key={step.id}
-              as="article"
-              tone={tones.card}
-              padding="md"
-              hoverable
-              className="flex h-full flex-col"
-            >
-              <div className="flex items-start gap-4">
-                <span className={`mh-icon-shell h-14 w-14 ${tones.icon}`}>
-                  <Icon className="h-7 w-7" />
-                </span>
-                <div>
-                  <p className={`mh-label ${tones.title}`}>{step.eyebrow}</p>
-                  <p className="mt-2 text-[1.1rem] font-semibold text-white">{step.title}</p>
+                <div className="mt-3 px-1">
+                  <p
+                    className={[
+                      `mh-label ${tones.title} text-[0.78rem] transition-all duration-200 group-hover:brightness-[1.35] sm:text-[0.72rem]`,
+                      "opacity-100 brightness-125",
+                    ].join(" ")}
+                  >
+                    {step.eyebrow.replace(/^\d+\.\s*/, "")}
+                  </p>
                 </div>
               </div>
+            );
 
-              <div className="mt-6 flex-1" />
-
-              <div>
+            return (
+              <div key={step.id} className="relative min-w-0">
                 {step.href ? (
-                  <NeonButton
+                  <Link
                     href={step.href}
-                    variant="secondary"
-                    className="min-h-12 w-full justify-center px-4 text-[1rem]"
+                    className="block rounded-[24px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/80"
                   >
-                    {step.ctaLabel}
-                  </NeonButton>
+                    {stepContent}
+                  </Link>
                 ) : (
-                  <Badge tone={tones.badge} className="flex min-h-12 w-full justify-center px-4 text-[1rem]">
-                    {step.ctaLabel}
-                  </Badge>
+                  stepContent
                 )}
+
+                {index < steps.length - 1 ? (
+                  <>
+                    <div className="pointer-events-none mt-4 flex justify-center sm:hidden" aria-hidden="true">
+                      <ChevronDown className="h-6 w-6 text-white/90 drop-shadow-[0_0_12px_rgba(255,255,255,0.42)]" />
+                    </div>
+                    <div
+                      className="pointer-events-none absolute left-[calc(50%+0.85rem)] top-[1.7rem] hidden w-[calc(100%-1.7rem)] items-center sm:flex sm:top-[2rem]"
+                      aria-hidden="true"
+                    >
+                      <span className={["block h-[2px] flex-1", tones.connector].join(" ")} />
+                      <ChevronRight className="ml-1 h-4 w-4 shrink-0 text-white/90 drop-shadow-[0_0_12px_rgba(255,255,255,0.42)]" />
+                    </div>
+                  </>
+                ) : null}
               </div>
-            </NeonCard>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </NeonCard>
   );

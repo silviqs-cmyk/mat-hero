@@ -45,7 +45,7 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
     <div className="mx-auto max-w-6xl space-y-6">
       <DayPlanCard badge="" title="Как да минеш урока без хаос" steps={planSteps} />
 
-      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+      <section className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
         <NeonCard padding="md">
           <PageHeroHeader
             label={`Ден ${bundle.day.day_number} от ${course.duration_days}`}
@@ -72,7 +72,7 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
           </div>
         </NeonCard>
 
-        <NeonCard padding="md">
+        <NeonCard padding="lg" className="overflow-hidden">
           <SectionHeader label="План за 10 дни" title={<h2 className="mh-heading-lg">Твоят план</h2>} />
           <DayTimeline items={timeline} />
         </NeonCard>

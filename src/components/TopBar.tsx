@@ -107,6 +107,8 @@ function ProfileLink() {
   const { authUser } = useAppState();
   const userLabel =
     authUser.isReady && authUser.displayName.trim().length > 0 ? authUser.displayName : "Зареждане...";
+  const greetingLabel =
+    authUser.isReady && authUser.displayName.trim().length > 0 ? `Здравей, ${authUser.displayName}` : "Здравей";
   const secondaryLabel = authUser.isReady ? authUser.gradeLabel : null;
   const avatarLetter = userLabel.charAt(0).toUpperCase();
 
@@ -120,7 +122,7 @@ function ProfileLink() {
         {avatarLetter}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-white">{userLabel}</p>
+        <p className="truncate text-sm font-semibold text-white">{greetingLabel}</p>
         {secondaryLabel ? (
           <p className="truncate text-xs text-[var(--mh-text-muted)]">{secondaryLabel}</p>
         ) : null}
@@ -205,7 +207,7 @@ export function TopBar({}: TopBarProps) {
           </Link>
         </div>
 
-        <div className="mt-4 grid gap-3 md:grid-cols-2 lg:hidden">
+        <div className="mt-4 grid gap-3 lg:hidden">
           <div className="grid gap-3 md:col-span-2 md:grid-cols-2">
             <GoalCard profile={profile} averageResult={resultsLoaded ? averageResult : 0} />
             <ProgressCard
@@ -214,7 +216,7 @@ export function TopBar({}: TopBarProps) {
               totalDays={totalDays}
             />
           </div>
-          <div className="md:col-span-2 md:justify-self-end md:w-full md:max-w-[280px]">
+          <div className="w-full md:col-span-2 md:justify-self-end md:max-w-[280px]">
             <ProfileLink />
           </div>
         </div>
