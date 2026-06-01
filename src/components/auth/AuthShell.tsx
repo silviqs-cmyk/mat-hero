@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
+import { BrandMark } from "@/components/BrandMark";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
 interface AuthShellProps {
@@ -28,15 +28,12 @@ export function AuthShell({
         {!hideHeader ? (
           <div className="mb-6 text-center">
             <Link href="/" className="inline-flex flex-col items-center gap-3 text-white transition">
-              <div className="mh-card-muted flex h-16 w-16 items-center justify-center rounded-3xl p-2">
-                <AnimatedHeroMascot size="sm" animated={false} />
-              </div>
-              <div className="space-y-2">
-                <div className="font-logo text-4xl font-black tracking-tight text-white">MatHero</div>
-                <p className="mh-copy-sm font-medium">
-                  Учи уверено. Решавай смело.
-                </p>
-              </div>
+              <BrandMark
+                layout="stacked"
+                size="md"
+                subtitle="Учи уверено. Решавай смело."
+                titleClassName="font-black tracking-tight"
+              />
             </Link>
           </div>
         ) : null}

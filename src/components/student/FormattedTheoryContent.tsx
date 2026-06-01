@@ -188,7 +188,7 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
   const blocks = buildBlocks(content);
 
   return (
-    <div className="space-y-5">
+    <div className="max-w-3xl space-y-6">
       {blocks.map((block, blockIndex) => {
         if (block.type === "paragraph") {
           return (
@@ -204,7 +204,7 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
                 ) : (
                   <p
                     key={`paragraph-${blockIndex}-${lineIndex}`}
-                    className="break-words text-base leading-7 text-[var(--mh-text)]"
+                    className="break-words text-base leading-[1.68] text-[var(--mh-text)]"
                   >
                     {renderInline(line, `paragraph-${blockIndex}-${lineIndex}`)}
                   </p>
@@ -222,8 +222,8 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
               key={`list-${blockIndex}`}
               className={
                 block.ordered
-                  ? "ml-5 list-decimal space-y-2.5 text-base leading-7 text-[var(--mh-text)] marker:text-cyan-200"
-                  : "ml-5 list-disc space-y-2.5 text-base leading-7 text-[var(--mh-text)] marker:text-cyan-200"
+                  ? "ml-5 list-decimal space-y-2.5 text-base leading-[1.68] text-[var(--mh-text)] marker:text-cyan-200"
+                  : "ml-5 list-disc space-y-2.5 text-base leading-[1.68] text-[var(--mh-text)] marker:text-cyan-200"
               }
             >
               {block.items.map((item, itemIndex) => (
@@ -237,15 +237,12 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
 
         if (block.type === "formula") {
           return (
-            <div
-              key={`formula-${blockIndex}`}
-              className="overflow-x-auto rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-4"
-            >
-              <div className="space-y-2.5">
+            <div key={`formula-${blockIndex}`} className="border-l border-white/10 pl-4">
+              <div className="space-y-2">
                 {block.lines.map((line, lineIndex) => (
                   <div
                     key={`formula-${blockIndex}-${lineIndex}`}
-                    className="min-w-max whitespace-pre text-base font-semibold leading-8 text-white"
+                    className="whitespace-pre-wrap break-words text-base font-semibold leading-8 text-white"
                   >
                     {renderInline(line, `formula-${blockIndex}-${lineIndex}`)}
                   </div>
@@ -258,10 +255,10 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
         return (
           <div
             key={`callout-${blockIndex}`}
-            className="rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-4"
+            className="border-l border-white/10 pl-4"
           >
             <SectionLabel className="text-[var(--mh-accent-cyan-soft)]">{block.label}</SectionLabel>
-            <div className="mt-3 space-y-3">
+            <div className="mt-2 space-y-3">
               {block.lines.map((line, lineIndex) => (
                 getStandaloneBoldText(line) ? (
                   <h4
@@ -273,7 +270,7 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
                 ) : (
                   <p
                     key={`callout-${blockIndex}-${lineIndex}`}
-                    className="break-words text-base leading-7 text-[var(--mh-text)]"
+                    className="break-words text-base leading-[1.68] text-[var(--mh-text)]"
                   >
                     {renderInline(line, `callout-${blockIndex}-${lineIndex}`)}
                   </p>

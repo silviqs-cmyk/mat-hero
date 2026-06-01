@@ -1,5 +1,5 @@
 import { Grid2x2, Map, Trophy, User } from "lucide-react";
-import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
+import { BrandMark } from "@/components/BrandMark";
 import { DayTimeline } from "@/components/dashboard/DayTimeline";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { SidebarItem } from "@/components/ui/SidebarItem";
@@ -28,15 +28,11 @@ export function Sidebar({ timeline, layout = "desktop" }: SidebarProps) {
           : "border-r border-white/6"
       }`}
     >
-      <div className="flex items-start gap-4">
-        <div className="mh-card-muted flex h-14 w-14 items-center justify-center rounded-2xl p-2">
-          <AnimatedHeroMascot size="sm" animated={false} />
-        </div>
-        <div>
-          <p className="font-logo text-[2rem] font-extrabold leading-none text-white">MatHero</p>
-          <p className="mt-2 text-sm text-[var(--mh-text-muted)]">Твоят герой в математиката</p>
-        </div>
-      </div>
+      <BrandMark
+        titleClassName="text-[2rem]"
+        subtitle="Твоят герой в математиката"
+        iconShellClassName="h-14 w-14"
+      />
 
       <nav className="mt-10 space-y-2 border-y border-white/6 py-6">
         {navItems.map((item) => (

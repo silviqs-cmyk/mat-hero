@@ -12,6 +12,7 @@ import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { formatAskMatExplanation } from "@/lib/askMat";
 import { getBonusQuestions, getPracticeQuestions } from "@/lib/questionGroups";
 import { buildLessonTopicHref, formatTopicLabel } from "@/lib/topicLabels";
 import {
@@ -170,6 +171,14 @@ export function StudentQuestionFlow({
   const resolvedCorrectAnswer = currentQuestion
     ? getResolvedCorrectAnswer({ ...currentQuestion, options: currentOptions })
     : null;
+  const askMatExplanation = currentQuestion
+    ? formatAskMatExplanation({
+        mode,
+        question: currentQuestion,
+        correctAnswer: resolvedCorrectAnswer,
+        options: currentOptions,
+      })
+    : "";
   const isCorrect = currentQuestion
     ? evaluateQuestionAnswer({ ...currentQuestion, options: currentOptions }, submittedAnswer)
     : false;
@@ -624,8 +633,9 @@ export function StudentQuestionFlow({
         isOpen={showFeedback}
         state={feedbackState}
         isCorrect={isCorrect}
-        explanation={currentQuestion.explanation}
+        explanation={askMatExplanation}
         correctAnswer={resolvedCorrectAnswer}
+        showStandaloneCorrectAnswer={mode !== "bonus"}
         pointsEarned={isCorrect ? currentQuestion.points : 0}
         primaryLabel={resolvedPrimaryLabel}
         showAskMat={showAskMatInFeedback}

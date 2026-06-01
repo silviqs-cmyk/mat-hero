@@ -3,22 +3,21 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ChevronRight, Flame, Target } from "lucide-react";
-import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
+import { BrandMark } from "@/components/BrandMark";
 import { useAppState } from "@/components/providers/AppStateProvider";
 import { useTopBarProgress } from "@/components/providers/TopBarProgressProvider";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { usePublishedCourse } from "@/hooks/usePublishedCourse";
 import { useUserProgress } from "@/hooks/useUserProgress";
 import { calculatePercentage, resolveCourseProgress } from "@/lib/progress";
-import { getGoalModel } from "@/lib/studentFlow";
 import { listUserResults } from "@/services/results";
-import type { DayResult, UserProfile } from "@/types/user";
+import type { DayResult } from "@/types/user";
 
 interface TopBarProps {}
 
 interface GoalCardProps {
-  profile: UserProfile | null;
-  latestResult: number;
+  totalDays: number;
+  completedDaysCount: number;
 }
 
 interface ProgressCardProps {
@@ -27,9 +26,8 @@ interface ProgressCardProps {
   totalDays: number;
 }
 
-function GoalCard({ profile, latestResult }: GoalCardProps) {
-  const goal = getGoalModel(profile, latestResult);
-
+function GoalCard({ totalDays, completedDaysCount }: GoalCardProps) {
+  const progressPercent = totalDays > 0 ? calculatePercentage(completedDaysCount, totalDays) : 0;
   return (
     <div className="flex h-full min-w-0 items-center gap-4 rounded-[22px] border border-amber-400/20 bg-[linear-gradient(180deg,rgba(50,30,7,0.58),rgba(27,18,8,0.8))] p-4 shadow-[0_0_24px_rgba(245,158,11,0.1)]">
       <span className="mh-icon-shell mh-icon-shell--gold flex h-10 w-10 shrink-0 items-center justify-center self-start">
@@ -37,19 +35,19 @@ function GoalCard({ profile, latestResult }: GoalCardProps) {
       </span>
       <div className="min-w-0 flex-1 space-y-2">
         <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-amber-200/90">
-          Последен резултат
+          Изминати дни
         </p>
-        <p className="truncate text-sm font-semibold text-white">{goal.target}</p>
+        <p className="truncate text-sm font-semibold text-white">{`${totalDays} дни в плана`}</p>
         <div className="h-2 overflow-hidden rounded-full bg-white/8">
           <div
             className="h-full rounded-full bg-[linear-gradient(90deg,var(--mh-accent-gold),var(--mh-accent-amber))] shadow-[0_0_14px_rgba(245,158,11,0.3)]"
-            style={{ width: `${latestResult}%` }}
+            style={{ width: `${progressPercent}%` }}
           />
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-end justify-center text-right">
-        <p className="text-lg font-bold text-white">{latestResult}%</p>
-        <p className="text-[0.7rem] text-[var(--mh-text-muted)]">{`цел: ${goal.target}`}</p>
+        <p className="text-lg font-bold text-white">{completedDaysCount}</p>
+        <p className="text-[0.7rem] text-[var(--mh-text-muted)]">{`от ${totalDays} дни`}</p>
       </div>
     </div>
   );
@@ -181,7 +179,8 @@ export function TopBar({}: TopBarProps) {
 
     return Math.round(results.reduce((sum, result) => sum + result.percentage, 0) / results.length);
   }, [results]);
-  const latestResult = useMemo(() => results[0]?.percentage ?? 0, [results]);
+  void averageResult;
+  void resultsLoaded;
 
   const totalDays = course?.duration_days ?? 10;
   const resolvedProgress = resolveCourseProgress({
@@ -193,22 +192,16 @@ export function TopBar({}: TopBarProps) {
 
   return (
     <header className="sticky top-0 z-50 px-4 pt-4 sm:px-6 lg:px-8 lg:pt-6">
-      <div className="rounded-[26px] border border-white/10 bg-[rgba(7,11,22,0.86)] px-4 py-4 shadow-[0_18px_40px_rgba(0,0,0,0.24)] backdrop-blur-xl sm:px-5 sm:py-5 lg:px-6">
+      <div className="rounded-[26px] px-1 py-1 sm:px-1 sm:py-1 lg:px-1">
         <div className="flex items-center gap-3 lg:hidden">
           <Link href="/dashboard" className="flex min-w-0 flex-1 items-center gap-3 text-white">
-            <div className="mh-card-muted flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl p-2">
-              <AnimatedHeroMascot size="sm" animated={false} />
-            </div>
-            <div className="min-w-0">
-              <p className="font-logo text-[1.8rem] font-extrabold leading-none text-white">MatHero</p>
-              <p className="mt-1 truncate text-sm text-[var(--mh-text-muted)]">Математика с ритъм</p>
-            </div>
+            <BrandMark titleClassName="text-[1.8rem]" />
           </Link>
         </div>
 
         <div className="mt-4 grid gap-3 lg:hidden">
           <div className="grid gap-3 md:col-span-2 md:grid-cols-2">
-            <GoalCard profile={profile} latestResult={resultsLoaded ? latestResult : 0} />
+            <GoalCard totalDays={totalDays} completedDaysCount={completedDaysCount} />
             <ProgressCard
               currentDayNumber={currentDayNumber}
               completedDaysCount={completedDaysCount}
@@ -222,17 +215,11 @@ export function TopBar({}: TopBarProps) {
 
         <div className="hidden lg:grid lg:grid-cols-[minmax(220px,280px)_minmax(0,1fr)_minmax(220px,280px)] lg:items-stretch lg:gap-4">
           <Link href="/dashboard" className="flex min-w-0 items-center gap-3 self-center text-white">
-            <div className="mh-card-muted flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl p-2">
-              <AnimatedHeroMascot size="sm" animated={false} />
-            </div>
-            <div className="min-w-0">
-              <p className="font-logo text-[1.9rem] font-extrabold leading-none text-white">MatHero</p>
-              <p className="mt-1 truncate text-sm leading-6 text-[var(--mh-text-muted)]">Математика с ритъм</p>
-            </div>
+            <BrandMark />
           </Link>
 
           <div className="grid min-w-0 grid-cols-2 gap-4">
-            <GoalCard profile={profile} latestResult={resultsLoaded ? latestResult : 0} />
+            <GoalCard totalDays={totalDays} completedDaysCount={completedDaysCount} />
             <ProgressCard
               currentDayNumber={currentDayNumber}
               completedDaysCount={completedDaysCount}

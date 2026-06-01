@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { LayoutDashboard, LogOut, Map } from "lucide-react";
-import { AnimatedHeroMascot } from "@/components/AnimatedHeroMascot";
+import { BrandMark } from "@/components/BrandMark";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { signOut } from "@/lib/auth/client";
 
@@ -26,15 +26,7 @@ export function AdminRouteShell({ children }: AdminRouteShellProps) {
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <Link href="/admin" className="inline-flex min-w-0 items-center gap-3 text-white transition hover:text-cyan-100">
-              <div className="mh-card-muted flex h-12 w-12 items-center justify-center rounded-2xl p-2">
-                <AnimatedHeroMascot size="sm" animated={false} />
-              </div>
-              <div>
-                <p className="font-logo text-[1.9rem] font-extrabold leading-none text-white">MatHero</p>
-                <p className="mt-1 truncate text-sm leading-6 text-[var(--mh-text-muted)]">
-                  Математика с ритъм
-                </p>
-              </div>
+              <BrandMark />
             </Link>
           </div>
 

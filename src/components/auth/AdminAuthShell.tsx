@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ShieldCheck } from "lucide-react";
+import { BrandMark } from "@/components/BrandMark";
 
 interface AdminAuthShellProps {
   title: string;
@@ -16,13 +16,13 @@ export function AdminAuthShell({ title, description, children }: AdminAuthShellP
       <div className="relative z-10 w-full max-w-md">
         <div className="mb-6 text-center">
           <Link href="/" className="inline-flex flex-col items-center gap-3 text-white transition">
-            <span className="flex h-16 w-16 items-center justify-center rounded-3xl border border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-100 shadow-[0_0_28px_rgba(217,70,239,0.16)]">
-              <ShieldCheck className="h-8 w-8" />
-            </span>
-            <div className="space-y-2">
-              <div className="font-logo text-4xl font-black tracking-tight text-white">MatHero Admin</div>
-              <p className="text-sm font-medium text-[var(--mh-text-muted)]">Контрол и яснота на едно място.</p>
-            </div>
+            <BrandMark
+              layout="stacked"
+              size="md"
+              title="MatHero Admin"
+              subtitle="Контрол и яснота на едно място."
+              titleClassName="font-black tracking-tight"
+            />
           </Link>
         </div>
 

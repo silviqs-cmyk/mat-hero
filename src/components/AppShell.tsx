@@ -47,16 +47,8 @@ function shouldShowDesktopFooter(pathname: string) {
     pathname.startsWith("/admin") ||
     pathname === "/login" ||
     pathname === "/register" ||
-    pathname === "/forgot-password"
-  ) {
-    return false;
-  }
-
-  if (
-    pathname.startsWith("/quiz/") ||
-    pathname.includes("/quiz") ||
-    pathname.includes("/practice") ||
-    pathname.includes("/bonus")
+    pathname === "/forgot-password" ||
+    pathname === "/report"
   ) {
     return false;
   }

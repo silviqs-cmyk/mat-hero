@@ -12,6 +12,7 @@ interface AnswerFeedbackModalProps {
   isCorrect: boolean;
   explanation: string;
   correctAnswer: string | null;
+  showStandaloneCorrectAnswer?: boolean;
   pointsEarned?: number;
   primaryLabel: string;
   showAskMat?: boolean;
@@ -53,6 +54,7 @@ export function AnswerFeedbackModal({
   isCorrect,
   explanation,
   correctAnswer,
+  showStandaloneCorrectAnswer = true,
   pointsEarned = 0,
   primaryLabel,
   showAskMat = false,
@@ -78,12 +80,6 @@ export function AnswerFeedbackModal({
   }, [isOpen, correctAnswer, explanation, primaryLabel]);
 
   function handlePrimaryClick() {
-    console.log("[AnswerFeedbackModal] primary-click", {
-      continueClicked: continueClickedRef.current,
-      primaryLabel,
-      isOpen,
-    });
-
     if (continueClickedRef.current) {
       return;
     }
@@ -186,7 +182,7 @@ export function AnswerFeedbackModal({
 
           {shouldShowDetails ? (
             <div className="max-h-[28vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-none">
-              {correctAnswer ? (
+              {showStandaloneCorrectAnswer && correctAnswer ? (
                 <p className="text-base font-semibold text-white">
                   Верен отговор: <MathText text={correctAnswer} as="span" inline />
                 </p>
