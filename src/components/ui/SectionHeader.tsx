@@ -19,9 +19,9 @@ export function SectionHeader({
         align === "center" ? "items-center" : "items-start"
       }`}
     >
-      <div>
+      <div className="space-y-2">
         <p className="mh-label">{label}</p>
-        <div className="mt-3">
+        <div>
           {typeof title === "string" ? <h2 className="mh-heading-xl">{title}</h2> : title}
         </div>
       </div>

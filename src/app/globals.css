@@ -37,22 +37,37 @@
   --mh-glow-pink: 0 0 0 1px rgba(236, 72, 153, 0.22), 0 0 20px rgba(236, 72, 153, 0.24);
   --mh-glow-lime: 0 0 0 1px rgba(34, 197, 94, 0.22), 0 0 20px rgba(34, 197, 94, 0.18);
   --mh-glow-active: 0 0 0 1px rgba(34, 211, 238, 0.26), 0 0 24px rgba(34, 211, 238, 0.18);
-  --mh-radius-card: 0.75rem;
+  --mh-radius-card: 1rem;
   --mh-radius-card-lg: 1rem;
-  --mh-radius-button: 0.75rem;
+  --mh-radius-button: 1rem;
   --mh-radius-badge: 9999px;
-  --mh-radius-input: 0.75rem;
+  --mh-radius-input: 1rem;
   --mh-radius-modal: 1rem;
   --mh-space-section: 2rem;
-  --mh-space-card: 1.5rem;
-  --mh-space-card-lg: 1.5rem;
-  --mh-space-grid: 1rem;
+  --mh-space-section-lg: 3rem;
+  --mh-space-card: 1rem;
+  --mh-space-card-lg: 1.25rem;
+  --mh-space-grid: 0.75rem;
+  --mh-space-group-sm: 0.5rem;
+  --mh-space-group: 0.75rem;
+  --mh-space-group-lg: 1rem;
   --mh-space-sidebar: 2rem;
-  --mh-space-button-x: 1.5rem;
-  --mh-space-button-y: 0.875rem;
+  --mh-space-button-x: 1.25rem;
+  --mh-space-button-y: 0.75rem;
   --mh-label-size: 0.75rem;
   --mh-label-tracking: 0.12em;
   --mh-body-line: 1.6;
+  --mh-body-size: 1rem;
+  --mh-meta-size: 0.875rem;
+  --mh-meta-line: 1.45;
+  --mh-title-card-size: 1.125rem;
+  --mh-title-card-line: 1.3;
+  --mh-h3-size: 1.25rem;
+  --mh-h3-line: 1.3;
+  --mh-button-size: 1rem;
+  --mh-button-line: 1.2;
+  --mh-button-height: 3rem;
+  --mh-button-height-sm: 2.5rem;
 }
 
 body {
@@ -64,6 +79,8 @@ body {
     linear-gradient(180deg, var(--mh-bg-deep) 0%, #09101d 52%, var(--mh-bg) 100%);
   color: var(--mh-text);
   font-family: var(--font-sans-app), "Segoe UI", sans-serif;
+  font-size: var(--mh-body-size);
+  line-height: var(--mh-body-line);
   text-rendering: optimizeLegibility;
 }
 
@@ -158,6 +175,7 @@ textarea {
 .mh-label {
   font-size: var(--mh-label-size);
   font-weight: 700;
+  line-height: var(--mh-meta-line);
   letter-spacing: var(--mh-label-tracking);
   text-transform: uppercase;
   color: var(--mh-accent-cyan);
@@ -165,39 +183,69 @@ textarea {
 
 .mh-heading-xl {
   font-family: var(--font-display-app), "Segoe UI", sans-serif;
-  font-size: clamp(2.25rem, 3vw, 2.9rem);
-  line-height: 1.08;
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  line-height: 1.12;
   font-weight: 700;
   color: var(--mh-text);
 }
 
 .mh-heading-lg {
   font-family: var(--font-display-app), "Segoe UI", sans-serif;
-  font-size: clamp(1.65rem, 2vw, 2.2rem);
-  line-height: 1.12;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.18;
+  font-weight: 700;
+  color: var(--mh-text);
+}
+
+.mh-heading-md {
+  font-family: var(--font-display-app), "Segoe UI", sans-serif;
+  font-size: var(--mh-h3-size);
+  line-height: var(--mh-h3-line);
+  font-weight: 700;
+  color: var(--mh-text);
+}
+
+.mh-card-title {
+  font-family: var(--font-display-app), "Segoe UI", sans-serif;
+  font-size: var(--mh-title-card-size);
+  line-height: var(--mh-title-card-line);
   font-weight: 700;
   color: var(--mh-text);
 }
 
 .mh-copy {
+  font-size: var(--mh-body-size);
   color: var(--mh-text-soft);
   line-height: var(--mh-body-line);
 }
 
 .mh-copy-muted {
+  font-size: var(--mh-body-size);
   color: var(--mh-text-muted);
   line-height: var(--mh-body-line);
+}
+
+.mh-copy-sm {
+  font-size: var(--mh-meta-size);
+  color: var(--mh-text-muted);
+  line-height: var(--mh-meta-line);
+}
+
+.mh-meta {
+  font-size: var(--mh-meta-size);
+  line-height: var(--mh-meta-line);
 }
 
 .mh-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  min-height: 2.5rem;
-  padding: 0.65rem 1rem;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.875rem;
   border-radius: var(--mh-radius-badge);
   border: 1px solid var(--mh-line);
-  font-size: 0.95rem;
+  font-size: var(--mh-meta-size);
+  line-height: var(--mh-meta-line);
   font-weight: 600;
   transition:
     background-color 0.2s ease,
@@ -241,11 +289,12 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: 0.65rem;
-  min-height: 3.5rem;
+  min-height: var(--mh-button-height);
   padding: var(--mh-space-button-y) var(--mh-space-button-x);
   border-radius: var(--mh-radius-button);
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: var(--mh-button-size);
+  font-weight: 600;
+  line-height: var(--mh-button-line);
   font-family: var(--font-sans-app), "Segoe UI", sans-serif;
   letter-spacing: 0.01em;
   text-decoration: none;
@@ -331,6 +380,16 @@ textarea {
 .mh-btn-danger:hover {
   background: rgba(255, 78, 209, 0.14);
   box-shadow: var(--mh-glow-pink);
+}
+
+.mh-btn-uniform {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .mh-btn-uniform {
+    min-width: 13rem;
+  }
 }
 
 .mh-progress {
@@ -446,6 +505,8 @@ textarea {
   background: rgba(15, 19, 36, 0.88);
   color: var(--mh-text);
   padding: 0.875rem 1rem;
+  font-size: var(--mh-body-size);
+  line-height: var(--mh-body-line);
   backdrop-filter: blur(8px);
   transition:
     border-color 0.2s ease,
@@ -640,4 +701,13 @@ textarea {
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
   touch-action: pan-y;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --mh-space-card: 1.25rem;
+    --mh-space-card-lg: 1.5rem;
+    --mh-space-section: 3rem;
+    --mh-space-section-lg: 4rem;
+  }
 }

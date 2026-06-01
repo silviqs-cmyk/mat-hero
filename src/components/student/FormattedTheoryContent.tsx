@@ -1,6 +1,5 @@
 import { Fragment, type ReactNode } from "react";
 import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
-import { NeonButton } from "@/components/ui/NeonButton";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 
 interface FormattedTheoryContentProps {
@@ -11,11 +10,12 @@ type ContentBlock =
   | { type: "paragraph"; lines: string[] }
   | { type: "list"; ordered: boolean; items: string[] }
   | { type: "formula"; lines: string[] }
-  | { type: "callout"; label: "Важно" | "Примери"; lines: string[] };
+  | { type: "callout"; label: "Важно" | "Внимавай" | "Примери"; lines: string[] };
 
 const ORDERED_LIST_PATTERN = /^(\d+)\.\s+/u;
 const UNORDERED_LIST_PATTERN = /^([-\u2022])\s+/u;
 const IMPORTANT_PATTERN = /^Важно:\s*(.*)$/iu;
+const CAUTION_PATTERN = /^Внимавай:\s*(.*)$/iu;
 const EXAMPLES_PATTERN = /^Примери?:\s*(.*)$/iu;
 const STANDALONE_BOLD_PATTERN = /^\*\*([\s\S]+?)\*\*$/u;
 
@@ -37,6 +37,14 @@ function getCalloutMatch(line: string) {
     return {
       label: "Важно" as const,
       firstLine: importantMatch[1]?.trim() ?? "",
+    };
+  }
+
+  const cautionMatch = line.match(CAUTION_PATTERN);
+  if (cautionMatch) {
+    return {
+      label: "Внимавай" as const,
+      firstLine: cautionMatch[1]?.trim() ?? "",
     };
   }
 
@@ -81,32 +89,6 @@ function renderInline(line: string, keyPrefix: string) {
 
 function getStandaloneBoldText(line: string) {
   return line.match(STANDALONE_BOLD_PATTERN)?.[1]?.trim() ?? null;
-}
-
-function normalizeLineText(line: string) {
-  const standaloneBold = getStandaloneBoldText(line);
-  return (standaloneBold ?? line).trim().toLocaleLowerCase("bg-BG");
-}
-
-function normalizeBlockLine(block: ContentBlock) {
-  if (block.type === "list") {
-    return "";
-  }
-
-  if (block.lines.length === 0) {
-    return "";
-  }
-
-  return normalizeLineText(block.lines[0] ?? "");
-}
-
-function isMiniTaskBlock(block: ContentBlock) {
-  return normalizeBlockLine(block).startsWith("мини задача:");
-}
-
-function isAnswerBlock(block: ContentBlock) {
-  const normalized = normalizeBlockLine(block);
-  return normalized.startsWith("отговор:") || normalized.startsWith("решение:");
 }
 
 function buildBlocks(content: string): ContentBlock[] {
@@ -204,30 +186,13 @@ function buildBlocks(content: string): ContentBlock[] {
 
 export function FormattedTheoryContent({ content }: FormattedTheoryContentProps) {
   const blocks = buildBlocks(content);
-  const firstAnswerBlockIndex = blocks.findIndex((block) => isAnswerBlock(block));
-  const theoryAnswerAnchorId = firstAnswerBlockIndex >= 0 ? `theory-answer-${firstAnswerBlockIndex}` : null;
 
   return (
     <div className="space-y-5">
-      {theoryAnswerAnchorId ? (
-        <div className="flex justify-start">
-          <NeonButton href={`#${theoryAnswerAnchorId}`} variant="ghost" className="min-h-10 px-4 text-sm">
-            Питай МАТ
-          </NeonButton>
-        </div>
-      ) : null}
-
       {blocks.map((block, blockIndex) => {
-        const hasAskMatJump = isMiniTaskBlock(block) && firstAnswerBlockIndex > blockIndex;
-        const answerAnchorId = hasAskMatJump ? `theory-answer-${firstAnswerBlockIndex}` : undefined;
-
         if (block.type === "paragraph") {
           return (
-            <div
-              key={`paragraph-${blockIndex}`}
-              id={isAnswerBlock(block) ? `theory-answer-${blockIndex}` : undefined}
-              className="space-y-3"
-            >
+            <div key={`paragraph-${blockIndex}`} className="space-y-3">
               {block.lines.map((line, lineIndex) => (
                 getStandaloneBoldText(line) ? (
                   <h4
@@ -245,17 +210,6 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
                   </p>
                 )
               ))}
-              {hasAskMatJump && answerAnchorId ? (
-                <div className="pt-1">
-                  <NeonButton
-                    href={`#${answerAnchorId}`}
-                    variant="ghost"
-                    className="min-h-10 px-4 text-sm"
-                  >
-                    Не съм сигурен — питай МАТ
-                  </NeonButton>
-                </div>
-              ) : null}
             </div>
           );
         }
@@ -304,7 +258,6 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
         return (
           <div
             key={`callout-${blockIndex}`}
-            id={isAnswerBlock(block) ? `theory-answer-${blockIndex}` : undefined}
             className="rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-4"
           >
             <SectionLabel className="text-[var(--mh-accent-cyan-soft)]">{block.label}</SectionLabel>
@@ -327,17 +280,6 @@ export function FormattedTheoryContent({ content }: FormattedTheoryContentProps)
                 )
               ))}
             </div>
-            {hasAskMatJump && answerAnchorId ? (
-              <div className="mt-3">
-                <NeonButton
-                  href={`#${answerAnchorId}`}
-                  variant="ghost"
-                  className="min-h-10 px-4 text-sm"
-                >
-                  Не съм сигурен — питай МАТ
-                </NeonButton>
-              </div>
-            ) : null}
           </div>
         );
       })}

@@ -17,7 +17,7 @@ export function PageHeroHeader({
   return (
     <>
       <SectionHeader label={label} title={title} action={action} />
-      {description ? <p className="mh-copy-muted mt-3 max-w-3xl text-[1rem]">{description}</p> : null}
+      {description ? <p className="mh-copy-muted mt-3 max-w-3xl">{description}</p> : null}
     </>
   );
 }

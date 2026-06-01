@@ -5,7 +5,6 @@ import { DayPlanCard } from "@/components/dashboard/DayPlanCard";
 import { DayTimeline } from "@/components/dashboard/DayTimeline";
 import { InfoCard } from "@/components/dashboard/InfoCard";
 import { LearningOutcomes } from "@/components/dashboard/LearningOutcomes";
-import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { PageHeroHeader } from "@/components/ui/PageHeroHeader";
@@ -48,9 +47,8 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
       <section className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
         <NeonCard padding="md">
           <PageHeroHeader
-            label={`Ден ${bundle.day.day_number} от ${course.duration_days}`}
+            label=""
             title={<h1 className="mh-heading-xl">{bundle.day.title}</h1>}
-            action={<Badge tone="cyan">{`Ден ${bundle.day.day_number}`}</Badge>}
             description={daySummary.trim() && daySummary.trim() !== lessonBlocks.keyPoints.trim() ? daySummary : undefined}
           />
 
@@ -60,15 +58,18 @@ export function StudentDayOverview({ course, bundle, progress }: StudentDayOverv
             </InfoCard>
           </div>
 
-          <div className="mt-6 flex flex-col gap-4">
-            <NeonButton href={lessonHref} className="min-h-14 w-full px-8 text-[1.15rem]">
+          <div className="mt-8">
+            <LearningOutcomes items={outcomes} compact />
+          </div>
+
+          <div className="mt-6 flex flex-col gap-4 sm:items-end">
+            <NeonButton
+              href={lessonHref}
+              className="min-h-12 w-full px-5 text-base font-semibold sm:w-auto sm:min-w-[13rem] sm:self-end"
+            >
               Започни урока
               <ChevronRight className="h-5 w-5" />
             </NeonButton>
-          </div>
-
-          <div className="mt-5">
-            <LearningOutcomes items={outcomes} compact />
           </div>
         </NeonCard>
 

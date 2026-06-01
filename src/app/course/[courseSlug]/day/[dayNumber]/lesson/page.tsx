@@ -102,7 +102,7 @@ export default async function CourseLessonPage({
         {debugEnabled ? <StudentFlowDebugCard title="Lesson Route Debug" items={resolvedDebugItems} /> : null}
         <EmptyState
           title="Няма урок за този ден"
-          description="Публикувай lesson в CMS-а и той ще се появи тук."
+          description="Публикувай урок в CMS-а и той ще се появи тук."
         />
       </div>
     );

@@ -29,7 +29,7 @@ export function AdminAuthShell({ title, description, children }: AdminAuthShellP
         <div className="mb-6 text-center">
           <p className="mh-label">Админ панел</p>
           <h1 className="mh-heading-lg mt-3">{title}</h1>
-          <p className="mh-copy mt-3 text-sm">{description}</p>
+          <p className="mh-copy mt-3">{description}</p>
         </div>
 
         {children}

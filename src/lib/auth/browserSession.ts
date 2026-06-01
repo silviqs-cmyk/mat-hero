@@ -24,6 +24,7 @@ const MISSING_SESSION_PATTERNS = [
 const STUDENT_PROTECTED_PREFIXES = ["/course", "/dashboard", "/day", "/profile", "/report", "/roadmap"];
 
 let sessionRecoveryPromise: Promise<string> | null = null;
+let sessionRequestPromise: Promise<Session | null> | null = null;
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error) {
@@ -107,7 +108,7 @@ export async function signOutAndClearBrowserSession() {
 
   try {
     const supabase = getSupabaseBrowserClient();
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
   } catch {
     // Clearing local session is enough to recover from invalid refresh token state.
   } finally {
@@ -147,75 +148,52 @@ export async function recoverInvalidBrowserSession(options: SessionRecoveryOptio
 export async function getSessionWithRecovery(
   options: SessionRecoveryOptions = {},
 ): Promise<Session | null> {
-  try {
-    const supabase = getSupabaseBrowserClient();
-    const {
-      data: { session },
-      error,
-    } = await supabase.auth.getSession();
+  if (!sessionRequestPromise) {
+    sessionRequestPromise = (async () => {
+      try {
+        const supabase = getSupabaseBrowserClient();
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
 
-    if (error) {
-      if (isMissingSessionError(error)) {
-        return null;
+        if (error) {
+          if (isMissingSessionError(error)) {
+            return null;
+          }
+
+          if (isInvalidRefreshTokenError(error)) {
+            await recoverInvalidBrowserSession(options);
+            return null;
+          }
+
+          throw error;
+        }
+
+        return session;
+      } catch (error) {
+        if (isMissingSessionError(error)) {
+          return null;
+        }
+
+        if (isInvalidRefreshTokenError(error)) {
+          await recoverInvalidBrowserSession(options);
+          return null;
+        }
+
+        throw error;
       }
-
-      if (isInvalidRefreshTokenError(error)) {
-        await recoverInvalidBrowserSession(options);
-        return null;
-      }
-
-      throw error;
-    }
-
-    return session;
-  } catch (error) {
-    if (isMissingSessionError(error)) {
-      return null;
-    }
-
-    if (isInvalidRefreshTokenError(error)) {
-      await recoverInvalidBrowserSession(options);
-      return null;
-    }
-
-    throw error;
+    })().finally(() => {
+      sessionRequestPromise = null;
+    });
   }
+
+  return sessionRequestPromise;
 }
 
 export async function getUserWithRecovery(
   options: SessionRecoveryOptions = {},
 ): Promise<User | null> {
-  try {
-    const supabase = getSupabaseBrowserClient();
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser();
-
-    if (error) {
-      if (isMissingSessionError(error)) {
-        return null;
-      }
-
-      if (isInvalidRefreshTokenError(error)) {
-        await recoverInvalidBrowserSession(options);
-        return null;
-      }
-
-      throw error;
-    }
-
-    return user;
-  } catch (error) {
-    if (isMissingSessionError(error)) {
-      return null;
-    }
-
-    if (isInvalidRefreshTokenError(error)) {
-      await recoverInvalidBrowserSession(options);
-      return null;
-    }
-
-    throw error;
-  }
+  const session = await getSessionWithRecovery(options);
+  return session?.user ?? null;
 }

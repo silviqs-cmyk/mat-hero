@@ -11,10 +11,10 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import type { User } from "@supabase/supabase-js";
 import {
   getAuthRedirectPath,
   getSessionWithRecovery,
-  getUserWithRecovery,
   isProtectedAppRoute,
 } from "@/lib/auth/browserSession";
 import { LoadingState } from "@/components/ui/LoadingState";
@@ -177,7 +177,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const authClient = supabase;
     let active = true;
 
-    async function syncForSession(nextSessionId: string, isAuthenticated: boolean) {
+    async function syncForSession(
+      nextSessionId: string,
+      isAuthenticated: boolean,
+      sessionUser?: User | null,
+    ) {
       const localProgress =
         readProgressFromStorage(nextSessionId) ?? createInitialProgress(nextSessionId);
 
@@ -194,11 +198,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
       try {
         const { data } = await getUserProgress(nextSessionId);
-        const user = await getUserWithRecovery({
-          pathname,
-          redirect: true,
-          router,
-        });
+        const user = sessionUser ?? null;
 
         if (!active) {
           return;
@@ -239,7 +239,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
         const authenticatedUserId = session?.user.id ?? null;
         const nextSessionId = authenticatedUserId ?? getOrCreateSessionId();
-        await syncForSession(nextSessionId, Boolean(authenticatedUserId));
+        await syncForSession(nextSessionId, Boolean(authenticatedUserId), session?.user ?? null);
 
         if (authenticatedUserId) {
           cancelPendingRedirect();
@@ -274,7 +274,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         scheduleLoginRedirect();
       }
 
-      void syncForSession(nextSessionId, Boolean(authenticatedUserId));
+      void syncForSession(nextSessionId, Boolean(authenticatedUserId), session?.user ?? null);
     });
 
     return () => {

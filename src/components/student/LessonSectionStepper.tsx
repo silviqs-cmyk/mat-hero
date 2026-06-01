@@ -96,7 +96,7 @@ export function LessonSectionStepper({
           <NeonButton
             type="button"
             variant="ghost"
-            className="min-h-14 w-full justify-center"
+            className="mh-btn-uniform min-h-14 justify-center"
             onClick={() => setCurrentSectionIndex((index) => Math.max(index - 1, 0))}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -110,7 +110,7 @@ export function LessonSectionStepper({
             target={videoHref ? undefined : "_blank"}
             rel={videoHref ? undefined : "noreferrer"}
             variant="secondary"
-            className="min-h-14 w-full justify-center"
+            className="mh-btn-uniform min-h-14 justify-center"
           >
             <PlayCircle className="h-5 w-5" />
             Видео
@@ -123,7 +123,7 @@ export function LessonSectionStepper({
           <NeonButton
             href={resolvedFinalHref}
             variant="primary"
-            className="min-h-14 w-full justify-center sm:justify-self-end"
+            className="mh-btn-uniform min-h-14 justify-center"
           >
             {resolvedFinalLabel}
             <ChevronRight className="h-5 w-5" />
@@ -131,7 +131,7 @@ export function LessonSectionStepper({
         ) : (
           <NeonButton
             type="button"
-            className="min-h-14 w-full justify-center sm:justify-self-end"
+            className="mh-btn-uniform min-h-14 justify-center"
             onClick={() => setCurrentSectionIndex((index) => Math.min(index + 1, sections.length - 1))}
           >
             Следваща тема

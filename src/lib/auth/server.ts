@@ -19,6 +19,36 @@ interface StudentAccessResult {
   onboardingMessage: string | null;
 }
 
+const INVALID_REFRESH_TOKEN_PATTERNS = [
+  "invalid refresh token",
+  "refresh token not found",
+];
+const MISSING_SESSION_PATTERNS = [
+  "auth session missing",
+  "session missing",
+];
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === "object" && error !== null && "message" in error) {
+    return String(error.message);
+  }
+
+  return String(error ?? "");
+}
+
+function isRecoverableAuthError(error: unknown) {
+  const normalizedMessage = getErrorMessage(error).toLowerCase();
+
+  return (
+    INVALID_REFRESH_TOKEN_PATTERNS.some((pattern) => normalizedMessage.includes(pattern)) ||
+    MISSING_SESSION_PATTERNS.some((pattern) => normalizedMessage.includes(pattern))
+  );
+}
+
 function isAllowedAdminEmail(email: string | null | undefined) {
   if (!email) {
     return false;
@@ -32,12 +62,29 @@ function isAllowedAdminEmail(email: string | null | undefined) {
 }
 
 export async function getServerUser(): Promise<User | null> {
-  const supabase = await createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
 
-  return user;
+    if (error) {
+      if (isRecoverableAuthError(error)) {
+        return null;
+      }
+
+      throw error;
+    }
+
+    return user;
+  } catch (error) {
+    if (isRecoverableAuthError(error)) {
+      return null;
+    }
+
+    throw error;
+  }
 }
 
 export async function getServerProfile(userId?: string): Promise<UserProfile | null> {

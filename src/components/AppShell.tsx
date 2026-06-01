@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { BackgroundMathSymbols } from "@/components/BackgroundMathSymbols";
 import { BottomNav } from "@/components/BottomNav";
+import { AppFooter } from "@/components/layout/AppFooter";
 import { StudentSideNav } from "@/components/StudentSideNav";
 import { useAppState } from "@/components/providers/AppStateProvider";
 import { TopBarProgressProvider } from "@/components/providers/TopBarProgressProvider";
@@ -40,6 +41,29 @@ function isStudentAppRoute(pathname: string) {
   );
 }
 
+function shouldShowDesktopFooter(pathname: string) {
+  if (
+    pathname === "/" ||
+    pathname.startsWith("/admin") ||
+    pathname === "/login" ||
+    pathname === "/register" ||
+    pathname === "/forgot-password"
+  ) {
+    return false;
+  }
+
+  if (
+    pathname.startsWith("/quiz/") ||
+    pathname.includes("/quiz") ||
+    pathname.includes("/practice") ||
+    pathname.includes("/bonus")
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { authUser } = useAppState();
@@ -51,6 +75,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const canShowProtectedChrome =
     !protectedStudentRoute || (authUser.isReady && Boolean(authUser.id) && Boolean(authUser.displayName.trim()));
   const showStudentChrome = !landing && !admin && !auth && studentAppRoute && canShowProtectedChrome;
+  const showDesktopFooter = shouldShowDesktopFooter(pathname);
 
   return (
     <TopBarProgressProvider>
@@ -65,7 +90,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <BackgroundMathSymbols />
 
         {showStudentChrome ? (
-          <div className="relative z-10 grid min-h-screen grid-rows-[auto_minmax(0,1fr)]">
+          <div className="relative z-10 grid min-h-screen grid-rows-[auto_minmax(0,1fr)_auto]">
             <TopBar />
 
             <div className="flex min-h-0 flex-col lg:grid lg:grid-cols-[17rem_minmax(0,1fr)]">
@@ -78,16 +103,22 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
             </div>
 
+            {showDesktopFooter ? <AppFooter /> : null}
+
             <BottomNav />
           </div>
         ) : (
-          <main
-            className={`relative z-10 ${
-              landing ? "p-0" : admin ? "p-0" : auth ? "p-0" : "px-4 py-5 sm:px-6 lg:px-8 lg:py-6"
-            }`}
-          >
-            {children}
-          </main>
+          <div className="relative z-10 flex min-h-screen flex-col">
+            <main
+              className={`flex-1 ${
+                landing ? "p-0" : admin ? "p-0" : auth ? "p-0" : "px-4 py-5 sm:px-6 lg:px-8 lg:py-6"
+              }`}
+            >
+              {children}
+            </main>
+
+            {showDesktopFooter ? <AppFooter /> : null}
+          </div>
         )}
       </motion.div>
     </TopBarProgressProvider>

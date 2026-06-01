@@ -51,6 +51,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="bg">
+      <head>
+        <meta charSet="utf-8" />
+      </head>
       <body className={`${inter.variable} ${manrope.variable} ${exo2Logo.variable}`}>
         <AppStateProvider>
           <TopBarProgressProvider>

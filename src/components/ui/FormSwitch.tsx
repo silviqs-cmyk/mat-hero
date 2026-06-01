@@ -14,7 +14,7 @@ export function FormSwitch({
   disabled = false,
 }: FormSwitchProps) {
   return (
-    <label className={`flex items-center justify-between gap-4 rounded-[22px] border border-white/10 bg-white/[0.03] px-4 py-3 ${disabled ? "opacity-50" : ""}`}>
+    <label className={`flex items-center justify-between gap-4 rounded-[var(--mh-radius-card-lg)] border border-white/10 bg-white/[0.03] px-4 py-3 ${disabled ? "opacity-50" : ""}`}>
       <div>
         {label ? <p className="text-sm font-semibold text-white">{label}</p> : null}
         {description ? <p className="mt-1 text-xs text-slate-400">{description}</p> : null}

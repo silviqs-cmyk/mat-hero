@@ -31,7 +31,7 @@ export function FormInput(props: FormInputProps) {
 
   return (
     <label className="grid gap-2">
-      {label ? <span className="text-sm font-semibold text-[var(--mh-text-soft)]">{label}</span> : null}
+      {label ? <span className="mh-meta font-semibold text-[var(--mh-text-soft)]">{label}</span> : null}
       {normalizedProps.as === "textarea" ? (
         <textarea {...normalizedProps} className={fieldClassName} />
       ) : normalizedProps.as === "select" ? (
@@ -42,9 +42,9 @@ export function FormInput(props: FormInputProps) {
         <input {...normalizedProps} className={fieldClassName} />
       )}
       {error ? (
-        <span className="text-sm text-rose-300">{error}</span>
+        <span className="mh-meta text-rose-300">{error}</span>
       ) : hint ? (
-        <span className="text-sm text-[var(--mh-text-muted)]">{hint}</span>
+        <span className="mh-copy-sm">{hint}</span>
       ) : null}
     </label>
   );

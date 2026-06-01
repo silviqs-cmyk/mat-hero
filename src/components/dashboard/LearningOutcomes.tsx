@@ -15,7 +15,13 @@ export function LearningOutcomes({ items, compact = false }: LearningOutcomesPro
       className={compact ? "rounded-[20px] border-white/6 bg-white/[0.02]" : "rounded-[26px]"}
     >
       <div className="flex items-center justify-between gap-3">
-        <p className={`mh-label ${compact ? "text-cyan-200/90" : ""}`}>ДНЕС ЩЕ НАУЧИШ</p>
+        <p
+          className={`font-semibold uppercase leading-[1.2] tracking-[0.05em] ${
+            compact ? "text-[0.95rem] text-cyan-200/90" : "mh-label"
+          }`}
+        >
+          ДНЕС ЩЕ НАУЧИШ
+        </p>
       </div>
 
       {!compact ? (
@@ -24,7 +30,7 @@ export function LearningOutcomes({ items, compact = false }: LearningOutcomesPro
         </p>
       ) : null}
 
-      <div className={compact ? "mt-3 grid gap-2" : "mt-4 grid gap-4 xl:grid-cols-4"}>
+      <div className={compact ? "mt-4 grid gap-3" : "mt-4 grid gap-4 xl:grid-cols-4"}>
         {visibleItems.map((item) => (
           <div key={item} className="flex items-start gap-3">
             <span
@@ -34,7 +40,13 @@ export function LearningOutcomes({ items, compact = false }: LearningOutcomesPro
             >
               <CheckCircle2 className={compact ? "h-3 w-3" : "h-4 w-4"} />
             </span>
-            <p className={compact ? "text-sm leading-5 text-slate-200" : "text-[1.05rem] leading-7 text-slate-200"}>
+            <p
+              className={
+                compact
+                  ? "text-base font-medium leading-[1.55] text-slate-200"
+                  : "text-[1.05rem] leading-7 text-slate-200"
+              }
+            >
               {item}
             </p>
           </div>

@@ -65,7 +65,7 @@ export function AnswerFeedbackModal({
   const copy = getModalCopy(state);
   const portalRoot = typeof window === "undefined" ? null : window.document.body;
   const hasAskMatDetails = Boolean(correctAnswer || explanation);
-  const shouldRenderAskMat = showAskMat && hasAskMatDetails;
+  const shouldRenderAskMat = state !== "completed" && showAskMat && hasAskMatDetails;
   const shouldShowDetails = shouldRenderAskMat ? showAskMatDetails : !isCorrect || state === "incorrect";
   const askMatGifSrc = shouldRenderAskMat && showAskMatDetails ? "/images/feedback/ask-mat.gif" : null;
   const shouldShowTitle = !(shouldRenderAskMat && showAskMatDetails);

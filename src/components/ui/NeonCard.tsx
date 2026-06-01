@@ -20,9 +20,9 @@ const toneClasses: Record<NeonCardTone, string> = {
 };
 
 const paddingClasses = {
-  sm: "p-5",
-  md: "p-6",
-  lg: "px-7 py-7",
+  sm: "p-4 md:p-5",
+  md: "p-4 md:p-5",
+  lg: "p-4 md:p-6",
 };
 
 export function NeonCard({

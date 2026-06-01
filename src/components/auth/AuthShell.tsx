@@ -33,7 +33,7 @@ export function AuthShell({
               </div>
               <div className="space-y-2">
                 <div className="font-logo text-4xl font-black tracking-tight text-white">MatHero</div>
-                <p className="text-sm font-medium text-[var(--mh-text-muted)]">
+                <p className="mh-copy-sm font-medium">
                   Учи уверено. Решавай смело.
                 </p>
               </div>
@@ -45,7 +45,7 @@ export function AuthShell({
           <div className="mb-6 text-center">
             <SectionLabel>{eyebrow}</SectionLabel>
             <h1 className="mh-heading-lg mt-3">{title}</h1>
-            <p className="mh-copy mt-3 text-sm">{description}</p>
+            <p className="mh-copy mt-3">{description}</p>
           </div>
         ) : null}
 

@@ -15,7 +15,7 @@ interface TabsProps {
 export function Tabs({ items, activeTab, onChange }: TabsProps) {
   return (
     <div>
-      <div className="flex flex-wrap gap-2 rounded-[22px] border border-white/8 bg-white/[0.03] p-2">
+      <div className="flex flex-wrap gap-2 rounded-[var(--mh-radius-card-lg)] border border-white/8 bg-white/[0.03] p-2">
         {items.map((item) => {
           const isActive = item.id === activeTab;
           return (

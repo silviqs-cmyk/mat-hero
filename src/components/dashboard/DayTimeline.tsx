@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { DayTimelineItem } from "@/components/ui/DayTimelineItem";
 import type { DayTimelineItem as DayTimelineItemModel } from "@/types";
 
@@ -12,6 +16,8 @@ function getTimelineHref(day: DayTimelineItemModel) {
 }
 
 export function DayTimeline({ items, variant = "vertical" }: DayTimelineProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   if (variant === "compact") {
     return (
       <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
@@ -55,11 +61,33 @@ export function DayTimeline({ items, variant = "vertical" }: DayTimelineProps) {
     );
   }
 
+  const canCollapse = items.length > 3;
+  const activeIndex = items.findIndex((item) => item.isActive);
+  const collapsedStartIndex = activeIndex >= 0 ? activeIndex : 0;
+  const visibleItems =
+    canCollapse && !isExpanded ? items.slice(collapsedStartIndex, collapsedStartIndex + 3) : items;
+  const hiddenCount = Math.max(0, items.length - 3);
+
   return (
-    <div className="mt-5 space-y-2">
-      {items.map((day, index) => (
-        <DayTimelineItem key={day.id} item={day} isLast={index === items.length - 1} />
-      ))}
+    <div className="mt-5">
+      <div className="space-y-2">
+        {visibleItems.map((day, index) => (
+          <DayTimelineItem key={day.id} item={day} isLast={index === visibleItems.length - 1 && !isExpanded} />
+        ))}
+      </div>
+
+      {canCollapse ? (
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => setIsExpanded((current) => !current)}
+            className="inline-flex items-center gap-2 rounded-[var(--mh-radius-card)] border border-white/10 bg-white/[0.03] px-4 py-2 text-sm font-medium text-[var(--mh-text-muted)] transition hover:border-cyan-300/20 hover:bg-white/[0.05] hover:text-white"
+          >
+            <span>{isExpanded ? "Скрий дните" : `Покажи още ${hiddenCount} дни`}</span>
+            <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -13,9 +13,11 @@ export function InfoCard({ label, children, tone = "cyan", icon }: InfoCardProps
     <NeonCard as="article" tone={tone} padding="md">
       <div className="flex items-center gap-3">
         {icon ? <span className="text-[var(--mh-accent-cyan-soft)]">{icon}</span> : null}
-        <p className="mh-label">{label}</p>
+        <p className="mh-label leading-none tracking-[0.06em]">{label}</p>
       </div>
-      <div className="mt-5 space-y-3 text-[1.05rem] leading-8 text-[var(--mh-text)]">{children}</div>
+      <div className="mt-3 max-w-3xl space-y-4 text-base leading-[1.68] font-normal text-[var(--mh-text)]">
+        {children}
+      </div>
     </NeonCard>
   );
 }

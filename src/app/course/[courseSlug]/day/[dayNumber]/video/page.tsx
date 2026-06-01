@@ -1,7 +1,6 @@
 import { ChevronRight, ExternalLink, PlayCircle } from "lucide-react";
 import { DayTopBarProgress } from "@/components/student/DayTopBarProgress";
 import { StudentFlowDebugCard } from "@/components/student/StudentFlowDebugCard";
-import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { NeonButton } from "@/components/ui/NeonButton";
@@ -141,7 +140,6 @@ export default async function CourseVideoPage({
         <SectionHeader
           label="Видео"
           title={lesson.title}
-          action={<Badge tone="cyan">Ден {bundle.day.day_number}</Badge>}
           align="center"
         />
 
@@ -171,13 +169,13 @@ export default async function CourseVideoPage({
           )}
         </div>
 
-        <div className="mt-6 flex flex-col gap-4 2xl:flex-row">
-          <NeonButton href={lessonHref} variant="secondary" className="min-h-14 w-full px-6 text-[1.1rem] 2xl:w-auto">
+        <div className="mt-6 flex flex-col gap-4 sm:items-end 2xl:flex-row 2xl:items-stretch">
+          <NeonButton href={lessonHref} variant="secondary" className="mh-btn-uniform min-h-14 px-6 text-[1.1rem]">
             <PlayCircle className="h-5 w-5" />
             Към урока
           </NeonButton>
 
-          <NeonButton href={nextHref} className="min-h-14 w-full px-8 text-[1.15rem] 2xl:flex-1">
+          <NeonButton href={nextHref} className="mh-btn-uniform min-h-14 px-8 text-[1.15rem]">
             {nextLabel}
             <ChevronRight className="h-5 w-5" />
           </NeonButton>
@@ -186,7 +184,7 @@ export default async function CourseVideoPage({
             <NeonButton
               href={practiceHref}
               variant="ghost"
-              className="min-h-14 w-full px-6 text-[1rem] 2xl:w-auto"
+              className="mh-btn-uniform min-h-14 px-6 text-[1rem]"
             >
               <ExternalLink className="h-5 w-5" />
               Към упражненията
@@ -195,7 +193,7 @@ export default async function CourseVideoPage({
             <NeonButton
               href={publishedVideoUrl}
               variant="ghost"
-              className="min-h-14 w-full px-6 text-[1rem] 2xl:w-auto"
+              className="mh-btn-uniform min-h-14 px-6 text-[1rem]"
             >
               <ExternalLink className="h-5 w-5" />
               Оригинал

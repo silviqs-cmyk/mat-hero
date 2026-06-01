@@ -18,7 +18,7 @@ interface TopBarProps {}
 
 interface GoalCardProps {
   profile: UserProfile | null;
-  averageResult: number;
+  latestResult: number;
 }
 
 interface ProgressCardProps {
@@ -27,8 +27,8 @@ interface ProgressCardProps {
   totalDays: number;
 }
 
-function GoalCard({ profile, averageResult }: GoalCardProps) {
-  const goal = getGoalModel(profile, averageResult);
+function GoalCard({ profile, latestResult }: GoalCardProps) {
+  const goal = getGoalModel(profile, latestResult);
 
   return (
     <div className="flex h-full min-w-0 items-center gap-4 rounded-[22px] border border-amber-400/20 bg-[linear-gradient(180deg,rgba(50,30,7,0.58),rgba(27,18,8,0.8))] p-4 shadow-[0_0_24px_rgba(245,158,11,0.1)]">
@@ -37,21 +37,19 @@ function GoalCard({ profile, averageResult }: GoalCardProps) {
       </span>
       <div className="min-w-0 flex-1 space-y-2">
         <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-amber-200/90">
-          {goal.title}
+          Последен резултат
         </p>
         <p className="truncate text-sm font-semibold text-white">{goal.target}</p>
         <div className="h-2 overflow-hidden rounded-full bg-white/8">
           <div
             className="h-full rounded-full bg-[linear-gradient(90deg,var(--mh-accent-gold),var(--mh-accent-amber))] shadow-[0_0_14px_rgba(245,158,11,0.3)]"
-            style={{ width: `${goal.progress}%` }}
+            style={{ width: `${latestResult}%` }}
           />
         </div>
       </div>
       <div className="flex shrink-0 flex-col items-end justify-center text-right">
-        <p className="text-lg font-bold text-white">{goal.progress}%</p>
-        <p className="text-[0.7rem] text-[var(--mh-text-muted)]">
-          {averageResult > 0 ? `средно ${averageResult}%` : "няма резултати"}
-        </p>
+        <p className="text-lg font-bold text-white">{latestResult}%</p>
+        <p className="text-[0.7rem] text-[var(--mh-text-muted)]">{`цел: ${goal.target}`}</p>
       </div>
     </div>
   );
@@ -183,6 +181,7 @@ export function TopBar({}: TopBarProps) {
 
     return Math.round(results.reduce((sum, result) => sum + result.percentage, 0) / results.length);
   }, [results]);
+  const latestResult = useMemo(() => results[0]?.percentage ?? 0, [results]);
 
   const totalDays = course?.duration_days ?? 10;
   const resolvedProgress = resolveCourseProgress({
@@ -209,7 +208,7 @@ export function TopBar({}: TopBarProps) {
 
         <div className="mt-4 grid gap-3 lg:hidden">
           <div className="grid gap-3 md:col-span-2 md:grid-cols-2">
-            <GoalCard profile={profile} averageResult={resultsLoaded ? averageResult : 0} />
+            <GoalCard profile={profile} latestResult={resultsLoaded ? latestResult : 0} />
             <ProgressCard
               currentDayNumber={currentDayNumber}
               completedDaysCount={completedDaysCount}
@@ -233,7 +232,7 @@ export function TopBar({}: TopBarProps) {
           </Link>
 
           <div className="grid min-w-0 grid-cols-2 gap-4">
-            <GoalCard profile={profile} averageResult={resultsLoaded ? averageResult : 0} />
+            <GoalCard profile={profile} latestResult={resultsLoaded ? latestResult : 0} />
             <ProgressCard
               currentDayNumber={currentDayNumber}
               completedDaysCount={completedDaysCount}
