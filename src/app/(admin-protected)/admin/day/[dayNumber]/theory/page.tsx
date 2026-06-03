@@ -6,5 +6,5 @@ export default async function AdminDayTheoryPage({
   params: Promise<{ dayNumber: string }>;
 }) {
   const { dayNumber } = await params;
-  return <AdminPlanWorkspace mode="lesson" dayNumber={Number(dayNumber)} />;
+  return <AdminPlanWorkspace mode="theory" dayNumber={Number(dayNumber)} />;
 }

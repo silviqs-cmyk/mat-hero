@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { LayoutDashboard, LogOut, Map } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
@@ -13,7 +13,10 @@ interface AdminRouteShellProps {
 }
 
 export function AdminRouteShell({ children }: AdminRouteShellProps) {
+  const pathname = usePathname();
   const router = useRouter();
+  const isDashboardActive = pathname === "/admin";
+  const isPlanActive = pathname === "/admin/plan" || pathname.startsWith("/admin/day/");
 
   async function handleSignOut() {
     await signOut();
@@ -31,11 +34,19 @@ export function AdminRouteShell({ children }: AdminRouteShellProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <NeonButton href="/admin" variant="ghost" className="min-h-0 px-4 py-3 text-sm">
+            <NeonButton
+              href="/admin"
+              variant={isDashboardActive ? "primary" : "ghost"}
+              className="min-h-0 px-4 py-3 text-sm"
+            >
               <LayoutDashboard className="h-4 w-4" />
               Dashboard
             </NeonButton>
-            <NeonButton href="/admin" variant="ghost" className="min-h-0 px-4 py-3 text-sm">
+            <NeonButton
+              href="/admin/plan"
+              variant={isPlanActive ? "primary" : "ghost"}
+              className="min-h-0 px-4 py-3 text-sm"
+            >
               <Map className="h-4 w-4" />
               План
             </NeonButton>

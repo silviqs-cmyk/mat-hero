@@ -31,12 +31,8 @@ export default function AdminLoginPage() {
           return;
         }
 
-        const accessResponse = await fetch("/api/admin/allowed-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: session.user.email ?? "" }),
+        const accessResponse = await fetch("/api/admin/access", {
+          method: "GET",
         });
         const accessData = (await accessResponse.json()) as { allowed?: boolean };
 

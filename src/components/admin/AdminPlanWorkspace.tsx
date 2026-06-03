@@ -59,7 +59,17 @@ import { isValidVideoUrl, resolveLessonVideo } from "@/lib/video";
 import type { Lesson, LessonSection, Question } from "@/types/course";
 import type { CourseDayInput, LessonInput, LessonSectionInput, QuestionInput, QuestionOptionInput } from "@/types/admin";
 
-type AdminWorkspaceMode = "dashboard" | "plan" | "day" | "lesson" | "video" | "practice" | "quiz" | "bonus" | "preview";
+type AdminWorkspaceMode =
+  | "dashboard"
+  | "plan"
+  | "day"
+  | "theory"
+  | "lesson"
+  | "video"
+  | "practice"
+  | "quiz"
+  | "bonus"
+  | "preview";
 
 interface AdminPlanWorkspaceProps {
   mode: AdminWorkspaceMode;
@@ -1299,6 +1309,15 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
 
   const previewVideo = lessonForm.video_url ? resolveLessonVideo(lessonForm.video_url) : null;
   const previewLessonSections = activeSections.filter((section) => section.is_published);
+  const isTheoryMode = mode === "theory" || mode === "lesson";
+
+  function getDaySectionButtonVariant(targetMode: AdminWorkspaceMode) {
+    if (targetMode === "theory") {
+      return isTheoryMode ? "primary" : "ghost";
+    }
+
+    return mode === targetMode ? "primary" : "ghost";
+  }
 
   function renderDayActions(dayIndex: number) {
     return (
@@ -1746,7 +1765,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         </NeonCard>
       </div>
     );
-  } else if (mode === "lesson") {
+  } else if (mode === "lesson" || mode === "theory") {
     content = (
       <div className="space-y-6">
         <SectionHeader
@@ -2346,7 +2365,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
           <p className="mt-1 text-sm text-[var(--mh-text-muted)]">Управлявай ден 1 до ден 10 директно, без Courses като начален екран.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <NeonButton href="/admin" variant={mode === "dashboard" || mode === "plan" ? "primary" : "ghost"}>
+          <NeonButton href="/admin" variant={mode === "dashboard" ? "primary" : "ghost"}>
             <Layers className="h-4 w-4" />
             10-дневна програма
           </NeonButton>

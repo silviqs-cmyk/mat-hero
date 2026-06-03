@@ -32,13 +32,9 @@ interface AuthResult {
   requiresEmailConfirmation?: boolean;
 }
 
-async function checkAllowedAdminEmail(email: string) {
-  const response = await fetch("/api/admin/allowed-email", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ email }),
+async function checkCurrentAdminAccess() {
+  const response = await fetch("/api/admin/access", {
+    method: "GET",
   });
 
   if (!response.ok) {
@@ -50,7 +46,8 @@ async function checkAllowedAdminEmail(email: string) {
 }
 
 export async function isCurrentEmailAllowedAdmin(email: string) {
-  return checkAllowedAdminEmail(email.trim().toLowerCase());
+  void email;
+  return checkCurrentAdminAccess();
 }
 
 function getSupabaseHostname(): string | null {
@@ -257,7 +254,7 @@ export async function signInAdmin({
   try {
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (!(await checkAllowedAdminEmail(normalizedEmail))) {
+    if (normalizedEmail.length === 0) {
       return {
         error: "Нямаш достъп до админ панела.",
         redirectTo: null,
@@ -289,7 +286,7 @@ export async function signInAdmin({
       };
     }
 
-    if (!(await checkAllowedAdminEmail(authUser.email ?? normalizedEmail))) {
+    if (!(await checkCurrentAdminAccess())) {
       await supabase.auth.signOut();
       return {
         error: "Нямаш достъп до админ панела.",

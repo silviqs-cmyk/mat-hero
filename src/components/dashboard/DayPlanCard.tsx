@@ -104,6 +104,7 @@ function getCurrentStepId(pathname: string, steps: DayPlanStep[]) {
 export function DayPlanCard({ badge, title, steps }: DayPlanCardProps) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const [animatedLabels, setAnimatedLabels] = useState<string[]>(() => steps.map(() => ""));
   const dayMatch = pathname.match(/\/day\/(\d+)/);
   const courseMatch = pathname.match(/\/course\/([^/]+)\/day\/(\d+)/);
   const dayNumber = Number(courseMatch?.[2] ?? dayMatch?.[1] ?? 1);
@@ -113,6 +114,36 @@ export function DayPlanCard({ badge, title, steps }: DayPlanCardProps) {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const labels = steps.map((step) => step.eyebrow.replace(/^\d+\.\s*/, ""));
+    setAnimatedLabels(labels.map(() => ""));
+
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    let delay = 120;
+
+    labels.forEach((label, stepIndex) => {
+      for (let charIndex = 1; charIndex <= label.length; charIndex += 1) {
+        const currentValue = label.slice(0, charIndex);
+        timers.push(
+          setTimeout(() => {
+            setAnimatedLabels((previous) => {
+              const next = [...previous];
+              next[stepIndex] = currentValue;
+              return next;
+            });
+          }, delay),
+        );
+        delay += 28;
+      }
+
+      delay += 150;
+    });
+
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+    };
+  }, [steps]);
 
   const activeStepId = mounted
     ? getCurrentStepId(pathname, steps) ?? steps.find((step) => !progress.practice || step.type !== "bonus")?.id ?? steps[0]?.id
@@ -151,17 +182,17 @@ export function DayPlanCard({ badge, title, steps }: DayPlanCardProps) {
                     tones.hoverCircle,
                   ].join(" ")}
                 >
-                  <Icon className="h-7 w-7 sm:h-7 sm:w-7" />
+                  <Icon className="h-7 w-7 transition-transform duration-300 group-hover:rotate-[8deg] sm:h-7 sm:w-7" />
                 </div>
 
-                <div className="mt-3 px-1">
+                <div className="mt-5 px-1">
                   <p
                     className={[
-                      `mh-label ${tones.title} text-[0.78rem] transition-all duration-200 group-hover:brightness-[1.35] sm:text-[0.72rem]`,
+                      `mh-label ${tones.title} text-[0.92rem] transition-all duration-200 group-hover:brightness-[1.35] sm:text-[0.84rem]`,
                       "opacity-100 brightness-125",
                     ].join(" ")}
                   >
-                    {step.eyebrow.replace(/^\d+\.\s*/, "")}
+                    {animatedLabels[index] || "\u00A0"}
                   </p>
                 </div>
               </div>
