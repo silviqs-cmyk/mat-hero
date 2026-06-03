@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Lightbulb, PlayCircle } from "lucide-react";
 import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
 import { FormattedTheoryContent } from "@/components/student/FormattedTheoryContent";
-import { Badge } from "@/components/ui/Badge";
 import { NeonButton } from "@/components/ui/NeonButton";
-import { NeonCard } from "@/components/ui/NeonCard";
 import { useDayProgress } from "@/hooks/useDayProgress";
 import { resolveLessonVideo } from "@/lib/video";
 import type { LessonSection } from "@/types/course";
@@ -67,17 +65,13 @@ export function LessonSectionStepper({
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Badge tone="cyan">Тема {safeIndex + 1} от {sections.length}</Badge>
-      </div>
-
-      <NeonCard tone="cyan" padding="lg" className="rounded-[28px]">
+      <div className="space-y-5">
         <div className="flex items-start gap-3">
           <span className="shrink-0">
             <Lightbulb className="h-5 w-5 text-cyan-200" />
           </span>
           <div className="min-w-0">
-            <p className="mh-label text-[var(--mh-accent-cyan-soft)]">Тема</p>
+            <p className="mh-label text-white/55">Тема {safeIndex + 1} от {sections.length}</p>
             <h3 className="mt-2 text-xl font-semibold leading-snug tracking-normal text-[var(--mh-text)] sm:text-[1.35rem]">
               {renderFormattedInlineText(getSectionTitle(currentSection, safeIndex), `section-title-${safeIndex}`)}
             </h3>
@@ -87,7 +81,7 @@ export function LessonSectionStepper({
         <div className="mt-5">
           <FormattedTheoryContent content={currentSection.content} />
         </div>
-      </NeonCard>
+      </div>
 
       <div className="grid gap-3 sm:grid-cols-3">
         {isFirstSection ? (

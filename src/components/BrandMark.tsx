@@ -16,11 +16,11 @@ interface BrandMarkProps {
 
 const sizeStyles = {
   sm: {
-    shell: "h-12 w-12 rounded-2xl p-2",
+    shell: "h-12 w-12",
     title: "text-[1.9rem]",
   },
   md: {
-    shell: "h-16 w-16 rounded-3xl p-2",
+    shell: "h-16 w-16",
     title: "text-4xl",
   },
 };
@@ -50,7 +50,7 @@ export function BrandMark({
     >
       <div
         className={[
-          "mh-card-muted flex shrink-0 items-center justify-center",
+          "flex shrink-0 items-center justify-center",
           styles.shell,
           iconShellClassName,
         ]
@@ -60,7 +60,7 @@ export function BrandMark({
         <AnimatedHeroMascot size="sm" animated={animated} />
       </div>
 
-      <div className={layout === "stacked" ? "space-y-2" : "min-w-0"}>
+      <div className={layout === "stacked" ? "space-y-2" : "flex min-w-0 flex-col items-start"}>
         <p
           className={[
             "font-logo font-extrabold leading-none text-white",
@@ -77,7 +77,7 @@ export function BrandMark({
             className={[
               layout === "stacked"
                 ? "mh-copy-sm font-medium"
-                : "mt-1 truncate text-sm leading-6 text-[var(--mh-text-muted)]",
+                : "mt-1 w-full text-sm leading-6 text-[var(--mh-text-muted)]",
               subtitleClassName,
             ]
               .filter(Boolean)

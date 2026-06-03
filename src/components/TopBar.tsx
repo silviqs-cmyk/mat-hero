@@ -29,7 +29,7 @@ interface ProgressCardProps {
 function GoalCard({ totalDays, completedDaysCount }: GoalCardProps) {
   const progressPercent = totalDays > 0 ? calculatePercentage(completedDaysCount, totalDays) : 0;
   return (
-    <div className="flex h-full min-w-0 items-center gap-4 rounded-[22px] border border-amber-400/20 bg-[linear-gradient(180deg,rgba(50,30,7,0.58),rgba(27,18,8,0.8))] p-4 shadow-[0_0_24px_rgba(245,158,11,0.1)]">
+    <div className="flex h-full min-w-0 items-center gap-4 rounded-[22px] border border-amber-400/20 bg-[linear-gradient(180deg,rgba(50,30,7,0.58),rgba(27,18,8,0.8))] p-4 shadow-[0_0_24px_rgba(245,158,11,0.1)] lg:min-h-[104px]">
       <span className="mh-icon-shell mh-icon-shell--gold flex h-10 w-10 shrink-0 items-center justify-center self-start">
         <Target className="h-5 w-5" />
       </span>
@@ -73,7 +73,7 @@ function ProgressCard({ currentDayNumber, completedDaysCount, totalDays }: Progr
       };
 
   return (
-    <div className="flex h-full min-w-0 items-center gap-4 rounded-[22px] border border-cyan-400/20 bg-[linear-gradient(180deg,rgba(8,29,56,0.58),rgba(8,18,36,0.8))] p-4 shadow-[0_0_24px_rgba(34,211,238,0.1)]">
+    <div className="flex h-full min-w-0 items-center gap-4 rounded-[22px] border border-cyan-400/20 bg-[linear-gradient(180deg,rgba(8,29,56,0.58),rgba(8,18,36,0.8))] p-4 shadow-[0_0_24px_rgba(34,211,238,0.1)] lg:min-h-[104px]">
       <span className="mh-icon-shell mh-icon-shell--cyan flex h-10 w-10 shrink-0 items-center justify-center self-start">
         <Flame className="h-5 w-5" />
       </span>
@@ -111,7 +111,7 @@ function ProfileLink() {
   return (
     <Link
       href="/profile"
-      className="flex h-full min-w-0 items-center gap-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 transition hover:border-cyan-300/20 hover:bg-white/[0.05] lg:w-full"
+      className="flex min-w-0 items-center gap-3 px-2 py-2 transition hover:opacity-85 lg:w-full"
       aria-label="Към профила"
     >
       <div className="mh-avatar flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white">
@@ -213,22 +213,27 @@ export function TopBar({}: TopBarProps) {
           </div>
         </div>
 
-        <div className="hidden lg:grid lg:grid-cols-[minmax(220px,280px)_minmax(0,1fr)_minmax(220px,280px)] lg:items-stretch lg:gap-4">
-          <Link href="/dashboard" className="flex min-w-0 items-center gap-3 self-center text-white">
+        <div className="hidden lg:flex lg:w-full lg:items-center lg:gap-4">
+          <Link
+            href="/dashboard"
+            className="flex min-w-0 shrink-0 items-center gap-3 self-center text-white lg:mr-8 xl:mr-12"
+          >
             <BrandMark />
           </Link>
 
-          <div className="grid min-w-0 grid-cols-2 gap-4">
-            <GoalCard totalDays={totalDays} completedDaysCount={completedDaysCount} />
-            <ProgressCard
-              currentDayNumber={currentDayNumber}
-              completedDaysCount={completedDaysCount}
-              totalDays={totalDays}
-            />
-          </div>
+          <div className="ml-auto flex min-w-0 flex-1 items-center justify-end gap-4">
+            <div className="grid min-w-0 flex-1 grid-cols-2 gap-4 xl:max-w-[760px]">
+              <GoalCard totalDays={totalDays} completedDaysCount={completedDaysCount} />
+              <ProgressCard
+                currentDayNumber={currentDayNumber}
+                completedDaysCount={completedDaysCount}
+                totalDays={totalDays}
+              />
+            </div>
 
-          <div className="min-w-0 justify-self-end w-full max-w-[280px]">
-            <ProfileLink />
+            <div className="flex shrink-0 items-center justify-end">
+              <ProfileLink />
+            </div>
           </div>
         </div>
       </div>
