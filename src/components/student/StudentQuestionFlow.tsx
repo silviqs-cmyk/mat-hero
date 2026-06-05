@@ -199,6 +199,32 @@ export function StudentQuestionFlow({
     mode === "bonus" ||
     (mode === "practice" && !hasBonusQuestions) ||
     (mode === "quiz" && !hasPracticeQuestions && !hasBonusQuestions);
+  const nextDayNumber =
+    bundle.day.day_number < course.duration_days ? bundle.day.day_number + 1 : null;
+  const completedTitle = isLastQuestion
+    ? isFinalSection
+      ? "Денят е завършен!"
+      : "Секцията е завършена!"
+    : null;
+  const completedMessage = isLastQuestion
+    ? isFinalSection
+      ? "Супер работа. Продължи към резултата и после мини към следващия ден."
+      : mode === "quiz"
+        ? hasPracticeQuestions
+          ? "Мини към упражненията, за да затвърдиш урока."
+          : hasBonusQuestions
+            ? "Мини към Изпитай се за още 10 задачи."
+            : "Продължи към резултата си."
+        : "Продължи към следващата стъпка."
+    : null;
+  const completedHint = isLastQuestion && isFinalSection
+    ? nextDayNumber
+      ? `Следващ ден: Ден ${nextDayNumber}`
+      : "Следва: Финален резултат"
+    : null;
+  const completedMascotGifSrc = isLastQuestion && isFinalSection
+    ? "/images/feedback/day-finished-hero.gif"
+    : null;
   const resolvedPrimaryLabel = isLastQuestion
     ? mode === "quiz"
       ? hasPracticeQuestions
@@ -639,6 +665,10 @@ export function StudentQuestionFlow({
         pointsEarned={isCorrect ? currentQuestion.points : 0}
         primaryLabel={resolvedPrimaryLabel}
         showAskMat={showAskMatInFeedback}
+        titleOverride={feedbackState === "completed" ? completedTitle ?? undefined : undefined}
+        messageOverride={feedbackState === "completed" ? completedMessage ?? undefined : undefined}
+        completionHint={feedbackState === "completed" ? completedHint : null}
+        mascotGifSrcOverride={feedbackState === "completed" ? completedMascotGifSrc : null}
         onContinue={() => void handleContinue()}
       />
     </div>

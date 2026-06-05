@@ -79,7 +79,7 @@ export function LessonSectionStepper({
         </div>
 
         <div className="mt-5">
-          <FormattedTheoryContent content={currentSection.content} />
+          <FormattedTheoryContent content={currentSection.content} sectionId={currentSection.id} />
         </div>
       </div>
 

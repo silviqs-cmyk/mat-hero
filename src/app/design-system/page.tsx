@@ -76,15 +76,15 @@ export default function DesignSystemPage() {
             </div>
             <div>
               <h1 className="font-display text-[3.5rem] font-bold leading-none text-white">
-                MatHero вЂ” Р”РёР·Р°Р№РЅ СЃРёСЃС‚РµРјР°
+                MatHero — Дизайн система
               </h1>
-              <p className="mt-3 text-[1.1rem] text-slate-300">РР·РІР»РµС‡РµРЅР° РѕС‚ РµРєСЂР°РЅР° Р·Р° Р”РµРЅ 1</p>
+              <p className="mt-3 text-[1.1rem] text-slate-300">Извлечена от екрана за Ден 1</p>
               <p className="mt-4 text-[1.05rem] font-semibold text-cyan-300">Dark neon educational dashboard</p>
             </div>
           </div>
 
           <NeonCard as="aside" padding="sm" className="rounded-[22px]">
-            <p className="mh-label">7. РџСЂР°РІРёР»Р°</p>
+            <p className="mh-label">7. Правила</p>
             <div className="mt-4 space-y-3">
               {designRules.map((rule) => (
                 <div key={rule} className="flex items-start gap-3">
@@ -98,7 +98,7 @@ export default function DesignSystemPage() {
       </NeonCard>
 
       <div className="grid gap-3 xl:grid-cols-[1.05fr_1fr]">
-        <SectionFrame index={1} title="Р¦РІРµС‚РѕРІР° РїР°Р»РёС‚СЂР°">
+        <SectionFrame index={1} title="Цветова палитра">
           <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-6">
             {designSystemPalette.map((swatch) => (
               <PaletteSwatch key={swatch.name} {...swatch} />
@@ -106,7 +106,7 @@ export default function DesignSystemPage() {
           </div>
         </SectionFrame>
 
-        <SectionFrame index={2} title="РўРёРїРѕРіСЂР°С„РёСЏ">
+        <SectionFrame index={2} title="Типография">
           <div className="space-y-4">
             {typographyBoard.map((item) => (
               <div key={item.label} className="grid gap-2 border-b border-white/8 pb-3 last:border-b-0 last:pb-0 md:grid-cols-[160px_minmax(0,1fr)_110px]">
@@ -137,10 +137,10 @@ export default function DesignSystemPage() {
       </div>
 
       <div className="grid gap-3 xl:grid-cols-[1fr_1.08fr]">
-        <SectionFrame index={3} title="Р Р°Р·СЃС‚РѕСЏРЅРёСЏ Рё СЂР°РґРёСѓСЃРё">
+        <SectionFrame index={3} title="Разстояния и радиуси">
           <div className="grid gap-3 md:grid-cols-2">
             <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
-              <p className="text-sm font-semibold text-cyan-300">Р Р°Р·СЃС‚РѕСЏРЅРёСЏ (px)</p>
+              <p className="text-sm font-semibold text-cyan-300">Разстояния (px)</p>
               <div className="mt-6 flex items-end gap-6">
                 {spacingScale.map((space) => (
                   <div key={space} className="text-center">
@@ -152,7 +152,7 @@ export default function DesignSystemPage() {
             </NeonCard>
 
             <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
-              <p className="text-sm font-semibold text-cyan-300">Р Р°РґРёСѓСЃРё (px)</p>
+              <p className="text-sm font-semibold text-cyan-300">Радиуси (px)</p>
               <div className="mt-6 grid grid-cols-2 gap-4">
                 {radiusScale.map((radius) => (
                   <div key={radius.name}>
@@ -168,7 +168,7 @@ export default function DesignSystemPage() {
           </div>
         </SectionFrame>
 
-        <SectionFrame index={4} title="Р•С„РµРєС‚Рё">
+        <SectionFrame index={4} title="Ефекти">
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
             <EffectPreview title="Cyan glow border" className="border-cyan-400/80 shadow-[0_0_24px_rgba(34,211,238,0.45)]" />
             <EffectPreview title="Purple glow border" className="border-fuchsia-400/80 shadow-[0_0_24px_rgba(217,70,239,0.45)]" />
@@ -179,29 +179,29 @@ export default function DesignSystemPage() {
         </SectionFrame>
       </div>
 
-      <SectionFrame index={5} title="РљРѕРјРїРѕРЅРµРЅС‚Рё">
+      <SectionFrame index={5} title="Компоненти">
         <div className="grid gap-3 xl:grid-cols-[1.5fr_1fr]">
           <div className="space-y-3">
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
-                <p className="mb-3 text-sm text-slate-300">Р‘СѓС‚РѕРЅ вЂ” Primary</p>
-                <NeonButton className="w-full">Р—Р°РїРѕС‡РЅРё СѓСЂРѕРєР°</NeonButton>
+                <p className="mb-3 text-sm text-slate-300">Бутон — Primary</p>
+                <NeonButton className="w-full">Започни урока</NeonButton>
               </NeonCard>
               <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
-                <p className="mb-3 text-sm text-slate-300">Р‘СѓС‚РѕРЅ вЂ” Secondary</p>
-                <NeonButton variant="secondary" className="w-full">РўРµРѕСЂРёСЏ</NeonButton>
+                <p className="mb-3 text-sm text-slate-300">Бутон — Secondary</p>
+                <NeonButton variant="secondary" className="w-full">Теория</NeonButton>
               </NeonCard>
               <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
                 <p className="mb-3 text-sm text-slate-300">Badge / Pill</p>
-                <Badge tone="cyan"><Sparkles className="h-4 w-4" />РЇСЃРµРЅ СЂРµРґ</Badge>
+                <Badge tone="cyan"><Sparkles className="h-4 w-4" />Ясен ред</Badge>
               </NeonCard>
               <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
-                <p className="mb-3 text-sm text-slate-300">Р§РёРї вЂ” РЎС‚Р°С‚РёСЃС‚РёРєР°</p>
+                <p className="mb-3 text-sm text-slate-300">Чип — Статистика</p>
                 <div className="inline-flex items-center gap-2 rounded-[16px] border border-white/10 bg-white/[0.03] px-4 py-2">
                   <Star className="h-4 w-4 text-amber-300" />
                   <div>
                     <p className="text-sm font-semibold text-white">125</p>
-                    <p className="text-[11px] text-slate-400">XP С‚РѕС‡РєРё</p>
+                    <p className="text-[11px] text-slate-400">XP точки</p>
                   </div>
                 </div>
               </NeonCard>
@@ -209,50 +209,50 @@ export default function DesignSystemPage() {
 
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
               <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
-                <p className="mb-3 text-sm text-slate-300">РќР°РІРёРіР°С†РёСЏ вЂ” Default</p>
+                <p className="mb-3 text-sm text-slate-300">Навигация — Default</p>
                 <div className="mh-sidebar-item border border-white/10">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-slate-400">в–¦</div>
-                  <span className="text-base">РўР°Р±Р»Рѕ</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 text-slate-400">⬦</div>
+                  <span className="text-base">Табло</span>
                 </div>
               </NeonCard>
               <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
-                <p className="mb-3 text-sm text-slate-300">РќР°РІРёРіР°С†РёСЏ вЂ” Active</p>
+                <p className="mb-3 text-sm text-slate-300">Навигация — Active</p>
                 <div className="mh-sidebar-item mh-sidebar-item--active border border-cyan-400/20">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 text-cyan-300">в–¦</div>
-                  <span className="text-base">РўР°Р±Р»Рѕ</span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 text-cyan-300">⬦</div>
+                  <span className="text-base">Табло</span>
                 </div>
               </NeonCard>
               <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
-                <p className="mb-3 text-sm text-slate-300">Р”РЅРµРІРµРЅ РїР»Р°РЅ вЂ” Active</p>
+                <p className="mb-3 text-sm text-slate-300">Дневен план — Active</p>
                 <div className="mh-timeline-item mh-timeline-item--active">
-                  <p className="text-base font-semibold text-white">Р”РµРЅ 1</p>
-                  <p className="mt-1 text-sm text-slate-300">Р¤СѓРЅРґР°РјРµРЅС‚ вЂ” С‡РёСЃР»Р° Рё РґРµР№СЃС‚РІРёСЏ</p>
+                  <p className="text-base font-semibold text-white">Ден 1</p>
+                  <p className="mt-1 text-sm text-slate-300">Фундамент — числа и действия</p>
                 </div>
               </NeonCard>
               <NeonCard as="div" tone="muted" padding="sm" className="rounded-[18px]">
-                <p className="mb-3 text-sm text-slate-300">Р”РЅРµРІРµРЅ РїР»Р°РЅ вЂ” Inactive</p>
+                <p className="mb-3 text-sm text-slate-300">Дневен план — Inactive</p>
                 <div className="mh-timeline-item border border-white/10">
-                  <p className="text-base font-semibold text-white">Р”РµРЅ 2</p>
-                  <p className="mt-1 text-sm text-slate-300">РџСЂРѕС†РµРЅС‚Рё Рё РІСЉРІРµР¶РґР°РЅРµ РІ Р°Р»РіРµР±СЂР°С‚Р°</p>
+                  <p className="text-base font-semibold text-white">Ден 2</p>
+                  <p className="mt-1 text-sm text-slate-300">Проценти и въвеждане в алгебрата</p>
                 </div>
               </NeonCard>
             </div>
 
             <div className="grid gap-3 xl:grid-cols-[1.2fr_0.95fr_0.95fr_0.95fr]">
               <NeonCard tone="purple" padding="sm" className="rounded-[22px]">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-300">1. РџР РћР§Р•РўР</p>
-                <p className="mt-3 text-[1.55rem] font-semibold text-white">РЈСЂРѕРєСЉС‚</p>
-                <div className="mt-5"><Badge tone="purple" className="w-full justify-center">РўРµРѕСЂРёСЏ Рё РїСЂРёРјРµСЂ</Badge></div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-300">1. ПРОЧЕТИ</p>
+                <p className="mt-3 text-[1.55rem] font-semibold text-white">Урокът</p>
+                <div className="mt-5"><Badge tone="purple" className="w-full justify-center">Теория и пример</Badge></div>
               </NeonCard>
               <NeonCard tone="cyan" padding="sm" className="rounded-[22px]">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300">2. РЈРџР РђР–РќР</p>
-                <p className="mt-3 text-[1.55rem] font-semibold text-white">10 РѕСЃРЅРѕРІРЅРё Р·Р°РґР°С‡Рё</p>
-                <div className="mt-5"><Badge tone="cyan" className="w-full justify-center">Р—Р°РґР°С‡Рё</Badge></div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300">2. УПРАЖНИ</p>
+                <p className="mt-3 text-[1.55rem] font-semibold text-white">10 основни задачи</p>
+                <div className="mt-5"><Badge tone="cyan" className="w-full justify-center">Задачи</Badge></div>
               </NeonCard>
               <NeonCard tone="green" padding="sm" className="rounded-[22px]">
-                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-300">3. РџР РћР’Р•Р Р</p>
-                <p className="mt-3 text-[1.55rem] font-semibold text-white">10 РІСЉРїСЂРѕСЃР°</p>
-                <div className="mt-5"><Badge tone="green" className="w-full justify-center">РўРµСЃС‚ Р·Р° РґРµРЅСЏ</Badge></div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-emerald-300">3. ПРОВЕРИ</p>
+                <p className="mt-3 text-[1.55rem] font-semibold text-white">10 въпроса</p>
+                <div className="mt-5"><Badge tone="green" className="w-full justify-center">Тест за деня</Badge></div>
               </NeonCard>
               <NeonCard tone="gold" padding="sm" className="rounded-[22px]">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-amber-300">ИЗПИТАЙ СЕ</p>
@@ -264,26 +264,26 @@ export default function DesignSystemPage() {
 
           <div className="space-y-3">
             <NeonCard tone="cyan" padding="sm" className="rounded-[20px]">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300">РРЅС„Рѕ РєР°СЂС‚Р°</p>
-              <h3 className="mt-3 text-[1.35rem] font-semibold text-white">РќРђР™-Р’РђР–РќРћРўРћ</h3>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300">Инфо карта</p>
+              <h3 className="mt-3 text-[1.35rem] font-semibold text-white">НАЙ-ВАЖНОТО</h3>
               <p className="mt-3 text-sm leading-7 text-slate-200">
-                Р—Р°РїРѕС‡РІР°РјРµ СЃ Р Р°Р·РґРµР» 1 Рё Р Р°Р·РґРµР» 2: РµСЃС‚РµСЃС‚РІРµРЅРё Рё СЂР°С†РёРѕРЅР°Р»РЅРё С‡РёСЃР»Р°, РїСЂРѕСЃС‚Рё Рё СЃСЉСЃС‚Р°РІРЅРё С‡РёСЃР»Р°, РґРµР»РёРјРѕСЃС‚, Р°Р±СЃРѕР»СЋС‚РЅР° СЃС‚РѕР№РЅРѕСЃС‚ Рё РґРµР№СЃС‚РІРёСЏ СЃ СЂР°С†РёРѕРЅР°Р»РЅРё С‡РёСЃР»Р°.
+                Започваме с Раздел 1 и Раздел 2: естествени и рационални числа, прости и съставни числа, делимост, абсолютна стойност и действия с рационални числа.
               </p>
             </NeonCard>
 
             <NeonCard padding="sm" className="rounded-[20px]">
-              <p className="text-sm text-slate-300">Hero Buddy вЂ” РїСЂРµРіР»РµРґ</p>
+              <p className="text-sm text-slate-300">Hero Buddy — преглед</p>
               <div className="mt-3 flex items-start gap-4">
                 <div className="flex h-28 w-24 items-center justify-center">
                   <AnimatedHeroMascot size="sm" animated={false} />
                 </div>
                 <div>
-                  <h3 className="text-[2rem] font-bold text-white">РЎСѓРїРµСЂ С…РѕРґ!</h3>
+                  <h3 className="text-[2rem] font-bold text-white">Супер ход!</h3>
                   <p className="mt-2 text-sm leading-7 text-slate-300">
-                    РњРёРЅРё РїСЉСЂРІРѕ РїСЂРµР· РєСЂР°С‚РєР°С‚Р° С‚РµРѕСЂРёСЏ, РїРѕСЃР»Рµ РѕС‚РІРѕСЂРё РѕСЃРЅРѕРІРЅРёС‚Рµ Р·Р°РґР°С‡Рё, РµРґРЅР° РїРѕ РµРґРЅР° Рё С‡Р°Рє РЅР°РєСЂР°СЏ С‚СЂСЉРіРЅРё РєСЉРј С‚РµСЃС‚Р°.
+                    Мини първо през кратката теория, после отвори основните задачи, една по една и чак накрая тръгни към теста.
                   </p>
                   <NeonButton variant="success" className="mt-4 min-h-0 px-4 py-2 text-sm">
-                    +25 XP СЃР»РµРґ С‚РµСЃС‚
+                    +25 XP след тест
                   </NeonButton>
                 </div>
               </div>
@@ -292,16 +292,16 @@ export default function DesignSystemPage() {
         </div>
       </SectionFrame>
 
-      <SectionFrame index={6} title="Р”РёР·Р°Р№РЅ С‚РѕРєРµРЅРё (РёР·РІР°РґРєР°)">
+      <SectionFrame index={6} title="Дизайн токени (извадка)">
         <div className="grid gap-3 xl:grid-cols-3">
           {tokenGroups.map((group, groupIndex) => (
             <div key={groupIndex} className="overflow-hidden rounded-[18px] border border-white/10">
               <table className="w-full text-left">
                 <thead className="bg-white/[0.04]">
                   <tr className="text-xs uppercase tracking-[0.12em] text-cyan-300">
-                    <th className="px-4 py-3">РўРѕРєРµРЅ</th>
-                    <th className="px-4 py-3">РЎС‚РѕР№РЅРѕСЃС‚</th>
-                    <th className="px-4 py-3">РЈРїРѕС‚СЂРµР±Р°</th>
+                    <th className="px-4 py-3">Токен</th>
+                    <th className="px-4 py-3">Стойност</th>
+                    <th className="px-4 py-3">Употреба</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -319,9 +319,9 @@ export default function DesignSystemPage() {
         </div>
       </SectionFrame>
 
-      <SectionFrame index={7} title="РџСЂРѕРіСЂРµСЃ Р±Р°СЂ">
+      <SectionFrame index={7} title="Прогрес бар">
         <div className="max-w-sm">
-          <ProgressBar value={10} max={100} label="РџСЂРѕРіСЂРµСЃ" accent="cyan" compact />
+          <ProgressBar value={10} max={100} label="Прогрес" accent="cyan" compact />
         </div>
       </SectionFrame>
     </div>

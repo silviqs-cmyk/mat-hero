@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MathText } from "@/components/math/MathText";
+import { FormattedAskMatExplanation } from "@/components/quiz/FormattedAskMatExplanation";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { FeedbackMascot } from "@/components/quiz/FeedbackMascot";
 
@@ -16,6 +17,10 @@ interface AnswerFeedbackModalProps {
   pointsEarned?: number;
   primaryLabel: string;
   showAskMat?: boolean;
+  titleOverride?: string;
+  messageOverride?: string;
+  completionHint?: string | null;
+  mascotGifSrcOverride?: string | null;
   onContinue: () => void;
 }
 
@@ -58,6 +63,10 @@ export function AnswerFeedbackModal({
   pointsEarned = 0,
   primaryLabel,
   showAskMat = false,
+  titleOverride,
+  messageOverride,
+  completionHint = null,
+  mascotGifSrcOverride = null,
   onContinue,
 }: AnswerFeedbackModalProps) {
   const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -68,9 +77,13 @@ export function AnswerFeedbackModal({
   const portalRoot = typeof window === "undefined" ? null : window.document.body;
   const hasAskMatDetails = Boolean(correctAnswer || explanation);
   const shouldRenderAskMat = state !== "completed" && showAskMat && hasAskMatDetails;
-  const shouldShowDetails = shouldRenderAskMat ? showAskMatDetails : !isCorrect || state === "incorrect";
+  const shouldShowDetails =
+    state !== "completed" && (shouldRenderAskMat ? showAskMatDetails : !isCorrect || state === "incorrect");
   const askMatGifSrc = shouldRenderAskMat && showAskMatDetails ? "/images/feedback/ask-mat.gif" : null;
   const shouldShowTitle = !(shouldRenderAskMat && showAskMatDetails);
+  const resolvedTitle = titleOverride ?? copy.title;
+  const resolvedMessage = messageOverride ?? copy.message;
+  const resolvedMascotGifSrc = mascotGifSrcOverride ?? askMatGifSrc;
 
   useEffect(() => {
     if (isOpen) {
@@ -101,6 +114,23 @@ export function AnswerFeedbackModal({
       if (event.key === "Escape") {
         event.preventDefault();
         return;
+      }
+
+      if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+        const activeElement = document.activeElement as HTMLElement | null;
+        const tagName = activeElement?.tagName;
+        const isTextEntry =
+          tagName === "INPUT" ||
+          tagName === "TEXTAREA" ||
+          tagName === "SELECT" ||
+          activeElement?.isContentEditable;
+        const isInteractiveControl = tagName === "BUTTON" || tagName === "A";
+
+        if (!isTextEntry && !isInteractiveControl) {
+          event.preventDefault();
+          handlePrimaryClick();
+          return;
+        }
       }
 
       if (event.key !== "Tab" || !dialogRef.current) {
@@ -145,7 +175,7 @@ export function AnswerFeedbackModal({
         aria-modal="true"
         aria-live="polite"
         aria-label={copy.title}
-        className={`mh-card w-full overflow-hidden rounded-t-[28px] border bg-black px-5 py-6 sm:max-w-2xl sm:rounded-[28px] sm:px-6 ${
+        className={`mh-card flex max-h-[calc(100vh-1rem)] w-full flex-col overflow-hidden rounded-t-[28px] border bg-black px-5 py-6 sm:max-h-[min(48rem,calc(100vh-2rem))] sm:max-w-2xl sm:rounded-[28px] sm:px-6 ${
           state === "completed"
             ? "border-lime-400/30 shadow-[0_0_40px_rgba(132,204,22,0.18)]"
             : state === "correct"
@@ -153,11 +183,11 @@ export function AnswerFeedbackModal({
               : "border-rose-400/30 shadow-[0_0_36px_rgba(244,63,94,0.14)]"
         }`}
       >
-        <div className="space-y-5">
+        <div className="flex min-h-0 flex-1 flex-col gap-5">
           <div className="mx-auto h-1.5 w-14 rounded-full bg-white/15 sm:hidden" aria-hidden="true" />
 
           <div className="flex justify-center">
-            <FeedbackMascot state={state} size="md" gifSrcOverride={askMatGifSrc} />
+            <FeedbackMascot state={state} size="md" gifSrcOverride={resolvedMascotGifSrc} />
           </div>
 
           <div className="space-y-3 text-center">
@@ -171,27 +201,30 @@ export function AnswerFeedbackModal({
                       : "text-rose-300"
                 }`}
               >
-                {copy.title}
+                {resolvedTitle}
               </h2>
             ) : null}
-            <p className="mh-copy-muted">{copy.message}</p>
+            <p className="mh-copy-muted">{resolvedMessage}</p>
+            {state === "completed" && completionHint ? (
+              <p className="text-sm font-semibold text-cyan-200">{completionHint}</p>
+            ) : null}
             {isCorrect && state !== "completed" && pointsEarned > 0 ? (
               <p className="text-sm font-semibold text-cyan-200">+{pointsEarned} точки</p>
             ) : null}
           </div>
 
           {shouldShowDetails ? (
-            <div className="max-h-[28vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-none">
+            <div className="min-h-0 max-h-[34vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-[42vh]">
               {showStandaloneCorrectAnswer && correctAnswer ? (
                 <p className="text-base font-semibold text-white">
                   Верен отговор: <MathText text={correctAnswer} as="span" inline />
                 </p>
               ) : null}
-              {explanation ? <MathText text={explanation} className="mh-copy-muted text-base" /> : null}
+              {explanation ? <FormattedAskMatExplanation text={explanation} /> : null}
             </div>
           ) : null}
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <div className="sticky bottom-0 mt-auto flex flex-col gap-3 border-t border-white/8 bg-black pt-4 sm:flex-row sm:justify-end">
             {shouldRenderAskMat ? (
               <NeonButton
                 type="button"

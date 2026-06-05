@@ -6,7 +6,7 @@ interface BrandMarkProps {
   layout?: "row" | "stacked";
   title?: string;
   subtitle?: string;
-  size?: "sm" | "md";
+  size?: "xs" | "sm" | "md";
   animated?: boolean;
   iconShellClassName?: string;
   titleClassName?: string;
@@ -15,6 +15,10 @@ interface BrandMarkProps {
 }
 
 const sizeStyles = {
+  xs: {
+    shell: "h-10 w-10",
+    title: "text-[1.5rem]",
+  },
   sm: {
     shell: "h-12 w-12",
     title: "text-[1.9rem]",

@@ -74,6 +74,7 @@ type AdminWorkspaceMode =
 interface AdminPlanWorkspaceProps {
   mode: AdminWorkspaceMode;
   dayNumber?: number;
+  embedded?: boolean;
 }
 
 type ToastState =
@@ -314,7 +315,11 @@ function buildAdminDayHref(dayNumber: number, suffix = "") {
   return suffix ? `/admin/day/${dayNumber}/${suffix}` : `/admin/day/${dayNumber}`;
 }
 
-function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspaceProps) {
+function buildAdminDayEditorHref(dayNumber: number) {
+  return `/admin/days/${dayNumber}`;
+}
+
+function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: AdminPlanWorkspaceProps) {
   const [snapshot, setSnapshot] = useState<AdminPlanSnapshot | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -327,6 +332,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
   const [questionForm, setQuestionForm] = useState<QuestionInput>(getEmptyQuestionForm("", null));
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [videoUpload, setVideoUpload] = useState<LessonVideoUploadState>(getEmptyVideoUploadState());
+  const [sectionVideoUpload, setSectionVideoUpload] = useState<LessonVideoUploadState>(getEmptyVideoUploadState());
   const [showTheoryPreview, setShowTheoryPreview] = useState(false);
   const [topicVideoDrafts, setTopicVideoDrafts] = useState<TheoryTopicVideoDraft[]>([]);
   const [openTopicVideoIndexes, setOpenTopicVideoIndexes] = useState<number[]>([]);
@@ -399,6 +405,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       setQuestionForm(getEmptyQuestionForm(nextDay?.id ?? "", nextLesson?.id ?? null, currentQuestionGroup));
       setEditingQuestionId(null);
       setVideoUpload(getEmptyVideoUploadState());
+      setSectionVideoUpload(getEmptyVideoUploadState());
       setShowTheoryPreview(false);
       setOpenTopicVideoIndexes([]);
     },
@@ -589,6 +596,11 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
   ]);
 
   const ensureDayAndReload = useCallback(async () => {
+    if (sectionForm.video_url?.trim() && !isValidVideoUrl(sectionForm.video_url.trim())) {
+      showToast("error", "Р’РёРґРµРѕ URL Р·Р° СЃРµРєС†РёСЏС‚Р° РЅРµ Рµ РІР°Р»РёРґРµРЅ.");
+      return;
+    }
+
     setIsSaving(true);
     try {
       await ensurePlanDay(dayNumber);
@@ -756,6 +768,19 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
       video_provider: section.video_provider,
       video_status: section.video_status,
     });
+  }
+
+  function openSectionVideoEditor(section: LessonSection) {
+    openSectionEditor(section);
+
+    if (typeof document !== "undefined") {
+      window.setTimeout(() => {
+        document.getElementById("section-video-settings")?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 0);
+    }
   }
 
   async function handleToggleSectionPublish(section: LessonSection) {
@@ -1308,6 +1333,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
   }
 
   const previewVideo = lessonForm.video_url ? resolveLessonVideo(lessonForm.video_url) : null;
+  const sectionPreviewVideo = sectionForm.video_url?.trim() ? resolveLessonVideo(sectionForm.video_url.trim()) : null;
   const previewLessonSections = activeSections.filter((section) => section.is_published);
   const isTheoryMode = mode === "theory" || mode === "lesson";
 
@@ -1317,6 +1343,54 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
     }
 
     return mode === targetMode ? "primary" : "ghost";
+  }
+
+  async function handleSectionVideoUpload(file: File) {
+    if (!activeDay) {
+      showToast("error", "РџСЉСЂРІРѕ СЃСЉР·РґР°Р№ РґРµРЅСЏ.");
+      return;
+    }
+
+    if (!isAllowedLessonVideoFile(file)) {
+      const message = "РџРѕР·РІРѕР»РµРЅРё СЃР° СЃР°РјРѕ mp4, webm Рё mov С„Р°Р№Р»РѕРІРµ.";
+      setSectionVideoUpload((current) => ({ ...current, error: message }));
+      showToast("error", message);
+      return;
+    }
+
+    if (file.size > getLessonVideoMaxBytes()) {
+      const message = `Р’РёРґРµРѕ С„Р°Р№Р»СЉС‚ Рµ РїРѕ-РіРѕР»СЏРј РѕС‚ ${LESSON_VIDEO_MAX_MB} MB.`;
+      setSectionVideoUpload((current) => ({ ...current, error: message }));
+      showToast("error", message);
+      return;
+    }
+
+    setSectionVideoUpload({ isUploading: true, progress: 10, error: null, success: null });
+    try {
+      const previousVideoUrl = sectionForm.video_url;
+      const uploadResult = await uploadLessonVideo({ file, courseDayId: activeDay.id });
+      setSectionVideoUpload({ isUploading: true, progress: 85, error: null, success: null });
+      setSectionForm((current) => ({
+        ...current,
+        video_provider: "uploaded",
+        video_url: uploadResult.publicUrl,
+        video_status: current.video_status,
+      }));
+      setSectionVideoUpload({
+        isUploading: false,
+        progress: 100,
+        error: null,
+        success: "Р’РёРґРµРѕС‚Рѕ Р·Р° СЃРµРєС†РёСЏС‚Р° Рµ РєР°С‡РµРЅРѕ.",
+      });
+
+      if (previousVideoUrl && previousVideoUrl !== uploadResult.publicUrl) {
+        void deleteLessonVideoByUrl(previousVideoUrl).catch(() => undefined);
+      }
+    } catch (uploadError) {
+      const message = uploadError instanceof Error ? uploadError.message : "РќРµ СѓСЃРїСЏС… РґР° РєР°С‡Р° РІРёРґРµРѕС‚Рѕ Р·Р° СЃРµРєС†РёСЏС‚Р°.";
+      setSectionVideoUpload({ isUploading: false, progress: 0, error: message, success: null });
+      showToast("error", message);
+    }
   }
 
   function renderDayActions(dayIndex: number) {
@@ -1625,7 +1699,6 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
         <SectionHeader
           label="10-дневен план"
           title="Управление на съдържанието по дни"
-          action={<NeonButton href="/admin">Към dashboard</NeonButton>}
         />
         <div className="grid gap-4 xl:grid-cols-2">
           {snapshot.dayCards.map((card) => (
@@ -1945,6 +2018,282 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
               courseSlug="admin-preview"
               dayNumber={dayNumber}
             />
+          </NeonCard>
+        ) : null}
+
+        {activeLesson ? (
+          <NeonCard padding="md" className="space-y-4">
+            <SectionHeader label="Lesson sections" title="Секции в теорията" />
+            <p className="text-sm text-[var(--mh-text-muted)]">
+              Това са реалните `lesson_sections`, които се записват в Supabase и се показват в student flow-а.
+            </p>
+
+            {activeSections.length > 0 ? (
+              <div className="space-y-3">
+                {activeSections.map((section, index) => (
+                  <NeonCard key={section.id} tone="muted" padding="sm" className="space-y-3 rounded-[24px]">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <Badge tone="neutral">#{section.sort_order}</Badge>
+                          <Badge tone="cyan">{getSectionTypeLabel(section.section_type)}</Badge>
+                          <Badge tone={section.is_published ? "green" : "gold"}>
+                            {section.is_published ? "Публикувана" : "Чернова"}
+                          </Badge>
+                        </div>
+                        <h3 className="mt-3 text-lg font-semibold text-white">{section.title}</h3>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {section.video_url ? (
+                            <Badge tone={section.video_status === "published" ? "green" : "gold"}>
+                              {section.video_status === "published" ? "Видео публикувано" : "Видео чернова"}
+                            </Badge>
+                          ) : (
+                            <Badge tone="neutral">Без видео</Badge>
+                          )}
+                        </div>
+                        <p className="mt-2 text-xs text-[var(--mh-text-muted)]">{getSectionPlacementHint(section.section_type)}</p>
+                        <p className="mt-3 whitespace-pre-wrap text-sm text-[var(--mh-text-soft)]">{section.content}</p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <NeonButton type="button" variant="ghost" onClick={() => openSectionEditor(section)}>
+                          Редактирай
+                        </NeonButton>
+                        <NeonButton type="button" variant="ghost" onClick={() => openSectionVideoEditor(section)}>
+                          Видео
+                        </NeonButton>
+                        <NeonButton
+                          type="button"
+                          variant={section.is_published ? "ghost" : "success"}
+                          onClick={() => void handleToggleSectionPublish(section)}
+                        >
+                          {section.is_published ? "Скрий" : "Публикувай"}
+                        </NeonButton>
+                        <NeonButton
+                          type="button"
+                          variant="ghost"
+                          onClick={() => void handleReorderSections(section.id, "up")}
+                          disabled={index === 0}
+                        >
+                          <ArrowUp className="h-4 w-4" />
+                        </NeonButton>
+                        <NeonButton
+                          type="button"
+                          variant="ghost"
+                          onClick={() => void handleReorderSections(section.id, "down")}
+                          disabled={index === activeSections.length - 1}
+                        >
+                          <ArrowDown className="h-4 w-4" />
+                        </NeonButton>
+                        <NeonButton type="button" variant="danger" onClick={() => void handleDeleteSection(section.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </NeonButton>
+                      </div>
+                    </div>
+                  </NeonCard>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4 text-slate-300">
+                Още няма запазени lesson sections за този ден.
+              </p>
+            )}
+
+            <NeonCard tone="muted" padding="sm" className="space-y-4 rounded-[24px]">
+              <SectionHeader
+                label={editingSectionId ? "Section editor" : "Нова секция"}
+                title={editingSectionId ? "Редакция на секция" : "Добави секция"}
+              />
+              <div className="grid gap-4 lg:grid-cols-2">
+                <FormInput
+                  label="Заглавие"
+                  value={sectionForm.title}
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "";
+                    setSectionForm((current) => ({ ...current, title: value }));
+                  }}
+                />
+                <FormSelect
+                  label="Тип секция"
+                  value={sectionForm.section_type}
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "theory";
+                    setSectionForm((current) => ({ ...current, section_type: value }));
+                  }}
+                >
+                  {SECTION_TYPES.map((sectionType) => (
+                    <option key={sectionType} value={sectionType}>
+                      {getSectionTypeLabel(sectionType)}
+                    </option>
+                  ))}
+                </FormSelect>
+                <FormInput
+                  label="Ред"
+                  type="number"
+                  min={1}
+                  value={sectionForm.sort_order}
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "1";
+                    setSectionForm((current) => ({ ...current, sort_order: Number(value) || 1 }));
+                  }}
+                />
+                <div id="section-video-settings" className="contents">
+                <FormInput
+                  label="Video URL"
+                  placeholder="https://youtube.com/watch?v=..."
+                  value={sectionForm.video_url ?? ""}
+                  onChange={(event) => {
+                    const value = event.currentTarget?.value ?? "";
+                    setSectionForm((current) => ({ ...current, video_url: value.trim() || null }));
+                  }}
+                />
+                <FormSelect
+                  label="Video status"
+                  value={sectionForm.video_status}
+                  onChange={(event) => {
+                    const value = (event.currentTarget?.value ?? "draft") as "draft" | "published";
+                    setSectionForm((current) => ({ ...current, video_status: value }));
+                  }}
+                >
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                </FormSelect>
+                </div>
+                <div className="lg:col-span-2 space-y-3 rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
+                  <div>
+                    <p className="text-sm font-semibold text-white">Качи видео към секцията</p>
+                    <p className="mt-1 text-xs text-[var(--mh-text-muted)]">
+                      Позволени формати: mp4, webm, mov. Максимум {LESSON_VIDEO_MAX_MB} MB.
+                    </p>
+                  </div>
+                  <FormInput
+                    label="Upload video file"
+                    type="file"
+                    accept={LESSON_VIDEO_ALLOWED_TYPES.join(",")}
+                    onChange={(event) => {
+                      const input = event.currentTarget;
+                      const file = input?.files?.[0];
+                      if (file) {
+                        void handleSectionVideoUpload(file);
+                      }
+                      if (input) {
+                        input.value = "";
+                      }
+                    }}
+                  />
+                  {sectionVideoUpload.isUploading || sectionVideoUpload.error || sectionVideoUpload.success ? (
+                    <div className="rounded-[18px] border border-white/10 bg-slate-950/45 p-4">
+                      <div className="flex items-center justify-between gap-3 text-sm text-white">
+                        <span>
+                          {sectionVideoUpload.isUploading
+                            ? "Качвам видео към секцията..."
+                            : sectionVideoUpload.error
+                              ? "Качването не успя"
+                              : "Видеото е качено"}
+                        </span>
+                        <span>{sectionVideoUpload.progress}%</span>
+                      </div>
+                      <div className="mt-3 h-2 rounded-full bg-white/10">
+                        <div
+                          className="h-full rounded-full bg-cyan-300 transition-all"
+                          style={{ width: `${sectionVideoUpload.progress}%` }}
+                        />
+                      </div>
+                      {sectionVideoUpload.error ? (
+                        <p className="mt-3 text-sm text-rose-300">{sectionVideoUpload.error}</p>
+                      ) : null}
+                      {sectionVideoUpload.success ? (
+                        <p className="mt-3 text-sm text-emerald-300">{sectionVideoUpload.success}</p>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+                <div className="lg:col-span-2">
+                  <FormSwitch
+                    checked={sectionForm.is_published}
+                    onChange={(checked) => setSectionForm((current) => ({ ...current, is_published: checked }))}
+                    label="Публикувана секция"
+                    description="Ако е изключено, секцията остава скрита за ученика."
+                  />
+                </div>
+                {sectionForm.video_url ? (
+                  <div className="lg:col-span-2 rounded-[20px] border border-white/8 bg-white/[0.03] p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-white">Preview на видеото</p>
+                        <p className="mt-1 text-xs text-[var(--mh-text-muted)]">
+                          Видеото ще се вижда при ученика само ако и секцията, и видеото са публикувани.
+                        </p>
+                      </div>
+                      <Badge tone={sectionForm.video_status === "published" ? "green" : "gold"}>
+                        {sectionForm.video_status === "published" ? "Published" : "Draft"}
+                      </Badge>
+                    </div>
+                    {sectionPreviewVideo ? (
+                      <div className="mt-4">
+                        {sectionPreviewVideo.kind === "embed" ? (
+                          <div className="aspect-video overflow-hidden rounded-[20px] border border-white/10">
+                            <iframe
+                              src={sectionPreviewVideo.src}
+                              title={sectionForm.title || "Section video"}
+                              className="h-full w-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                              allowFullScreen
+                            />
+                          </div>
+                        ) : sectionPreviewVideo.kind === "file" ? (
+                          <video controls preload="metadata" className="w-full rounded-[20px] border border-white/10 bg-black">
+                            <source src={sectionPreviewVideo.src} />
+                          </video>
+                        ) : (
+                          <NeonButton href={sectionPreviewVideo.src} target="_blank" rel="noreferrer" variant="secondary">
+                            Отвори видеото
+                          </NeonButton>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-rose-300">URL адресът не може да бъде визуализиран.</p>
+                    )}
+                  </div>
+                ) : null}
+                <div className="lg:col-span-2">
+                  <RichTextTextarea
+                    label="Съдържание"
+                    rows={10}
+                    value={sectionForm.content}
+                    onChangeValue={(value) => {
+                      setSectionForm((current) => ({ ...current, content: value }));
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <NeonButton type="button" onClick={() => void handleSaveSection()} disabled={isSaving}>
+                  <Save className="h-4 w-4" />
+                  {editingSectionId ? "Запази секцията" : "Добави секцията"}
+                </NeonButton>
+                <NeonButton
+                  type="button"
+                  variant="ghost"
+                  onClick={() => void handleSplitSectionIntoTopics()}
+                  disabled={isSaving || sectionForm.section_type !== "theory"}
+                >
+                  Раздели на теми
+                </NeonButton>
+                {editingSectionId ? (
+                  <NeonButton
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setEditingSectionId(null);
+                      setSectionForm(getEmptySectionForm(activeLesson.id, activeSections.length + 1));
+                    }}
+                  >
+                    Отказ
+                  </NeonButton>
+                ) : null}
+              </div>
+            </NeonCard>
           </NeonCard>
         ) : null}
 
@@ -2358,25 +2707,25 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1 }: AdminPlanWorkspacePr
 
   return (
     <div className="mx-auto max-w-7xl space-y-6 px-4 pb-8 lg:px-8">
-      <NeonCard tone="muted" padding="sm" className="flex flex-wrap items-center justify-between gap-3">
+      {!embedded ? <NeonCard tone="muted" padding="sm" className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="mh-label">Admin</p>
           <h1 className="mt-2 text-xl font-semibold text-white">10-дневна програма по математика</h1>
           <p className="mt-1 text-sm text-[var(--mh-text-muted)]">Управлявай ден 1 до ден 10 директно, без Courses като начален екран.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <NeonButton href="/admin" variant={mode === "dashboard" ? "primary" : "ghost"}>
+          <NeonButton href="/admin" variant={mode === "dashboard" || mode === "plan" ? "primary" : "ghost"}>
             <Layers className="h-4 w-4" />
             10-дневна програма
           </NeonButton>
           {dayNumber ? (
-            <NeonButton href={buildAdminDayHref(dayNumber)} variant={mode === "day" ? "primary" : "ghost"}>
+            <NeonButton href={buildAdminDayEditorHref(dayNumber)} variant={mode === "day" ? "primary" : "ghost"}>
               <Sparkles className="h-4 w-4" />
               Ден {dayNumber}
             </NeonButton>
           ) : null}
         </div>
-      </NeonCard>
+      </NeonCard> : null}
 
       {content}
 

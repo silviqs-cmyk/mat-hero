@@ -322,7 +322,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     <AppStateContext.Provider value={value}>
       {isCheckingAccess ? (
         <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
-          <LoadingState title="РџСЂРѕРІРµСЂСЏРІР°Рј СЃРµСЃРёСЏС‚Р°" lines={4} />
+          <LoadingState title="Проверявам сесията" lines={4} />
         </div>
       ) : (
         children

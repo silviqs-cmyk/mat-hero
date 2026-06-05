@@ -42,13 +42,16 @@ function getCorrectOptionLabel(options: AskMatOption[], correctAnswer: string | 
 
 function buildDefaultAskMatExplanation(question: Question) {
   return question.explanation?.trim()
-    ? normalizeExplanationText(question.explanation)
+    ? question.explanation.trim()
     : "Преговори условието и опитай отново стъпка по стъпка.";
 }
 
 function buildBonusAskMatExplanation(question: Question, correctAnswer: string | null, options: AskMatOption[]) {
   const prompt = normalizeExplanationText(question.prompt);
-  const explanation = question.explanation?.trim() ? normalizeExplanationText(question.explanation) : "";
+  const explanation = question.explanation?.trim() ? question.explanation.trim() : "";
+  if (explanation) {
+    return explanation;
+  }
   const explanationSentences = splitExplanationSentences(explanation);
   const planLine = explanationSentences[0] ?? "Подреждаме данните от условието и избираме най-подходящия изпитен метод.";
   const stepLines =

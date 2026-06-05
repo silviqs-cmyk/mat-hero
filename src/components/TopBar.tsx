@@ -99,7 +99,7 @@ function ProgressCard({ currentDayNumber, completedDaysCount, totalDays }: Progr
   );
 }
 
-function ProfileLink() {
+function ProfileLink({ compact = false }: { compact?: boolean }) {
   const { authUser } = useAppState();
   const userLabel =
     authUser.isReady && authUser.displayName.trim().length > 0 ? authUser.displayName : "Зареждане...";
@@ -111,19 +111,29 @@ function ProfileLink() {
   return (
     <Link
       href="/profile"
-      className="flex min-w-0 items-center gap-3 px-2 py-2 transition hover:opacity-85 lg:w-full"
+      className={`flex min-w-0 items-center transition hover:opacity-85 ${
+        compact
+          ? "justify-center rounded-full border border-white/10 bg-white/[0.03] p-1.5"
+          : "gap-3 px-2 py-2 lg:w-full"
+      }`}
       aria-label="Към профила"
     >
-      <div className="mh-avatar flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white">
+      <div
+        className={`mh-avatar flex shrink-0 items-center justify-center rounded-full font-bold text-white ${
+          compact ? "h-9 w-9 text-base" : "h-10 w-10 text-lg"
+        }`}
+      >
         {avatarLetter}
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-white">{greetingLabel}</p>
-        {secondaryLabel ? (
+      {!compact ? (
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-white">{greetingLabel}</p>
+          {secondaryLabel ? (
           <p className="truncate text-xs text-[var(--mh-text-muted)]">{secondaryLabel}</p>
-        ) : null}
-      </div>
-      <ChevronRight className="hidden h-4 w-4 shrink-0 text-white/70 lg:block" />
+          ) : null}
+        </div>
+      ) : null}
+      {!compact ? <ChevronRight className="hidden h-4 w-4 shrink-0 text-white/70 lg:block" /> : null}
     </Link>
   );
 }
@@ -195,8 +205,11 @@ export function TopBar({}: TopBarProps) {
       <div className="rounded-[26px] px-1 py-1 sm:px-1 sm:py-1 lg:px-1">
         <div className="flex items-center gap-3 lg:hidden">
           <Link href="/dashboard" className="flex min-w-0 flex-1 items-center gap-3 text-white">
-            <BrandMark titleClassName="text-[1.8rem]" />
+            <BrandMark size="xs" subtitle="" titleClassName="text-[1.55rem]" />
           </Link>
+          <div className="shrink-0">
+            <ProfileLink compact />
+          </div>
         </div>
 
         <div className="mt-4 grid gap-3 lg:hidden">
@@ -207,9 +220,6 @@ export function TopBar({}: TopBarProps) {
               completedDaysCount={completedDaysCount}
               totalDays={totalDays}
             />
-          </div>
-          <div className="w-full md:col-span-2 md:justify-self-end md:max-w-[280px]">
-            <ProfileLink />
           </div>
         </div>
 

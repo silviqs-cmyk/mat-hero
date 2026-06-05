@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo } from "react";
 import { BookOpen, Star, Target, TriangleAlert } from "lucide-react";
 import { MathText } from "@/components/math/MathText";
@@ -53,6 +54,7 @@ export function DayResultsSummary({
   const correctAnswersCount = answeredQuestions.length - wrongQuestions.length;
   const resolvedPercentage =
     questions.length > 0 ? Math.round((correctAnswersCount / questions.length) * 100) : result.percentage;
+
   const weakTopicCounts = Array.from(
     wrongQuestions.reduce((map, question) => {
       const rawTopic = question.topic.trim();
@@ -70,9 +72,11 @@ export function DayResultsSummary({
   )
     .map(([, value]) => value)
     .sort((left, right) => right.count - left.count || left.displayTopic.localeCompare(right.displayTopic, "bg-BG"));
+
   const topWeakTopicCounts = weakTopicCounts.slice(0, 5);
   const remainingWeakTopicsCount = Math.max(0, weakTopicCounts.length - topWeakTopicCounts.length);
   const wrongQuestionsPreview = wrongQuestions.slice(0, 5);
+
   const sectionStats = [
     { label: "ПРОВЕРИ", group: "quiz" as const },
     { label: "УПРАЖНИ", group: "practice" as const },
@@ -87,25 +91,46 @@ export function DayResultsSummary({
       correctAnswers,
     };
   });
+
   const nextDayHref =
     bundle.day.day_number < course.duration_days
       ? buildDayHref(course.slug, bundle.day.day_number + 1)
       : buildDayHref(course.slug, bundle.day.day_number);
+  const nextDayLabel =
+    bundle.day.day_number < course.duration_days
+      ? `Следващ ден: Ден ${bundle.day.day_number + 1}`
+      : "Следва: Край на плана";
 
   return (
     <div className="space-y-6">
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <NeonCard padding="md">
-          <PageHeroHeader
-            label="РЕЗУЛТАТ ОТ ДЕНЯ"
-            title={<h1 className="mh-heading-xl">{resolvedPercentage >= 70 ? "Страхотна работа!" : "Продължавай смело!"}</h1>}
-            action={<Badge tone="green">{bundle.day.title}</Badge>}
-            description={
-              resolvedPercentage >= 70
-                ? "Общият резултат е от задачи, тест и бонус. Теорията се отчита отделно като минат етап."
-                : "Общият резултат е от задачи, тест и бонус. Прегледай грешките и мини пак през теорията при нужда."
-            }
-          />
+          <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-center">
+            <div className="flex justify-center lg:justify-start">
+              <div className="relative w-full max-w-[220px] overflow-hidden rounded-[28px] border border-cyan-300/18 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.14),rgba(10,14,28,0.1)_45%,rgba(0,0,0,0)_80%)] p-3 shadow-[0_0_36px_rgba(34,211,238,0.12)]">
+                <Image
+                  src="/images/feedback/day-finished-hero.gif"
+                  alt="MatHero герой за завършен ден"
+                  width={220}
+                  height={300}
+                  unoptimized
+                  className="h-auto w-full rounded-[22px] object-contain mix-blend-screen"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <PageHeroHeader
+                label="РЕЗУЛТАТ ОТ ДЕНЯ"
+                title={<h1 className="mh-heading-xl">{resolvedPercentage >= 70 ? "Страхотна работа!" : "Продължавай смело!"}</h1>}
+                action={<Badge tone="green">{bundle.day.title}</Badge>}
+              />
+
+              <div className="inline-flex items-center rounded-full border border-cyan-300/20 bg-cyan-400/8 px-4 py-2 text-sm font-semibold text-cyan-100">
+                {nextDayLabel}
+              </div>
+            </div>
+          </div>
         </NeonCard>
 
         <NeonCard padding="md">
@@ -210,11 +235,6 @@ export function DayResultsSummary({
                           {formatTopicLabel(question.topic)}
                         </p>
                         <MathText text={question.prompt} className="mt-3 text-white" inlineFractions />
-                        <MathText
-                          text={question.explanation || "Преговори урока и опитай отново."}
-                          className="mt-3 text-base leading-7 text-slate-300"
-                          inlineFractions
-                        />
                       </div>
                     ))}
                   </div>

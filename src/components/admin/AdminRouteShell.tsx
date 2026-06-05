@@ -15,7 +15,7 @@ interface AdminRouteShellProps {
 export function AdminRouteShell({ children }: AdminRouteShellProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const isDashboardActive = pathname === "/admin";
+  const isDashboardActive = pathname === "/admin" || pathname.startsWith("/admin/days/");
   const isPlanActive = pathname === "/admin/plan" || pathname.startsWith("/admin/day/");
 
   async function handleSignOut() {
@@ -40,7 +40,7 @@ export function AdminRouteShell({ children }: AdminRouteShellProps) {
               className="min-h-0 px-4 py-3 text-sm"
             >
               <LayoutDashboard className="h-4 w-4" />
-              Dashboard
+              Програма
             </NeonButton>
             <NeonButton
               href="/admin/plan"

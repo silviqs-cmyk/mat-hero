@@ -29,6 +29,15 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://mat-hero.vercel.app"),
   title: "MatHero",
   description: "Mobile-first MVP for 7th grade math exam prep.",
+  icons: {
+    icon: [
+      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    shortcut: "/icon.png",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "MatHero",
     description: "Mobile-first MVP for 7th grade math exam prep.",

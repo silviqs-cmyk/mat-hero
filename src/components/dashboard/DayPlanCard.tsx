@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, CheckCircle2, ChevronDown, ChevronRight, PenTool, Play, Sparkles, Target, Trophy } from "lucide-react";
+import { BookOpen, CheckCircle2, ChevronRight, PenTool, Play, Sparkles, Target, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -169,7 +169,7 @@ export function DayPlanCard({ badge, title, steps }: DayPlanCardProps) {
       />
 
       <div className="relative mt-8 px-0 py-2 sm:mt-10 sm:px-2 sm:pt-4">
-        <div className="grid gap-6 px-1 sm:grid-cols-4 sm:gap-9 sm:px-0 lg:gap-14">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-5 px-1 sm:grid-cols-4 sm:gap-9 sm:px-0 lg:gap-14">
           {steps.map((step, index) => {
             const Icon = iconMap[step.type];
             const tones = toneMap[step.tone];
@@ -213,9 +213,6 @@ export function DayPlanCard({ badge, title, steps }: DayPlanCardProps) {
 
                 {index < steps.length - 1 ? (
                   <>
-                    <div className="pointer-events-none mt-4 flex justify-center sm:hidden" aria-hidden="true">
-                      <ChevronDown className="h-6 w-6 text-white/90 drop-shadow-[0_0_12px_rgba(255,255,255,0.42)]" />
-                    </div>
                     <div
                       className="pointer-events-none absolute left-[calc(50%+0.85rem)] top-[1.7rem] hidden w-[calc(100%-1.7rem)] items-center sm:flex sm:top-[2rem]"
                       aria-hidden="true"

@@ -1,5 +1,5 @@
-import { AdminPlanWorkspace } from "@/components/admin/AdminPlanWorkspace";
+import { AdminProgramOverview } from "@/components/admin/AdminProgramOverview";
 
 export default function AdminPage() {
-  return <AdminPlanWorkspace mode="dashboard" />;
+  return <AdminProgramOverview />;
 }

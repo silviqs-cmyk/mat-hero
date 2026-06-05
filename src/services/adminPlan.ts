@@ -26,6 +26,7 @@ export interface AdminPlanDayCard {
   subtitle: string;
   status: "draft" | "published" | "missing";
   hasLesson: boolean;
+  sectionCount: number;
   hasVideo: boolean;
   practiceCount: number;
   quizCount: number;
@@ -147,6 +148,7 @@ export async function getAdminPlanSnapshot(): Promise<AdminPlanSnapshot> {
             .filter((candidate) => candidate.course_day_id === day.id)
             .sort((left, right) => left.sort_order - right.sort_order)[0] ?? null
         : null;
+      const sectionCount = lesson ? scopedSections.filter((section) => section.lesson_id === lesson.id).length : 0;
       const dayQuestions = day ? scopedQuestions.filter((question) => question.course_day_id === day.id) : [];
       const practiceCount = dayQuestions.filter((question) => getResolvedQuestionGroup(question) === "practice").length;
       const quizCount = dayQuestions.filter((question) => getResolvedQuestionGroup(question) === "quiz").length;
@@ -160,7 +162,8 @@ export async function getAdminPlanSnapshot(): Promise<AdminPlanSnapshot> {
         subtitle: day?.subtitle ?? "Все още няма съдържание за този ден.",
         status: !day ? "missing" : day.is_published ? "published" : "draft",
         hasLesson: Boolean(lesson),
-        hasVideo: Boolean(lesson?.video_url && lesson.video_status === "published"),
+        sectionCount,
+        hasVideo: Boolean(lesson?.video_url),
         practiceCount,
         quizCount,
         bonusCount,
