@@ -54,6 +54,18 @@ interface SubmitOverrides {
   answerText?: string;
 }
 
+const DEFAULT_FEEDBACK_PANEL_TEXT =
+  "\u041f\u0440\u043e\u0447\u0435\u0442\u0438 \u0432\u0441\u0438\u0447\u043a\u0438 \u0432\u0430\u0440\u0438\u0430\u043d\u0442\u0438 \u0438 \u0438\u0437\u0431\u0435\u0440\u0438 \u0442\u043e\u0437\u0438, \u043a\u043e\u0439\u0442\u043e \u043c\u043e\u0436\u0435\u0448 \u0434\u0430 \u0437\u0430\u0449\u0438\u0442\u0438\u0448 \u0441 \u0440\u0435\u0448\u0435\u043d\u0438\u0435.";
+
+const PRACTICE_FEEDBACK_PANEL_TEXT =
+  "\u270d\ufe0f \u0412\u0437\u0435\u043c\u0438 \u043b\u0438\u0441\u0442 \u0438 \u0445\u0438\u043c\u0438\u043a\u0430\u043b.\n\n\u0422\u0430\u0437\u0438 \u0437\u0430\u0434\u0430\u0447\u0430 \u0435 \u0437\u0430 \u043f\u0438\u0441\u043c\u0435\u043d\u043e \u0440\u0435\u0448\u0430\u0432\u0430\u043d\u0435 \u2014 \u0441\u043c\u0435\u0442\u043d\u0438 \u0441\u0442\u044a\u043f\u043a\u0438\u0442\u0435 \u0438 \u0447\u0430\u043a \u0442\u043e\u0433\u0430\u0432\u0430 \u0438\u0437\u0431\u0435\u0440\u0438 \u043e\u0442\u0433\u043e\u0432\u043e\u0440.";
+
+const EXAM_FEEDBACK_PANEL_TEXT =
+  "\ud83d\udcdd \u0420\u0435\u0448\u0430\u0432\u0430\u0439 \u043a\u0430\u0442\u043e \u043d\u0430 \u0438\u0441\u0442\u0438\u043d\u0441\u043a\u043e \u041d\u0412\u041e.\n\n\u0417\u0430\u043f\u0438\u0448\u0438 \u0440\u0435\u0448\u0435\u043d\u0438\u0435\u0442\u043e \u043d\u0430 \u043b\u0438\u0441\u0442, \u043f\u0440\u043e\u0432\u0435\u0440\u0438 \u0441\u0442\u044a\u043f\u043a\u0438\u0442\u0435 \u0438 \u0447\u0430\u043a \u0442\u043e\u0433\u0430\u0432\u0430 \u0438\u0437\u0431\u0435\u0440\u0438 \u043e\u0442\u0433\u043e\u0432\u043e\u0440.";
+
+const OPEN_ANSWER_FEEDBACK_PANEL_TEXT =
+  "\u270d\ufe0f \u0412\u0437\u0435\u043c\u0438 \u043b\u0438\u0441\u0442 \u0438 \u0445\u0438\u043c\u0438\u043a\u0430\u043b.\n\n\u0417\u0430\u043f\u0438\u0448\u0438 \u0440\u0435\u0448\u0435\u043d\u0438\u0435\u0442\u043e \u0441\u0438 \u0441\u0442\u044a\u043f\u043a\u0430 \u043f\u043e \u0441\u0442\u044a\u043f\u043a\u0430, \u0441\u043b\u0435\u0434 \u0442\u043e\u0432\u0430 \u0432\u044a\u0432\u0435\u0434\u0438 \u043a\u0440\u0430\u0439\u043d\u0438\u044f \u043e\u0442\u0433\u043e\u0432\u043e\u0440.";
+
 function buildQuestionOptions(question: Question) {
   if (question.question_type === "true_false" && (!question.options || question.options.length === 0)) {
     return [
@@ -71,6 +83,30 @@ function buildQuestionOptions(question: Question) {
   }
 
   return question.options ?? [];
+}
+
+function isOpenAnswerQuestion(question: Pick<Question, "question_type"> | null | undefined) {
+  return question?.question_type === "open_answer";
+}
+
+function getFeedbackPanelText(sectionType: string | null | undefined, isOpenAnswer: boolean) {
+  if (isOpenAnswer) {
+    return OPEN_ANSWER_FEEDBACK_PANEL_TEXT;
+  }
+
+  if (sectionType === "practice") {
+    return PRACTICE_FEEDBACK_PANEL_TEXT;
+  }
+
+  if (sectionType === "bonus" || sectionType === "exam") {
+    return EXAM_FEEDBACK_PANEL_TEXT;
+  }
+
+  if (sectionType === "quiz") {
+    return DEFAULT_FEEDBACK_PANEL_TEXT;
+  }
+
+  return DEFAULT_FEEDBACK_PANEL_TEXT;
 }
 
 function getFlowCopy(mode: FlowMode) {
@@ -161,11 +197,13 @@ export function StudentQuestionFlow({
     () => (currentQuestion ? buildQuestionOptions(currentQuestion) : []),
     [currentQuestion],
   );
+  const isOpenAnswer = isOpenAnswerQuestion(currentQuestion);
+  const feedbackPanelText = getFeedbackPanelText(currentQuestion?.question_group ?? mode, isOpenAnswer);
   const flowCopy = getFlowCopy(mode);
   const totalQuestions = questions.length;
   const questionIdsSignature = useMemo(() => questions.map((question) => question.id).join("|"), [questions]);
   const submittedAnswer =
-    currentQuestion?.question_type === "open_answer"
+    isOpenAnswer
       ? answerText
       : currentOptions.find((option) => option.id === selectedOptionId)?.option_text ?? "";
   const resolvedCorrectAnswer = currentQuestion
@@ -638,11 +676,7 @@ export function StudentQuestionFlow({
         <NeonCard padding="sm" className="bg-[rgb(1,1,2)] lg:p-6">
           <p className="mh-label">Обратна връзка</p>
           <div className="mt-5 rounded-[22px] border border-white/8 bg-white/[0.03] p-4">
-            <p className="mh-copy text-slate-300">
-              {currentQuestion.question_type === "open_answer"
-                ? "При свободен отговор мини спокойно през смятането и въведи крайния резултат."
-                : "Прочети всички варианти и избери този, който можеш да защитиш с решение."}
-            </p>
+            <p className="mh-copy whitespace-pre-line text-slate-300">{feedbackPanelText}</p>
           </div>
 
           {topicHref ? (

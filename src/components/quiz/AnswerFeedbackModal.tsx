@@ -229,7 +229,7 @@ export function AnswerFeedbackModal({
               <NeonButton
                 type="button"
                 variant="ghost"
-                className="min-h-11 w-full justify-center px-4 text-sm sm:w-auto"
+                className="min-h-11 w-full justify-center border-lime-200/80 bg-[linear-gradient(180deg,rgba(217,249,157,0.99),rgba(190,242,100,0.97))] px-4 text-sm font-semibold tracking-[0.01em] text-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_0_20px_rgba(190,242,100,0.28),0_0_40px_rgba(163,230,53,0.22)] hover:border-lime-100 hover:bg-[linear-gradient(180deg,rgba(236,252,203,0.99),rgba(217,249,157,0.98))] hover:text-slate-950 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.36),0_0_28px_rgba(190,242,100,0.34),0_0_48px_rgba(163,230,53,0.26)] sm:w-auto"
                 onClick={() => setShowAskMatDetails((current) => !current)}
               >
                 Питай МАТ

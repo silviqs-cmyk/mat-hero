@@ -451,7 +451,7 @@ function AskMatMiniTask({ prompt, sectionId }: { prompt: string; sectionId?: str
       <NeonButton
         type="button"
         variant="ghost"
-        className="min-h-11 px-4 py-2 text-sm"
+        className="min-h-11 border-lime-200/80 bg-[linear-gradient(180deg,rgba(217,249,157,0.99),rgba(190,242,100,0.97))] px-4 py-2 text-sm font-semibold tracking-[0.01em] text-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_0_20px_rgba(190,242,100,0.28),0_0_40px_rgba(163,230,53,0.22)] hover:border-lime-100 hover:bg-[linear-gradient(180deg,rgba(236,252,203,0.99),rgba(217,249,157,0.98))] hover:text-slate-950 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.36),0_0_28px_rgba(190,242,100,0.34),0_0_48px_rgba(163,230,53,0.26)]"
         onClick={() => setIsOpen((current) => !current)}
       >
         Питай МАТ
