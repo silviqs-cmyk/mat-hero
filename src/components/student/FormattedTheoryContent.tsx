@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 import { Fragment, useState } from "react";
 import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
 import { NeonButton } from "@/components/ui/NeonButton";
@@ -453,9 +454,17 @@ function AskMatMiniTask({ prompt, sectionId }: { prompt: string; sectionId?: str
       <NeonButton
         type="button"
         variant="ghost"
-        className="min-h-11 border-lime-200/80 bg-[linear-gradient(180deg,rgba(217,249,157,0.99),rgba(190,242,100,0.97))] px-4 py-2 text-sm font-semibold tracking-[0.01em] text-slate-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.3),0_0_20px_rgba(190,242,100,0.28),0_0_40px_rgba(163,230,53,0.22)] hover:border-lime-100 hover:bg-[linear-gradient(180deg,rgba(236,252,203,0.99),rgba(217,249,157,0.98))] hover:text-slate-950 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.36),0_0_28px_rgba(190,242,100,0.34),0_0_48px_rgba(163,230,53,0.26)]"
+        className="min-h-11 border-[#4aa3ff]/70 bg-[linear-gradient(180deg,#03041f_0%,#070a2b_100%)] px-4 py-2 text-sm font-extrabold tracking-[0.01em] text-cyan-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.14),0_0_22px_rgba(59,130,246,0.42),0_0_46px_rgba(37,99,235,0.32)] hover:border-[#7fc3ff] hover:bg-[linear-gradient(180deg,#070a2f_0%,#0c1140_100%)] hover:text-white hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.18),0_0_30px_rgba(96,165,250,0.5),0_0_56px_rgba(37,99,235,0.38)]"
         onClick={() => setIsOpen((current) => !current)}
       >
+        <Image
+          src="/images/ask-mat-button-icon-v4.png"
+          alt=""
+          width={32}
+          height={32}
+          className="h-7 w-7 object-contain"
+          aria-hidden="true"
+        />
         Питай МАТ
       </NeonButton>
       <AnimatePresence initial={false}>
