@@ -5,11 +5,13 @@ import type { DayContentBundle, Lesson, Question } from "@/types/course";
 import type { UserProfile, UserProgress } from "@/types/user";
 
 interface EvaluableOption {
+  id?: string;
   option_text: string;
   is_correct: boolean;
 }
 
 interface EvaluableQuestion {
+  question_type?: string | null;
   expected_answer: string | null;
   options?: EvaluableOption[];
 }
@@ -69,15 +71,27 @@ export function mapTimeline(
   days: Array<{ id: string; day_number: number; title: string; subtitle: string }>,
   courseSlug: string,
   activeDayNumber: number,
+  maxUnlockedDay?: number,
+  completedDayNumbers: number[] = [],
 ): DayTimelineItem[] {
-  return days.map((day) => ({
-    id: day.id,
-    dayNumber: day.day_number,
-    title: `Ден ${day.day_number}`,
-    subtitle: day.title,
-    isActive: day.day_number === activeDayNumber,
-    href: buildDayHref(courseSlug, day.day_number),
-  }));
+  return days.map((day) => {
+    const isCompleted = completedDayNumbers.includes(day.day_number);
+    const isUnlocked =
+      maxUnlockedDay === undefined
+        ? true
+        : day.day_number <= maxUnlockedDay || day.day_number === activeDayNumber || isCompleted;
+
+    return {
+      id: day.id,
+      dayNumber: day.day_number,
+      title: `Ден ${day.day_number}`,
+      subtitle: day.title,
+      isActive: day.day_number === activeDayNumber,
+      isUnlocked,
+      isCompleted,
+      href: isUnlocked ? buildDayHref(courseSlug, day.day_number) : undefined,
+    };
+  });
 }
 
 function getExampleText(lesson: Lesson, questions: Question[]) {
@@ -235,7 +249,72 @@ export function getResolvedCorrectAnswer(question: EvaluableQuestion) {
   return question.expected_answer ?? optionAnswer;
 }
 
-export function evaluateQuestionAnswer(question: EvaluableQuestion, submittedAnswer: string) {
+function warnQuestionCheck(message: string, details: Record<string, unknown>) {
+  if (process.env.NODE_ENV !== "production") {
+    console.warn(message, details);
+  }
+}
+
+function getSubmittedOption(
+  question: EvaluableQuestion,
+  submittedAnswer: string,
+  submittedOptionId?: string | null,
+) {
+  if (!question.options || question.options.length === 0) {
+    return null;
+  }
+
+  if (submittedOptionId) {
+    const matchedById = question.options.find((option) => option.id === submittedOptionId);
+    if (matchedById) {
+      return matchedById;
+    }
+  }
+
+  const normalizedSubmittedAnswer = normalizeAnswer(submittedAnswer);
+  if (!normalizedSubmittedAnswer) {
+    return null;
+  }
+
+  return (
+    question.options.find((option) => normalizeAnswer(option.option_text) === normalizedSubmittedAnswer) ?? null
+  );
+}
+
+export function evaluateQuestionAnswer(
+  question: EvaluableQuestion,
+  submittedAnswer: string,
+  submittedOptionId?: string | null,
+) {
+  if (question.question_type === "multiple_choice") {
+    if (!question.options || question.options.length === 0) {
+      warnQuestionCheck("[studentFlow] Multiple-choice question has no options.", {
+        questionType: question.question_type,
+      });
+      return false;
+    }
+
+    const correctOptions = question.options.filter((option) => option.is_correct);
+    if (correctOptions.length === 0) {
+      warnQuestionCheck("[studentFlow] Multiple-choice question has no correct option.", {
+        questionType: question.question_type,
+      });
+      return false;
+    }
+
+    const submittedOption = getSubmittedOption(question, submittedAnswer, submittedOptionId);
+    if (!submittedOption) {
+      warnQuestionCheck("[studentFlow] Could not resolve submitted option for multiple-choice question.", {
+        questionType: question.question_type,
+        submittedOptionId: submittedOptionId ?? null,
+        submittedAnswer,
+      });
+      return false;
+    }
+
+    return submittedOption.is_correct;
+  }
+
   const resolvedCorrectAnswer = getResolvedCorrectAnswer(question);
   if (!resolvedCorrectAnswer) {
     return false;

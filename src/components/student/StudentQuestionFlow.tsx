@@ -8,6 +8,7 @@ import { MathText } from "@/components/math/MathText";
 import { MascotCharacter } from "@/components/MascotCharacter";
 import { AnswerFeedbackModal } from "@/components/quiz/AnswerFeedbackModal";
 import { DayTopBarProgress } from "@/components/student/DayTopBarProgress";
+import { QuestionFeedbackPreview } from "@/components/student/QuestionFeedbackPreview";
 import { Badge } from "@/components/ui/Badge";
 import { FormInput } from "@/components/ui/FormInput";
 import { NeonButton } from "@/components/ui/NeonButton";
@@ -188,6 +189,7 @@ export function StudentQuestionFlow({
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [lastSubmittedAnswer, setLastSubmittedAnswer] = useState<AnswerRecord | null>(null);
   const [practiceCompleted, setPracticeCompleted] = useState(false);
+  const [showWrongAnswerPreview, setShowWrongAnswerPreview] = useState(false);
   const submissionLockRef = useRef(false);
   const submittedQuestionIdsRef = useRef<Set<string>>(new Set());
   const continueLockRef = useRef(false);
@@ -220,13 +222,16 @@ export function StudentQuestionFlow({
       })
     : "";
   const isCorrect = currentQuestion
-    ? evaluateQuestionAnswer({ ...currentQuestion, options: currentOptions }, submittedAnswer)
+    ? evaluateQuestionAnswer(
+        { ...currentQuestion, options: currentOptions },
+        submittedAnswer,
+        selectedOptionId,
+      )
     : false;
   const isLastQuestion = currentIndex === totalQuestions - 1;
   const hasPracticeQuestions = getPracticeQuestions(bundle.questions).length > 0;
   const hasBonusQuestions = getBonusQuestions(bundle.questions).length > 0;
-  const showsCompletionState = isLastQuestion && mode !== "practice";
-  const feedbackState = showsCompletionState ? "completed" : isCorrect ? "correct" : "incorrect";
+  const feedbackState = isCorrect ? "correct" : "incorrect";
   const nextRoute = getNextRouteAfterSection(
     mode,
     course.slug,
@@ -282,6 +287,20 @@ export function StudentQuestionFlow({
     showFeedback &&
     Boolean(currentQuestion?.explanation?.trim() || resolvedCorrectAnswer?.trim()) &&
     (mode === "bonus" || !isCorrect);
+  const shouldShowWrongAnswerState = showFeedback && !isCorrect;
+  const revealCorrectAnswerInPreview = mode !== "bonus";
+  const wrongAnswerPreview = shouldShowWrongAnswerState ? (
+    <QuestionFeedbackPreview
+      prompt={currentQuestion.prompt}
+      imageUrl={currentQuestion.image_url}
+      questionType={currentQuestion.question_type}
+      options={currentOptions}
+      selectedOptionId={selectedOptionId}
+      submittedAnswerText={submittedAnswer}
+      correctAnswer={resolvedCorrectAnswer}
+      revealCorrectAnswer={revealCorrectAnswerInPreview}
+    />
+  ) : null;
 
   useEffect(() => {
     setCurrentIndex(0);
@@ -292,6 +311,7 @@ export function StudentQuestionFlow({
     setAnswers([]);
     setLastSubmittedAnswer(null);
     setPracticeCompleted(false);
+    setShowWrongAnswerPreview(false);
     submissionLockRef.current = false;
     submittedQuestionIdsRef.current = new Set();
     continuedQuestionIdsRef.current = new Set();
@@ -303,6 +323,12 @@ export function StudentQuestionFlow({
       setPracticeCompleted(true);
     }
   }, [isLastQuestion, lastSubmittedAnswer, mode, showFeedback]);
+
+  useEffect(() => {
+    if (!showFeedback || isCorrect) {
+      setShowWrongAnswerPreview(false);
+    }
+  }, [currentQuestion?.id, isCorrect, showFeedback]);
 
   async function handleSubmit(overrides?: SubmitOverrides) {
     if (
@@ -324,6 +350,7 @@ export function StudentQuestionFlow({
     const nextIsCorrect = evaluateQuestionAnswer(
       { ...currentQuestion, options: currentOptions },
       nextSubmittedAnswer,
+      nextSelectedOptionId,
     );
 
     if (currentQuestion.question_type === "open_answer" && nextAnswerText.trim().length === 0) {
@@ -525,6 +552,9 @@ export function StudentQuestionFlow({
     currentQuestion.topic?.trim()
       ? buildLessonTopicHref(course.slug, bundle.day.day_number, currentQuestion.topic)
       : null;
+  const feedbackPanelMessage = shouldShowWrongAnswerState
+    ? "Не е този отговор. Виж условието още веднъж и сравни с обяснението."
+    : feedbackPanelText;
 
   function handleEnterSubmit() {
     if (showFeedback || buttonDisabled) {
@@ -689,8 +719,35 @@ export function StudentQuestionFlow({
         <NeonCard padding="sm" className="bg-[rgb(1,1,2)] lg:p-6">
           <p className="mh-label">Обратна връзка</p>
           <div className="mt-5 rounded-[22px] border border-white/8 bg-white/[0.03] p-4">
-            <p className="mh-copy whitespace-pre-line text-slate-300">{feedbackPanelText}</p>
+            <p className="mh-copy whitespace-pre-line text-slate-300">{feedbackPanelMessage}</p>
           </div>
+
+          {shouldShowWrongAnswerState ? (
+            <div className="mt-4 space-y-3">
+              <NeonButton
+                type="button"
+                variant="ghost"
+                className="w-full justify-center"
+                onClick={() => setShowWrongAnswerPreview((current) => !current)}
+              >
+                {showWrongAnswerPreview ? "Скрий задачата" : "👀 Виж къде сбърка"}
+              </NeonButton>
+
+              <AnimatePresence initial={false}>
+                {showWrongAnswerPreview && wrongAnswerPreview ? (
+                  <motion.div
+                    initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                    transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+                    className="max-h-[420px] overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4"
+                  >
+                    {wrongAnswerPreview}
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </div>
+          ) : null}
 
           {topicHref ? (
             <div className="mt-4">
@@ -713,10 +770,11 @@ export function StudentQuestionFlow({
         pointsEarned={isCorrect ? currentQuestion.points : 0}
         primaryLabel={resolvedPrimaryLabel}
         showAskMat={showAskMatInFeedback}
-        titleOverride={feedbackState === "completed" ? completedTitle ?? undefined : undefined}
-        messageOverride={feedbackState === "completed" ? completedMessage ?? undefined : undefined}
-        completionHint={feedbackState === "completed" ? completedHint : null}
-        mascotGifSrcOverride={feedbackState === "completed" ? completedMascotGifSrc : null}
+        titleOverride={undefined}
+        messageOverride={undefined}
+        completionHint={null}
+        mascotGifSrcOverride={null}
+        wrongAnswerPreview={wrongAnswerPreview}
         onContinue={() => void handleContinue()}
       />
     </motion.div>

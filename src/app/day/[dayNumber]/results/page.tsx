@@ -24,9 +24,9 @@ export default async function DayResultsPage({
   if (!profile) {
     return (
       <EmptyState
-        title="РќСѓР¶РµРЅ Рµ РІС…РѕРґ"
-        description="Р’Р»РµР· РІ MaturoHero, Р·Р° РґР° РІРёР¶РґР°С€ СЂРµР·СѓР»С‚Р°С‚РёС‚Рµ СЃРё."
-        action={<NeonButton href="/login">РљСЉРј РІС…РѕРґР°</NeonButton>}
+        title="Нужен е вход"
+        description="Влез в MaturoHero, за да виждаш резултатите си."
+        action={<NeonButton href="/login">Към входа</NeonButton>}
       />
     );
   }
@@ -34,9 +34,9 @@ export default async function DayResultsPage({
   if (dayNumber === null) {
     return (
       <EmptyState
-        title="РќРµРІР°Р»РёРґРµРЅ РґРµРЅ"
-        description="Р›РёРЅРєСЉС‚ РєСЉРј РґРµРЅСЏ РЅРµ Рµ РІР°Р»РёРґРµРЅ."
-        action={<NeonButton href="/dashboard">РљСЉРј С‚Р°Р±Р»РѕС‚Рѕ</NeonButton>}
+        title="Невалиден ден"
+        description="Линкът към деня не е валиден."
+        action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
       />
     );
   }
@@ -65,7 +65,7 @@ export default async function DayResultsPage({
     .then((data) => ({ data, error: null as string | null }))
     .catch((error) => ({
       data: null,
-      error: error instanceof Error ? error.message : "Р’СЉР·РЅРёРєРЅР° РіСЂРµС€РєР°.",
+      error: error instanceof Error ? error.message : "Възникна грешка.",
     }));
 
   if (loadResult.error) {
@@ -81,9 +81,9 @@ export default async function DayResultsPage({
   if (!loadResult.data?.course || !loadResult.data.bundle) {
     return (
       <EmptyState
-        title="РќСЏРјР° РЅР°Р»РёС‡РЅРѕ СЃСЉРґСЉСЂР¶Р°РЅРёРµ"
-        description="РўРѕР·Рё РґРµРЅ РѕС‰Рµ РЅСЏРјР° РїСѓР±Р»РёРєСѓРІР°РЅ СѓСЂРѕРє РёР»Рё Р·Р°РґР°С‡Р°."
-        action={<NeonButton href="/dashboard">РљСЉРј С‚Р°Р±Р»РѕС‚Рѕ</NeonButton>}
+        title="Няма налично съдържание"
+        description="Този ден още няма публикуван урок или задача."
+        action={<NeonButton href="/dashboard">Към таблото</NeonButton>}
       />
     );
   }
@@ -91,8 +91,8 @@ export default async function DayResultsPage({
   if (!loadResult.data.result) {
     return (
       <EmptyState
-        title="РћС‰Рµ РЅСЏРјР° Р·Р°РїРёСЃР°РЅ СЂРµР·СѓР»С‚Р°С‚"
-        description="Р—Р°РІСЉСЂС€Рё С‚РµСЃС‚Р° Р·Р° РґРµРЅСЏ Рё СЂРµР·СѓР»С‚Р°С‚СЉС‚ С‚Рё С‰Рµ СЃРµ РїРѕСЏРІРё С‚СѓРє."
+        title="Още няма записан резултат"
+        description="Завърши теста за деня и резултатът ти ще се появи тук."
       />
     );
   }

@@ -2,12 +2,12 @@
 
 import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { MathText } from "@/components/math/MathText";
 import { FormattedAskMatExplanation } from "@/components/quiz/FormattedAskMatExplanation";
-import { NeonButton } from "@/components/ui/NeonButton";
 import { FeedbackMascot } from "@/components/quiz/FeedbackMascot";
+import { NeonButton } from "@/components/ui/NeonButton";
 
 interface AnswerFeedbackModalProps {
   isOpen: boolean;
@@ -23,6 +23,7 @@ interface AnswerFeedbackModalProps {
   messageOverride?: string;
   completionHint?: string | null;
   mascotGifSrcOverride?: string | null;
+  wrongAnswerPreview?: ReactNode;
   onContinue: () => void;
 }
 
@@ -69,6 +70,7 @@ export function AnswerFeedbackModal({
   messageOverride,
   completionHint = null,
   mascotGifSrcOverride = null,
+  wrongAnswerPreview = null,
   onContinue,
 }: AnswerFeedbackModalProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -76,6 +78,7 @@ export function AnswerFeedbackModal({
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
   const continueClickedRef = useRef(false);
   const [showAskMatDetails, setShowAskMatDetails] = useState(false);
+  const [showWrongAnswerDetails, setShowWrongAnswerDetails] = useState(false);
   const copy = getModalCopy(state);
   const portalRoot = typeof window === "undefined" ? null : window.document.body;
   const hasAskMatDetails = Boolean(correctAnswer || explanation);
@@ -84,6 +87,7 @@ export function AnswerFeedbackModal({
     state !== "completed" && (shouldRenderAskMat ? showAskMatDetails : !isCorrect || state === "incorrect");
   const askMatGifSrc = shouldRenderAskMat && showAskMatDetails ? "/images/feedback/ask-mat.gif" : null;
   const shouldShowTitle = !(shouldRenderAskMat && showAskMatDetails);
+  const shouldShowWrongAnswerPreview = Boolean(wrongAnswerPreview);
   const resolvedTitle = titleOverride ?? copy.title;
   const resolvedMessage = messageOverride ?? copy.message;
   const resolvedMascotGifSrc = mascotGifSrcOverride ?? askMatGifSrc;
@@ -92,6 +96,7 @@ export function AnswerFeedbackModal({
     if (isOpen) {
       continueClickedRef.current = false;
       setShowAskMatDetails(false);
+      setShowWrongAnswerDetails(false);
     }
   }, [isOpen, correctAnswer, explanation, primaryLabel]);
 
@@ -234,24 +239,49 @@ export function AnswerFeedbackModal({
             ) : null}
           </div>
 
+          {shouldShowWrongAnswerPreview ? (
+            <NeonButton
+              type="button"
+              variant="ghost"
+              className="w-full justify-center"
+              onClick={() => setShowWrongAnswerDetails((current) => !current)}
+            >
+              {showWrongAnswerDetails ? "Скрий задачата" : "👀 Виж къде сбърка"}
+            </NeonButton>
+          ) : null}
+
           <AnimatePresence initial={false} mode="wait">
             {shouldShowDetails ? (
-            <motion.div
-              key={showAskMatDetails ? "ask-mat-details" : "feedback-details"}
-              initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
-              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
-              className="min-h-0 max-h-[34vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-[42vh]"
-            >
-              {showStandaloneCorrectAnswer && correctAnswer ? (
-                <p className="text-base font-semibold text-white">
-                  Верен отговор: <MathText text={correctAnswer} as="span" inline />
-                </p>
-              ) : null}
-              {explanation ? <FormattedAskMatExplanation text={explanation} /> : null}
-            </motion.div>
-          ) : null}
+              <motion.div
+                key={showAskMatDetails ? "ask-mat-details" : "feedback-details"}
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+                className="min-h-0 max-h-[34vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-[42vh]"
+              >
+                {showStandaloneCorrectAnswer && correctAnswer ? (
+                  <p className="text-base font-semibold text-white">
+                    Верен отговор: <MathText text={correctAnswer} as="span" inline />
+                  </p>
+                ) : null}
+                {explanation ? <FormattedAskMatExplanation text={explanation} /> : null}
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+
+          <AnimatePresence initial={false}>
+            {showWrongAnswerDetails && shouldShowWrongAnswerPreview ? (
+              <motion.div
+                initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+                className="min-h-0 max-h-[34vh] overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-[42vh]"
+              >
+                {wrongAnswerPreview}
+              </motion.div>
+            ) : null}
           </AnimatePresence>
 
           <div className="sticky bottom-0 mt-auto flex flex-col gap-3 border-t border-white/8 bg-black pt-4 sm:flex-row sm:justify-end">

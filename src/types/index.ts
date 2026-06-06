@@ -138,6 +138,8 @@ export interface DayTimelineItem {
   title: string;
   subtitle: string;
   isActive?: boolean;
+  isUnlocked?: boolean;
+  isCompleted?: boolean;
   href?: string;
 }
 

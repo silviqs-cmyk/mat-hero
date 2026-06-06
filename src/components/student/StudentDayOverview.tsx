@@ -9,6 +9,7 @@ import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { PageHeroHeader } from "@/components/ui/PageHeroHeader";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { resolveCourseProgress } from "@/lib/progress";
 import {
   buildLessonHref,
   getDashboardProgress,
@@ -29,7 +30,24 @@ interface StudentDayOverviewProps {
 export function StudentDayOverview({ course, bundle, progress }: StudentDayOverviewProps) {
   const progressValue = getDashboardProgress(progress, course.duration_days);
   void progressValue;
-  const timeline = mapTimeline(course.days, course.slug, bundle.day.day_number);
+  const resolvedProgress = resolveCourseProgress({
+    progress,
+    totalDays: course.duration_days,
+  });
+  const maxUnlockedDay = Math.min(
+    course.duration_days,
+    Math.max(
+      resolvedProgress.currentDayNumber,
+      ...resolvedProgress.completedDayNumbers.map((dayNumber) => dayNumber + 1),
+    ),
+  );
+  const timeline = mapTimeline(
+    course.days,
+    course.slug,
+    bundle.day.day_number,
+    maxUnlockedDay,
+    resolvedProgress.completedDayNumbers,
+  );
   const lessonBlocks = getLessonBlocks(bundle);
   const planSteps = getPlanSteps(bundle, course.slug);
   const computedOutcomes = getLearningOutcomes(bundle);

@@ -12,7 +12,7 @@ interface DayTimelineProps {
 }
 
 function getTimelineHref(day: DayTimelineItemModel) {
-  return day.href ?? (day.dayNumber === 1 ? "/dashboard" : `/day/${day.dayNumber}`);
+  return day.href ?? (day.isUnlocked === false ? "/dashboard" : day.dayNumber === 1 ? "/dashboard" : `/day/${day.dayNumber}`);
 }
 
 export function DayTimeline({ items, variant = "vertical" }: DayTimelineProps) {
@@ -28,8 +28,12 @@ export function DayTimeline({ items, variant = "vertical" }: DayTimelineProps) {
             className={`min-w-[112px] rounded-[16px] border px-3 py-3 transition ${
               day.isActive
                 ? "border-cyan-300/40 bg-cyan-300/10 text-white shadow-[0_0_18px_rgba(34,211,238,0.08)]"
+                : day.isUnlocked === false
+                  ? "border-white/8 bg-white/[0.02] text-slate-500"
                 : "border-white/10 bg-white/[0.03] text-white/80 hover:border-white/18 hover:bg-white/[0.05]"
             }`}
+            aria-disabled={day.isUnlocked === false}
+            tabIndex={day.isUnlocked === false ? -1 : undefined}
           >
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">Ден {day.dayNumber}</p>
             <p className="mt-1 text-sm font-semibold text-white">{day.title}</p>
@@ -49,8 +53,12 @@ export function DayTimeline({ items, variant = "vertical" }: DayTimelineProps) {
             className={`min-w-[180px] rounded-[20px] border px-4 py-4 transition ${
               day.isActive
                 ? "border-cyan-300/40 bg-cyan-300/10 text-white shadow-[0_0_22px_rgba(34,211,238,0.1)]"
+                : day.isUnlocked === false
+                  ? "border-white/8 bg-white/[0.02] text-slate-500"
                 : "border-white/10 bg-white/[0.03] text-white/80 hover:border-white/18 hover:bg-white/[0.05]"
             }`}
+            aria-disabled={day.isUnlocked === false}
+            tabIndex={day.isUnlocked === false ? -1 : undefined}
           >
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/50">Ден {day.dayNumber}</p>
             <p className="mt-2 text-sm font-semibold text-white">{day.title}</p>
