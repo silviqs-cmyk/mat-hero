@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { MotionEntrance } from "@/components/ui/MotionEntrance";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { requireStudent } from "@/lib/auth/server";
 import { hasMiniTestQuestions } from "@/lib/questionGroups";
@@ -136,6 +137,7 @@ export default async function CourseVideoPage({
         currentStepCompleted
       />
 
+      <MotionEntrance>
       <NeonCard padding="lg" className="rounded-[30px]">
         <SectionHeader
           label="Видео"
@@ -201,6 +203,7 @@ export default async function CourseVideoPage({
           ) : null}
         </div>
       </NeonCard>
+      </MotionEntrance>
     </div>
   );
 }

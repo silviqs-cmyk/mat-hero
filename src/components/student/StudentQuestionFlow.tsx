@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnswerOption } from "@/components/AnswerOption";
@@ -177,6 +178,7 @@ export function StudentQuestionFlow({
   profile,
   progress,
 }: StudentQuestionFlowProps) {
+  const prefersReducedMotion = useReducedMotion();
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
@@ -533,7 +535,10 @@ export function StudentQuestionFlow({
   }
 
   return (
-    <div
+    <motion.div
+      initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.28, ease: "easeOut" }}
       className="mx-auto max-w-6xl space-y-5"
       onKeyDown={(event) => {
         if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
@@ -581,7 +586,15 @@ export function StudentQuestionFlow({
         showVisual={false}
       />
 
-      <section className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
+      <AnimatePresence initial={false} mode="wait">
+        <motion.section
+          key={currentQuestion.id}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+          className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]"
+        >
         <NeonCard as="article" padding="md" className="lg:p-7">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -687,7 +700,8 @@ export function StudentQuestionFlow({
             </div>
           ) : null}
         </NeonCard>
-      </section>
+        </motion.section>
+      </AnimatePresence>
 
       <AnswerFeedbackModal
         isOpen={showFeedback}
@@ -705,6 +719,6 @@ export function StudentQuestionFlow({
         mascotGifSrcOverride={feedbackState === "completed" ? completedMascotGifSrc : null}
         onContinue={() => void handleContinue()}
       />
-    </div>
+    </motion.div>
   );
 }

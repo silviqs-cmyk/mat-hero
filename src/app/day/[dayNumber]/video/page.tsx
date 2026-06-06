@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { MotionEntrance } from "@/components/ui/MotionEntrance";
 import { PageHeroHeader } from "@/components/ui/PageHeroHeader";
 import { requireStudent } from "@/lib/auth/server";
 import { hasMiniTestQuestions } from "@/lib/questionGroups";
@@ -135,6 +136,7 @@ export default async function DayVideoPage({
         currentStepCompleted
       />
 
+      <MotionEntrance>
       <NeonCard padding="lg" className="rounded-[30px]">
         <PageHeroHeader
           label="Видео"
@@ -191,6 +193,7 @@ export default async function DayVideoPage({
           ) : null}
         </div>
       </NeonCard>
+      </MotionEntrance>
     </div>
   );
 }

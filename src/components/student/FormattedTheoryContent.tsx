@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Fragment, useState } from "react";
 import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
 import { NeonButton } from "@/components/ui/NeonButton";
@@ -432,6 +433,7 @@ function getSectionLabelClass(tone: "neutral" | "cyan" | "gold") {
 
 function AskMatMiniTask({ prompt, sectionId }: { prompt: string; sectionId?: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
   const askMatContent = getMiniTaskAskMatContent(sectionId);
   const answerLines = askMatContent?.answer
     ? askMatContent.answer
@@ -456,8 +458,15 @@ function AskMatMiniTask({ prompt, sectionId }: { prompt: string; sectionId?: str
       >
         Питай МАТ
       </NeonButton>
-      {isOpen ? (
-        <div className="rounded-[18px] border border-cyan-400/16 bg-cyan-400/[0.04] px-4 py-4">
+      <AnimatePresence initial={false}>
+        {isOpen ? (
+        <motion.div
+          initial={prefersReducedMotion ? false : { opacity: 0, y: -8, height: 0 }}
+          animate={prefersReducedMotion ? { opacity: 1, height: "auto" } : { opacity: 1, y: 0, height: "auto" }}
+          exit={prefersReducedMotion ? { opacity: 0, height: 0 } : { opacity: 0, y: -6, height: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
+          className="overflow-hidden rounded-[18px] border border-cyan-400/16 bg-cyan-400/[0.04] px-4 py-4"
+        >
           <SectionLabel className="text-[var(--mh-accent-cyan-soft)]">Питай МАТ</SectionLabel>
           {answerLines.length > 0 ? (
             <div className="mt-3 rounded-[16px] border border-white/10 bg-white/[0.03] px-4 py-3">
@@ -487,8 +496,9 @@ function AskMatMiniTask({ prompt, sectionId }: { prompt: string; sectionId?: str
               </>
             )}
           </div>
-        </div>
+        </motion.div>
       ) : null}
+      </AnimatePresence>
     </div>
   );
 }

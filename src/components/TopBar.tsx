@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { ChevronRight, Flame, Target } from "lucide-react";
 import { BrandMark } from "@/components/BrandMark";
 import { useAppState } from "@/components/providers/AppStateProvider";
@@ -54,6 +55,7 @@ function GoalCard({ totalDays, completedDaysCount }: GoalCardProps) {
 }
 
 function ProgressCard({ currentDayNumber, completedDaysCount, totalDays }: ProgressCardProps) {
+  const prefersReducedMotion = useReducedMotion();
   const { progress: topBarProgress } = useTopBarProgress();
   const planProgress = calculatePercentage(completedDaysCount, totalDays);
   const nextDayLabel = totalDays > 0 ? `Следва: ${Math.min(currentDayNumber, totalDays)}` : "";
@@ -83,9 +85,11 @@ function ProgressCard({ currentDayNumber, completedDaysCount, totalDays }: Progr
         </p>
         <p className="truncate text-sm font-semibold text-white">{activeProgress.summary}</p>
         <div className="h-2 overflow-hidden rounded-full bg-white/8">
-          <div
+          <motion.div
             className="h-full rounded-full bg-[linear-gradient(90deg,#2563eb,var(--mh-accent-cyan))] shadow-[0_0_14px_rgba(34,211,238,0.28)]"
-            style={{ width: `${activeProgress.percent}%` }}
+            initial={prefersReducedMotion ? { width: `${activeProgress.percent}%` } : { width: 0 }}
+            animate={{ width: `${activeProgress.percent}%` }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.45, ease: "easeOut" }}
           />
         </div>
       </div>

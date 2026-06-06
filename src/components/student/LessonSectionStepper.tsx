@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Lightbulb, PlayCircle } from "lucide-react";
 import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
@@ -41,6 +42,7 @@ export function LessonSectionStepper({
   dayNumber,
 }: LessonSectionStepperProps) {
   const [currentSectionIndex, setCurrentSectionIndex] = useState(initialSectionIndex);
+  const prefersReducedMotion = useReducedMotion();
   const { markStepCompleted } = useDayProgress(courseSlug, dayNumber);
 
   const safeIndex = Math.min(currentSectionIndex, Math.max(sections.length - 1, 0));
@@ -65,7 +67,15 @@ export function LessonSectionStepper({
 
   return (
     <div className="space-y-5">
-      <div className="space-y-5">
+      <AnimatePresence initial={false} mode="wait">
+        <motion.div
+          key={currentSection.id}
+          initial={prefersReducedMotion ? false : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.26, ease: "easeOut" }}
+          className="space-y-5"
+        >
         <div className="flex items-start gap-3">
           <span className="shrink-0">
             <Lightbulb className="h-5 w-5 text-cyan-200" />
@@ -81,7 +91,8 @@ export function LessonSectionStepper({
         <div className="mt-5">
           <FormattedTheoryContent content={currentSection.content} sectionId={currentSection.id} />
         </div>
-      </div>
+      </motion.div>
+      </AnimatePresence>
 
       <div className="grid gap-3 sm:grid-cols-3">
         {isFirstSection ? (

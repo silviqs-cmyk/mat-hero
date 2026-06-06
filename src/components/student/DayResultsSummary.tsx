@@ -13,6 +13,7 @@ import { buildLessonTopicHref, formatTopicLabel } from "@/lib/topicLabels";
 import type { CourseWithDays, DayContentBundle, Question } from "@/types/course";
 import type { DayResult, UserAnswer } from "@/types/user";
 import { Badge } from "../ui/Badge";
+import { MotionEntrance } from "../ui/MotionEntrance";
 import { NeonButton } from "../ui/NeonButton";
 import { NeonCard } from "../ui/NeonCard";
 import { PageHeroHeader } from "../ui/PageHeroHeader";
@@ -103,6 +104,7 @@ export function DayResultsSummary({
 
   return (
     <div className="space-y-6">
+      <MotionEntrance>
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <NeonCard padding="md">
           <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-center">
@@ -145,7 +147,9 @@ export function DayResultsSummary({
           <p className="mt-2 text-slate-400">Точност</p>
         </NeonCard>
       </section>
+      </MotionEntrance>
 
+      <MotionEntrance delay={0.04}>
       <section className="grid gap-4 sm:grid-cols-4">
         <ScoreCard
           title="Теория"
@@ -176,7 +180,9 @@ export function DayResultsSummary({
           icon={<Star className="h-5 w-5" />}
         />
       </section>
+      </MotionEntrance>
 
+      <MotionEntrance delay={0.08}>
       <ProgressBar
         label="Точност от задачи, тест и бонус"
         value={resolvedPercentage}
@@ -184,7 +190,9 @@ export function DayResultsSummary({
         helperText={`Верни отговори: ${correctAnswersCount} от ${questions.length}`}
         accent="lime"
       />
+      </MotionEntrance>
 
+      <MotionEntrance delay={0.12}>
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {sectionStats.map((section) => (
           <NeonCard key={section.label} padding="sm">
@@ -201,7 +209,9 @@ export function DayResultsSummary({
           </p>
         </NeonCard>
       </section>
+      </MotionEntrance>
 
+      <MotionEntrance delay={0.16}>
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <NeonCard padding="md">
           <h2 className="mh-heading-lg">Какво да преговориш</h2>
@@ -277,7 +287,9 @@ export function DayResultsSummary({
           </div>
         </NeonCard>
       </section>
+      </MotionEntrance>
 
+      <MotionEntrance delay={0.2}>
       <div className="flex flex-col gap-3 sm:flex-row">
         <NeonButton href={buildLessonHref(course.slug, bundle.day.day_number)} variant="secondary" className="flex-1">
           Повтори деня
@@ -289,6 +301,7 @@ export function DayResultsSummary({
           {bundle.day.day_number < course.duration_days ? "Към следващия ден" : "Към деня"}
         </NeonButton>
       </div>
+      </MotionEntrance>
     </div>
   );
 }

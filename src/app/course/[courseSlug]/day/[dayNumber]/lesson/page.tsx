@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
+import { MotionEntrance } from "@/components/ui/MotionEntrance";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { requireStudent } from "@/lib/auth/server";
 import { buildLessonSectionsFromTheoryContent } from "@/lib/parseTheoryContent";
@@ -171,6 +172,7 @@ export default async function CourseLessonPage({
         helper="Мини през темите и стигни до края на теорията."
       />
 
+      <MotionEntrance>
       <section className="space-y-6">
         <NeonCard padding="lg" className="rounded-[30px]">
           <SectionHeader
@@ -193,6 +195,7 @@ export default async function CourseLessonPage({
           </div>
         </NeonCard>
       </section>
+      </MotionEntrance>
     </div>
   );
 }

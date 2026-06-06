@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { calculatePercentage } from "@/lib/progress";
 
 interface ProgressBarProps {
@@ -27,6 +27,7 @@ export function ProgressBar({
   accent = "cyan",
   compact = false,
 }: ProgressBarProps) {
+  const prefersReducedMotion = useReducedMotion();
   const percentage = calculatePercentage(value, max);
 
   return (
@@ -45,9 +46,9 @@ export function ProgressBar({
       >
         <motion.div
           className={`h-full rounded-full ${accentClassNames[accent]}`}
-          initial={{ width: 0 }}
+          initial={prefersReducedMotion ? { width: `${percentage}%` } : { width: 0 }}
           animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.65, ease: "easeOut" }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.65, ease: "easeOut" }}
         />
       </div>
 

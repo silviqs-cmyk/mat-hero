@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion, type Transition } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { MathText } from "@/components/math/MathText";
@@ -69,6 +70,7 @@ export function AnswerFeedbackModal({
   mascotGifSrcOverride = null,
   onContinue,
 }: AnswerFeedbackModalProps) {
+  const prefersReducedMotion = useReducedMotion();
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const primaryButtonRef = useRef<HTMLButtonElement | null>(null);
   const continueClickedRef = useRef(false);
@@ -167,14 +169,32 @@ export function AnswerFeedbackModal({
     return null;
   }
 
+  const dialogInitial = prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 18, scale: 0.985 };
+  const dialogAnimate =
+    prefersReducedMotion
+      ? { opacity: 1 }
+      : state === "incorrect"
+        ? { opacity: 1, y: [0, -3, 3, -2, 0], scale: 1 }
+        : { opacity: 1, y: 0, scale: 1 };
+  const dialogTransition: Transition =
+    prefersReducedMotion ? { duration: 0 } : { duration: state === "incorrect" ? 0.3 : 0.28, ease: "easeOut" };
+
   const modalMarkup = (
-    <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-slate-950/82 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-      <div
+    <motion.div
+      initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: "easeOut" }}
+      className="fixed inset-0 z-[9999] flex items-end justify-center bg-slate-950/82 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+    >
+      <motion.div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-live="polite"
         aria-label={copy.title}
+        initial={dialogInitial}
+        animate={dialogAnimate}
+        transition={dialogTransition}
         className={`mh-card flex max-h-[calc(100vh-1rem)] w-full flex-col overflow-hidden rounded-t-[28px] border bg-black px-5 py-6 sm:max-h-[min(48rem,calc(100vh-2rem))] sm:max-w-2xl sm:rounded-[28px] sm:px-6 ${
           state === "completed"
             ? "border-lime-400/30 shadow-[0_0_40px_rgba(132,204,22,0.18)]"
@@ -213,16 +233,25 @@ export function AnswerFeedbackModal({
             ) : null}
           </div>
 
-          {shouldShowDetails ? (
-            <div className="min-h-0 max-h-[34vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-[42vh]">
+          <AnimatePresence initial={false} mode="wait">
+            {shouldShowDetails ? (
+            <motion.div
+              key={showAskMatDetails ? "ask-mat-details" : "feedback-details"}
+              initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
+              className="min-h-0 max-h-[34vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-[42vh]"
+            >
               {showStandaloneCorrectAnswer && correctAnswer ? (
                 <p className="text-base font-semibold text-white">
                   Верен отговор: <MathText text={correctAnswer} as="span" inline />
                 </p>
               ) : null}
               {explanation ? <FormattedAskMatExplanation text={explanation} /> : null}
-            </div>
+            </motion.div>
           ) : null}
+          </AnimatePresence>
 
           <div className="sticky bottom-0 mt-auto flex flex-col gap-3 border-t border-white/8 bg-black pt-4 sm:flex-row sm:justify-end">
             {shouldRenderAskMat ? (
@@ -246,8 +275,8 @@ export function AnswerFeedbackModal({
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 
   if (!portalRoot) {

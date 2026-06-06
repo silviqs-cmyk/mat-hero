@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 interface AnswerOptionProps {
@@ -17,6 +18,7 @@ export function AnswerOption({
   showFeedback,
   onClick,
 }: AnswerOptionProps) {
+  const prefersReducedMotion = useReducedMotion();
   const feedbackClass = showFeedback
     ? isCorrect
       ? "border-emerald-400/50 bg-emerald-400/10 text-emerald-100 shadow-[0_0_0_1px_rgba(16,185,129,0.3),0_0_24px_rgba(16,185,129,0.14)]"
@@ -27,16 +29,28 @@ export function AnswerOption({
       ? "border-cyan-300/45 bg-cyan-400/12 text-white shadow-[0_0_0_1px_rgba(57,215,255,0.2),0_0_28px_rgba(57,215,255,0.14)]"
       : "border-white/8 bg-[rgba(16,20,34,0.92)] text-slate-200 hover:border-cyan-400/30 hover:shadow-[0_0_0_1px_rgba(57,215,255,0.15),0_0_16px_rgba(57,215,255,0.08)]";
 
+  const animate =
+    prefersReducedMotion
+      ? {}
+      : showFeedback && isSelected && !isCorrect
+        ? { x: [0, -5, 5, -3, 0] }
+        : isSelected
+          ? { scale: 1.015 }
+          : { scale: 1, x: 0 };
+
   return (
-    <button
+    <motion.button
       type="button"
       onClick={onClick}
+      whileTap={prefersReducedMotion ? undefined : { scale: 0.985 }}
+      animate={animate}
+      transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
       className={`flex w-full items-start gap-4 rounded-[24px] border px-5 py-4 text-left text-sm font-semibold leading-6 transition duration-200 lg:px-6 lg:py-5 lg:text-base ${feedbackClass}`}
     >
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-cyan-400/20 bg-white/10 text-xs font-bold text-cyan-100">
         {optionId}
       </span>
       <span className="flex-1">{optionText}</span>
-    </button>
+    </motion.button>
   );
 }
