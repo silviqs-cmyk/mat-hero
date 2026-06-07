@@ -1,0 +1,231 @@
+{
+  "executed_at": "2026-06-07T15:21:06.312Z",
+  "day": {
+    "id": "7f9b0f4b-b75d-4a25-a5dc-0a337f92aa12",
+    "day_number": 2,
+    "title": "Изрази, скоби и уравнения"
+  },
+  "updated": [
+    {
+      "id": "480aaa2e-855f-46ed-91d1-c12c539b36f5",
+      "sort_order": 1,
+      "source_year": 2010,
+      "prompt": "Ако a = −3, то стойността на израза a(a − 1) − (a + 2) е равна на:",
+      "mode": "update"
+    },
+    {
+      "id": "f5817804-d29b-4105-a613-af57e4136e8e",
+      "sort_order": 3,
+      "source_year": 2010,
+      "prompt": "Изразът (3x − 1)^2 е тъждествено равен на:",
+      "mode": "update"
+    },
+    {
+      "id": "df071656-9be7-427e-b39b-cc76c90aa45b",
+      "sort_order": 5,
+      "source_year": 2010,
+      "prompt": "Изразът 3x²y² + 6x³y² − 9x²y³ е тъждествено равен на:",
+      "mode": "update"
+    },
+    {
+      "id": "8fcdb29b-137f-4fae-8d2b-0557f1d3312f",
+      "sort_order": 6,
+      "source_year": 2010,
+      "prompt": "В разлагането на многочлена 6xa − 2xy − 3ab + by на множители, един от множителите може да е:",
+      "mode": "update"
+    },
+    {
+      "id": "210eee69-6c0c-49d5-89d3-6445f04f1ccf",
+      "sort_order": 7,
+      "source_year": 2010,
+      "prompt": "Коренът на уравнението y − 2 = 4y − 8 е:",
+      "mode": "update"
+    },
+    {
+      "id": "434c967a-01d4-4a60-8e63-45dd5b8714ff",
+      "sort_order": 10,
+      "source_year": 2010,
+      "prompt": "Всички решения на уравнението |3x − 2| = 4 са:",
+      "mode": "update"
+    }
+  ],
+  "inserted": [
+    {
+      "id": "0dd1a05f-99e3-440d-afeb-8b2525f56cb6",
+      "sort_order": 2,
+      "source_year": 2024,
+      "prompt": "Стойността на израза 5 − 5x при x = −1/5 е:",
+      "option_ids": [
+        "1533abec-4e77-4074-9562-3225b868c8cb",
+        "3a1be4e7-dc1c-493a-8642-2ef34f0f0f97",
+        "f22d2f62-c266-4586-b11c-7b6fd42571f0",
+        "d79d4351-b49a-4bf4-9b73-f558b47247d0"
+      ],
+      "mode": "insert"
+    },
+    {
+      "id": "b030d378-df1d-4b04-80cc-b4f61b9b29a3",
+      "sort_order": 4,
+      "source_year": 2024,
+      "prompt": "Изразът (2x − 3)^2 е тъждествено равен на израза:",
+      "option_ids": [
+        "2148a997-0bea-46a4-ae57-59fa710b0bad",
+        "02667d06-ec84-4585-a923-1b7297df8c06",
+        "df60003c-9716-40d9-8054-7ca8cb1234d2",
+        "f4df734c-6b4a-45f6-955f-b9e69227ec24"
+      ],
+      "mode": "insert"
+    },
+    {
+      "id": "8aa65131-1cfe-4546-ad91-3f1208d93c39",
+      "sort_order": 8,
+      "source_year": 2024,
+      "prompt": "Коренът на уравнението 2 − (x − 3) = −3x − 5 е:",
+      "option_ids": [
+        "d18b26b6-4672-408e-a633-737f2111abd9",
+        "f7f86693-08d3-4798-b6ec-ae403159e020",
+        "bea4b043-8cc4-424c-a4ee-d1155483eae7",
+        "27663c61-3826-4524-a4a8-89e60a4832b0"
+      ],
+      "mode": "insert"
+    },
+    {
+      "id": "945a080e-6493-4716-bc46-947acf0f798b",
+      "sort_order": 9,
+      "source_year": 2024,
+      "prompt": "Най-малкото цяло число, което е решение на неравенството 5x + 1 ≥ 3x + 16, е:",
+      "option_ids": [
+        "fd0dcc74-b7f9-4686-b6e7-e65818d16c51",
+        "0b0e0641-8384-43d3-be08-50df9aea4c4e",
+        "70f6e759-f3d6-40b9-90d2-806603d56966",
+        "c5f10c0f-ac6f-4797-8501-48612cabe383"
+      ],
+      "mode": "insert"
+    }
+  ],
+  "reserve_ids": [
+    "170157c7-76f6-4e30-87bc-4c4f0a78724b",
+    "986516bf-d65b-40a4-975f-05890e2f7d64",
+    "daa0219a-4a67-4890-8c96-eb13029316db",
+    "06d05ad7-1f00-4f29-9349-e9b72c5fa1be",
+    "af457165-ce6d-46a1-94d4-aaee05ee69e0",
+    "38b13b6a-0d10-4734-9ed3-5122921f0430",
+    "a1af48bc-1a12-4a7e-b9fe-432de056b61e",
+    "673e544b-d47e-456a-ba61-e90a2b851194",
+    "38938398-d541-4bff-8e2f-39746c24beff",
+    "7f9022e1-ddef-4d2a-9cd2-cd1e4c4b1833",
+    "5c7048d4-5415-4950-a2ad-354fc98c4c77",
+    "b4e45531-ed48-481e-8416-f8ac570de838",
+    "81211a83-a4b1-4cee-9195-1d6ffe98b70e",
+    "05423a6e-847d-46e4-bf36-a18fec058876",
+    "66ba6335-36be-4beb-9d96-80be3b4dbdff",
+    "c4323aa1-518e-461b-b12c-6afb9a67dd57",
+    "5e3c3996-fa4b-4c4f-9529-8d537e8fca63",
+    "6f6a2361-0220-4e32-8232-8a66621a91b1"
+  ],
+  "final_visible_bonus": [
+    {
+      "id": "480aaa2e-855f-46ed-91d1-c12c539b36f5",
+      "sort_order": 1,
+      "prompt": "Ако a = −3, то стойността на израза a(a − 1) − (a + 2) е равна на:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "13",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    },
+    {
+      "id": "0dd1a05f-99e3-440d-afeb-8b2525f56cb6",
+      "sort_order": 2,
+      "prompt": "Стойността на израза 5 − 5x при x = −1/5 е:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "6",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    },
+    {
+      "id": "f5817804-d29b-4105-a613-af57e4136e8e",
+      "sort_order": 3,
+      "prompt": "Изразът (3x − 1)^2 е тъждествено равен на:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "9x² − 6x + 1",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    },
+    {
+      "id": "b030d378-df1d-4b04-80cc-b4f61b9b29a3",
+      "sort_order": 4,
+      "prompt": "Изразът (2x − 3)^2 е тъждествено равен на израза:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "4x² − 12x + 9",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    },
+    {
+      "id": "df071656-9be7-427e-b39b-cc76c90aa45b",
+      "sort_order": 5,
+      "prompt": "Изразът 3x²y² + 6x³y² − 9x²y³ е тъждествено равен на:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "3x²y²(1 + 2x − 3y)",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    },
+    {
+      "id": "8fcdb29b-137f-4fae-8d2b-0557f1d3312f",
+      "sort_order": 6,
+      "prompt": "В разлагането на многочлена 6xa − 2xy − 3ab + by на множители, един от множителите може да е:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "3a − y",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    },
+    {
+      "id": "210eee69-6c0c-49d5-89d3-6445f04f1ccf",
+      "sort_order": 7,
+      "prompt": "Коренът на уравнението y − 2 = 4y − 8 е:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "2",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    },
+    {
+      "id": "8aa65131-1cfe-4546-ad91-3f1208d93c39",
+      "sort_order": 8,
+      "prompt": "Коренът на уравнението 2 − (x − 3) = −3x − 5 е:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "−5",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    },
+    {
+      "id": "945a080e-6493-4716-bc46-947acf0f798b",
+      "sort_order": 9,
+      "prompt": "Най-малкото цяло число, което е решение на неравенството 5x + 1 ≥ 3x + 16, е:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "8",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    },
+    {
+      "id": "434c967a-01d4-4a60-8e63-45dd5b8714ff",
+      "sort_order": 10,
+      "prompt": "Всички решения на уравнението |3x − 2| = 4 са:",
+      "option_count": 4,
+      "correct_count": 1,
+      "expected_answer": "2 и −2/3",
+      "has_explanation": true,
+      "is_letter_only_expected_answer": false
+    }
+  ],
+  "quiz_count": 10,
+  "practice_count": 10,
+  "lesson_count": 1
+}

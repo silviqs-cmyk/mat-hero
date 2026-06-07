@@ -19,52 +19,60 @@ type ExplanationBlock =
 const ORDERED_LIST_PATTERN = /^(\d+)\.\s+/u;
 const UNORDERED_LIST_PATTERN = /^([*\u2022-])\s+/u;
 const KNOWN_HEADING_PATTERN =
-  /^(КАК ДА РЕШИШ|СТЪПКА\s+\d+|КАПАН|ИЗВОД|ОТГОВОР|ЗАПОМНИ|ПРОВЕРКА|ПЛАН)$/u;
+  /^(КАК ДА РЕШИШ|СТЪПКА\s+\d+|КАПАН|ИЗВОД|ОТГОВОР|ЗАПОМНИ|ПРОВЕРКА|ПЛАН|ИДЕЯ|РЕШЕНИЕ)$/u;
+const SHORT_LABEL_PATTERN = /^[\p{L}\p{N}\s()\-–—]+:\s*$/u;
+const FRACTION_PATTERN = /\b\d+\s*\/\s*\d+\b/u;
+const FORMULA_SYMBOL_PATTERN = /[=+\-−*\/()|<>≤≥²³·^]/u;
+const FORMULA_BINARY_PATTERN = /[\p{L}\p{N}²³]\s*[:=+\-−*\/<>≤≥]\s*[\p{L}\p{N}²³]/u;
+
+function sanitizeAskMatLine(line: string) {
+  return line.replace(/[`"„“]/gu, "").trim();
+}
 
 function renderInline(line: string, keyPrefix: string) {
-  return renderFormattedInlineText(line, keyPrefix).map((node, index) => (
+  return renderFormattedInlineText(sanitizeAskMatLine(line), keyPrefix).map((node, index) => (
     <Fragment key={`${keyPrefix}-${index}`}>{node}</Fragment>
   ));
 }
 
 function stripListMarker(line: string) {
-  return line.replace(ORDERED_LIST_PATTERN, "").replace(UNORDERED_LIST_PATTERN, "").trim();
+  return sanitizeAskMatLine(line.replace(ORDERED_LIST_PATTERN, "").replace(UNORDERED_LIST_PATTERN, "").trim());
 }
 
 function isUppercaseHeading(line: string) {
-  const trimmed = line.trim();
+  const trimmed = sanitizeAskMatLine(line);
   if (!trimmed || trimmed.length > 48) {
     return false;
   }
 
-  return KNOWN_HEADING_PATTERN.test(trimmed) || /^[A-ZА-Я0-9\s]+$/u.test(trimmed);
+  return KNOWN_HEADING_PATTERN.test(trimmed) || /^[\p{Lu}0-9\s]+$/u.test(trimmed);
 }
 
 function isShortLabel(line: string) {
-  const trimmed = line.trim();
+  const trimmed = sanitizeAskMatLine(line);
   if (!trimmed || trimmed.length > 40 || !trimmed.endsWith(":")) {
     return false;
   }
 
-  return /^[\p{L}\p{N}\s()\-–]+:\s*$/u.test(trimmed);
+  return SHORT_LABEL_PATTERN.test(trimmed);
 }
 
 function isFormulaLikeLine(line: string) {
-  const trimmed = line.trim();
+  const trimmed = sanitizeAskMatLine(line);
 
   if (!trimmed || trimmed.length > 100) {
     return false;
   }
 
-  if (/\b\d+\s*\/\s*\d+\b/u.test(trimmed)) {
+  if (FRACTION_PATTERN.test(trimmed)) {
     return true;
   }
 
-  if (/[=^()|+\-*/²³·]/u.test(trimmed)) {
+  if (FORMULA_SYMBOL_PATTERN.test(trimmed)) {
     return true;
   }
 
-  return /[\p{L}\p{N}]\s*[:+\-*/]\s*[\p{L}\p{N}]/u.test(trimmed);
+  return FORMULA_BINARY_PATTERN.test(trimmed);
 }
 
 function buildExplanationBlocks(text: string): ExplanationBlock[] {
@@ -72,7 +80,7 @@ function buildExplanationBlocks(text: string): ExplanationBlock[] {
     .replace(/\r\n/g, "\n")
     .trim()
     .split(/\n{2,}/)
-    .map((paragraph) => paragraph.split("\n").map((line) => line.trim()).filter(Boolean))
+    .map((paragraph) => paragraph.split("\n").map((line) => sanitizeAskMatLine(line)).filter(Boolean))
     .filter((lines) => lines.length > 0);
 
   return paragraphs.map((lines) => {

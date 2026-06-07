@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { requireStudent } from "@/lib/auth/server";
+import { getBonusQuestionsForAttempt, getMiniTestQuestions, getPracticeQuestions } from "@/lib/questionGroups";
 import { parseDayNumberParam } from "@/lib/studentFlow";
 import {
   getCourseDayByNumberServer,
@@ -54,11 +55,17 @@ export default async function DayResultsPage({
       };
     }
 
-    const [result, answers, questions] = await Promise.all([
+    const [result, answers, allQuestions] = await Promise.all([
       getUserDayResultServer(profile.id, bundle.day.id),
       listUserAnswersForDayServer(profile.id, bundle.day.id),
       getQuestionsWithOptionsForDayServer(bundle.day.id, true),
     ]);
+
+    const questions = [
+      ...getMiniTestQuestions(allQuestions),
+      ...getPracticeQuestions(allQuestions),
+      ...getBonusQuestionsForAttempt(allQuestions),
+    ];
 
     return { course, bundle, result, answers, questions };
   })()

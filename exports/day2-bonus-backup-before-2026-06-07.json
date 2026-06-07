@@ -1,0 +1,920 @@
+{
+  "day": {
+    "id": "7f9b0f4b-b75d-4a25-a5dc-0a337f92aa12",
+    "day_number": 2,
+    "title": "Изрази, скоби и уравнения"
+  },
+  "exported_at": "2026-06-07T15:18:39.038Z",
+  "records": [
+    {
+      "question_id": "480aaa2e-855f-46ed-91d1-c12c539b36f5",
+      "sort_order": 1,
+      "question_text": "Ако a = −3, намерете стойността на израза a(a − 1) − (a + 2).",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "Б",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "easy",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "d10cdae7-af92-4f83-86be-f76d37feb68c",
+          "option_text": "А) 17",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "fd9d9855-f76c-40c7-ae8d-982062d39e8c",
+          "option_text": "Б) 13",
+          "is_correct": true,
+          "sort_order": 2
+        },
+        {
+          "option_id": "14c66ba1-933c-4420-aca1-8ea89c2d9aca",
+          "option_text": "В) 5",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "9d5bdb1c-bf53-4f58-b53a-fd19f5546502",
+          "option_text": "Г) 1",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "f5817804-d29b-4105-a613-af57e4136e8e",
+      "sort_order": 2,
+      "question_text": "Изразът (3x − 1)^2 е тъждествено равен на:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "В",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "medium",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "8fe573bf-e28b-407b-8619-6c364d9f0df0",
+          "option_text": "А) 9x² + 1",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "bd7158ed-4c85-43cf-8f2a-64cdf933ff6a",
+          "option_text": "Б) 9x² − 3x + 1",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "d2298e36-2db4-4fcf-aed7-12538f8ba137",
+          "option_text": "В) 9x² − 6x + 1",
+          "is_correct": true,
+          "sort_order": 3
+        },
+        {
+          "option_id": "d3ffb6c1-1d1f-4a80-9a10-8113305c7283",
+          "option_text": "Г) 9x² − 6x − 1",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "df071656-9be7-427e-b39b-cc76c90aa45b",
+      "sort_order": 3,
+      "question_text": "Изразът 3x²y² + 6x³y² − 9x²y³ е тъждествено равен на:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "Б",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "medium",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "49f4d798-474a-41bb-b105-f3f3f2b3be44",
+          "option_text": "А) 3x²y²(2x − 3y)",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "4a822ac6-f327-468b-8f7c-d51cf5887628",
+          "option_text": "Б) 3x²y²(1 + 2x − 3y)",
+          "is_correct": true,
+          "sort_order": 2
+        },
+        {
+          "option_id": "09283e90-4a5d-44bc-a606-1e6397f5832d",
+          "option_text": "В) 3x²y²(xy + 3x − 6y)",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "296cfff3-6463-4dee-8e8b-eb56ab00ab29",
+          "option_text": "Г) 3x³y³(1 + 2x − 3y)",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "170157c7-76f6-4e30-87bc-4c4f0a78724b",
+      "sort_order": 4,
+      "question_text": "Изразът 4a² − 12ab² + 9b⁴ е тъждествено равен на:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "Г",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "medium",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "314367cc-9ab2-458b-b4a5-d43945bac0b4",
+          "option_text": "А) (2a − 3b)²",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "3c782212-8e6f-4a5e-aac6-1eeec8c88e49",
+          "option_text": "Б) (4a − 9b)²",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "2a55e51e-64be-4d47-8599-efe25067acae",
+          "option_text": "В) (4a − 9b²)²",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "0427ed43-be3d-4922-9202-7bf526d8534c",
+          "option_text": "Г) (2a − 3b²)²",
+          "is_correct": true,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "210eee69-6c0c-49d5-89d3-6445f04f1ccf",
+      "sort_order": 5,
+      "question_text": "Коренът на уравнението y − 2 = 4y − 8 е:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "Г",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "easy",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "3dcce985-d87f-4b23-9b5b-d58546a26a3f",
+          "option_text": "А) −2",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "8aa1711d-00a5-4297-889c-7ce965ad2bdf",
+          "option_text": "Б) −6/5",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "8b6af9eb-7092-48a6-8298-5457cb38edac",
+          "option_text": "В) 1/2",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "ff3b9d3b-6107-440e-baae-bac4849077b8",
+          "option_text": "Г) 2",
+          "is_correct": true,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "986516bf-d65b-40a4-975f-05890e2f7d64",
+      "sort_order": 6,
+      "question_text": "Решението на неравенството 4x < −x е:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "А",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "easy",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "174ec194-56f5-4b20-aa03-c36fa8bd8f72",
+          "option_text": "А) x < 0",
+          "is_correct": true,
+          "sort_order": 1
+        },
+        {
+          "option_id": "c7436e43-2b45-4d55-82e1-73f938eeeb00",
+          "option_text": "Б) x > 0",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "b3065f0b-b570-499f-a8bc-bbb3ea64cce6",
+          "option_text": "В) x < −1/4",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "4a118f08-68aa-4e3c-95ca-023fbcf4b2fd",
+          "option_text": "Г) x > −1/4",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "daa0219a-4a67-4890-8c96-eb13029316db",
+      "sort_order": 7,
+      "question_text": "Намерете стойността на израза (3a − 1)² + (1 − 3a)(3a + 1) при a = 1.",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "А",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "medium",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "b4d89d74-5ba1-49a5-af8d-7683daa61bef",
+          "option_text": "А) −1",
+          "is_correct": true,
+          "sort_order": 1
+        },
+        {
+          "option_id": "7ba7756b-0d65-4cd0-b4cb-7e6fc9d53f9f",
+          "option_text": "Б) 3/2",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "7ecf226d-5441-4fc0-86d2-1f612c0348e0",
+          "option_text": "В) 3",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "03bd2244-1287-4bb0-ba11-3b867d1bc683",
+          "option_text": "Г) 5",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "06d05ad7-1f00-4f29-9349-e9b72c5fa1be",
+      "sort_order": 8,
+      "question_text": "Изразът (1 − x/3)^3 е тъждествено равен на:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "Г",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "hard",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "5573e1d9-bc42-4830-a783-d17b41fc92a9",
+          "option_text": "А) 1 − x + 1/3x² − 1/9x³",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "3d2f1a37-68b0-4fd1-bec2-2694e70db783",
+          "option_text": "Б) 1 − 3x + x² − 1/9x³",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "29fe19bb-0ff9-4353-8f4f-f94347056c63",
+          "option_text": "В) 1 − 1/9x + x² − 1/27x³",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "25af9a45-49c5-4e5a-8ff6-e6b4f6638ba6",
+          "option_text": "Г) 1 − x + 1/3x² − 1/27x³",
+          "is_correct": true,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "8fcdb29b-137f-4fae-8d2b-0557f1d3312f",
+      "sort_order": 9,
+      "question_text": "В разлагането на многочлена 6xa − 2xy − 3ab + by на множители, един от множителите може да е:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "Г",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "hard",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "1fd09f3f-1b69-4bce-905e-994ce718fdca",
+          "option_text": "А) 2x + b",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "84130c83-88b9-426a-bfd0-f633787722dd",
+          "option_text": "Б) 3a + y",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "796f1ac2-428e-418e-8876-d912c0be2a4a",
+          "option_text": "В) x − 2b",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "d5742c3a-539a-478b-95ca-7df87969a383",
+          "option_text": "Г) 3a − y",
+          "is_correct": true,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "af457165-ce6d-46a1-94d4-aaee05ee69e0",
+      "sort_order": 10,
+      "question_text": "Коренът на уравнението 2x − 1/3 + 1/2 = 3x + 2 е:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "А",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "medium",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "1132cfed-4fb8-4a4a-a351-4ff23172b958",
+          "option_text": "А) −2/5",
+          "is_correct": true,
+          "sort_order": 1
+        },
+        {
+          "option_id": "29228506-bb20-473c-b06c-fb2b97cfc676",
+          "option_text": "Б) −6/5",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "eabed49d-e94e-42ea-832a-e27478a35234",
+          "option_text": "В) 2/5",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "b624ad60-e698-4b99-82c7-67045026948a",
+          "option_text": "Г) 2/7",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "434c967a-01d4-4a60-8e63-45dd5b8714ff",
+      "sort_order": 11,
+      "question_text": "Всички решения на уравнението |3x − 2| = 4 са:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "Г",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "medium",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "4740df23-a10b-49a4-bab8-9c9f16659bef",
+          "option_text": "А) −2/3",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "d02502c2-f627-4df8-bf45-32107748a677",
+          "option_text": "Б) 2",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "ad3196f0-ce6e-43f5-b7d4-2380d27e6404",
+          "option_text": "В) 2 и 3/2",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "1857902f-6807-4d06-a19b-a95995a72391",
+          "option_text": "Г) 2 и −2/3",
+          "is_correct": true,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "38b13b6a-0d10-4734-9ed3-5122921f0430",
+      "sort_order": 12,
+      "question_text": "Решенията на неравенството (3x + 4)/4 ≤ (x − 2)/3 + x са:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "А",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "hard",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "72f9e512-4693-432f-bbb7-22bf75b9e18e",
+          "option_text": "А) x ∈ [20/7; +∞)",
+          "is_correct": true,
+          "sort_order": 1
+        },
+        {
+          "option_id": "c14cd940-1f5b-42a0-b3d9-0cbbd1c71722",
+          "option_text": "Б) x ∈ (−∞; 20/7)",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "95feb0e7-a5b1-4553-a6a8-fa3130b7de46",
+          "option_text": "В) x ∈ (20/7; +∞)",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "7d6d0bb1-7073-47f3-bc5b-1c2fd798de07",
+          "option_text": "Г) x ∈ (−∞; 20/7]",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "a1af48bc-1a12-4a7e-b9fe-432de056b61e",
+      "sort_order": 13,
+      "question_text": "Написах число n, повдигнах го на квадрат, умножих по 3 и извадих 4. Кой израз се получава?",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "Б",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "easy",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "289bf055-9710-437a-b1ed-8fa89981a796",
+          "option_text": "А) (3n)² − 4",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "b1605035-2486-4396-b862-d9d14447f9c1",
+          "option_text": "Б) 3n² − 4",
+          "is_correct": true,
+          "sort_order": 2
+        },
+        {
+          "option_id": "58c9d464-58e3-4f23-9ded-8638a358194d",
+          "option_text": "В) (3n − 4)²",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "5c5d9277-92aa-4afb-913e-6f4aae0cff29",
+          "option_text": "Г) 3(n − 4)²",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "673e544b-d47e-456a-ba61-e90a2b851194",
+      "sort_order": 14,
+      "question_text": "За кои стойности на параметъра a коренът на уравнението x(x − a) − 2ax − a = (x − 1)(x + a) − 5 е положителен?",
+      "question_group": "bonus",
+      "question_type": "open_answer",
+      "is_published": true,
+      "expected_answer": "a > 1/4",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "hard",
+      "points": 5,
+      "options": []
+    },
+    {
+      "question_id": "38938398-d541-4bff-8e2f-39746c24beff",
+      "sort_order": 15,
+      "question_text": "Да се намери най-малкото цяло число, което е решение на даденото неравенство.",
+      "question_group": "bonus",
+      "question_type": "open_answer",
+      "is_published": true,
+      "expected_answer": "0",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "topic": "Изрази и уравнения",
+      "difficulty": "hard",
+      "points": 5,
+      "options": []
+    },
+    {
+      "question_id": "7f9022e1-ddef-4d2a-9cd2-cd1e4c4b1833",
+      "sort_order": 16,
+      "question_text": "Изразът (−3x + 5)² е тъждествено равен на:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "expected_answer": "Г",
+      "explanation": "(−3x+5)² = (−3x)² + 2·(−3x)·5 + 5² = 9x² − 30x + 25.",
+      "source_year": 2011,
+      "topic": "Изрази и уравнения",
+      "difficulty": "easy",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "46dab877-5dcb-44a2-bc1e-655182591f8d",
+          "option_text": "А) −6x² + 30x + 25",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "42236a8f-67a4-4bc5-aca1-3ee1f45fb4fe",
+          "option_text": "Б) 3x² − 30x + 25",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "fdb89111-f24e-4fd9-ac1f-b6f24e652be5",
+          "option_text": "В) −9x² + 30x + 25",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "a93c0956-09ff-4cfd-a916-20c740044803",
+          "option_text": "Г) 9x² − 30x + 25",
+          "is_correct": true,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "5c7048d4-5415-4950-a2ad-354fc98c4c77",
+      "sort_order": 17,
+      "question_text": "Стойността на израза a² − b² при a = 10,5 и b = 9,5 е:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": false,
+      "expected_answer": null,
+      "explanation": "Когато виждаш a² - b², мисли за формулата разлика на квадрати.",
+      "source_year": null,
+      "topic": "Изрази и уравнения",
+      "difficulty": "easy",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "9db41a37-c379-41e1-b769-677d359beba9",
+          "option_text": "18,5",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "8a37c668-390c-4c84-8286-7b7b05f288fe",
+          "option_text": "19",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "45d602bd-9560-4788-a2bb-2760cb75adab",
+          "option_text": "19,5",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "5a8ab58c-65e0-4706-9429-a8326a7633bf",
+          "option_text": "20",
+          "is_correct": true,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "b4e45531-ed48-481e-8416-f8ac570de838",
+      "sort_order": 18,
+      "question_text": "Решенията на неравенството 42 - 3y ≤ 0 се представят с интервала:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": false,
+      "expected_answer": null,
+      "explanation": "При деление на отрицателно число знакът на неравенството се обръща.",
+      "source_year": null,
+      "topic": "Изрази и уравнения",
+      "difficulty": "easy",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "a2397eca-ef23-4ab7-beda-2dc7f11cf630",
+          "option_text": "(-∞; 14]",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "a4dc88d8-dd02-49ce-9e1b-88743ddabc5d",
+          "option_text": "(14; +∞)",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "1b79eb22-ebe7-4f38-a6e5-4ee0f8992b4a",
+          "option_text": "[14; +∞)",
+          "is_correct": true,
+          "sort_order": 3
+        },
+        {
+          "option_id": "fbdafbe5-4183-41dc-a1b4-3a0dfde99e13",
+          "option_text": "[-14; +∞)",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "81211a83-a4b1-4cee-9195-1d6ffe98b70e",
+      "sort_order": 19,
+      "question_text": "За първите шест месеца се плаща по x лева, а за останалите шест месеца таксата се удвоява. Изразът за цената за една година е:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": false,
+      "expected_answer": null,
+      "explanation": "Разделяме годината на две части и събираме разходите.",
+      "source_year": null,
+      "topic": "Изрази и уравнения",
+      "difficulty": "easy",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "0dc50742-5901-4252-a01d-f87f819f602d",
+          "option_text": "18x",
+          "is_correct": true,
+          "sort_order": 1
+        },
+        {
+          "option_id": "3bbfa957-ba1d-4cec-8cd3-d079f7545632",
+          "option_text": "12x",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "20f5333c-5a53-40b0-9e1d-14bf5d6fa590",
+          "option_text": "x + x²",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "1b3a83d1-39a3-46c4-b6bd-fd6d2993c65b",
+          "option_text": "2x",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "05423a6e-847d-46e4-bf36-a18fec058876",
+      "sort_order": 20,
+      "question_text": "Цялото число, което е решение на уравнението |3x - 1| = 13, е:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": false,
+      "expected_answer": null,
+      "explanation": "При уравнение с модул разглеждаме два случая: изразът може да е положителен или отрицателен.",
+      "source_year": null,
+      "topic": "Изрази и уравнения",
+      "difficulty": "medium",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "c70246f5-a3e7-4a93-97cd-5acd78d354ea",
+          "option_text": "-4",
+          "is_correct": true,
+          "sort_order": 1
+        },
+        {
+          "option_id": "ffe18d25-8341-4caa-b30d-7b546b6ff770",
+          "option_text": "-1",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "8f9f62bd-17d5-4e64-b4fc-9d1862dbfbcd",
+          "option_text": "4",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "5dfe68c2-5e47-47a0-a42d-6b7d9447b287",
+          "option_text": "5",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "66ba6335-36be-4beb-9d96-80be3b4dbdff",
+      "sort_order": 21,
+      "question_text": "Коренът на уравнението 3(x + 4) - 4x = 0 е:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": false,
+      "expected_answer": null,
+      "explanation": "Задачата проверява умение за разкриване на скоби и решаване на линейно уравнение.",
+      "source_year": null,
+      "topic": "Линейни уравнения",
+      "difficulty": "easy",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "39d1445e-4cd0-41c4-b8e4-4a923381e643",
+          "option_text": "-8",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "09a56821-aa3f-41bc-bc96-a8b78a79bbdd",
+          "option_text": "-4",
+          "is_correct": true,
+          "sort_order": 2
+        },
+        {
+          "option_id": "6941946e-525a-478a-b7b0-edab4fdd1e67",
+          "option_text": "0",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "eda53551-a525-44cd-a29a-b8b29ae0a82f",
+          "option_text": "4",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "c4323aa1-518e-461b-b12c-6afb9a67dd57",
+      "sort_order": 22,
+      "question_text": "Решенията на неравенството x ≤ -1/5 са представени с интервала:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": false,
+      "expected_answer": null,
+      "explanation": "Задачата проверява дали ученикът разбира знака ≤ и записването на решения чрез интервал.",
+      "source_year": null,
+      "topic": "Неравенства",
+      "difficulty": "easy",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "330afde8-2778-4f33-a541-abd89048c42c",
+          "option_text": "(-1/5; +∞)",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "29ff43c1-8f2c-410e-999c-73989a3a2a66",
+          "option_text": "[-1/5; +∞)",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "c31336f8-d682-4549-a1af-a12e56153523",
+          "option_text": "(-∞; -1/5)",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "dbd39a76-70ec-49eb-8fb5-6f5b56cc879e",
+          "option_text": "(-∞; -1/5]",
+          "is_correct": true,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "5e3c3996-fa4b-4c4f-9529-8d537e8fca63",
+      "sort_order": 23,
+      "question_text": "Изразът a² - ab + 2a - 2b е тъждествено равен на:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": false,
+      "expected_answer": null,
+      "explanation": "Тази задача се решава чрез групиране и изнасяне на общ множител.",
+      "source_year": null,
+      "topic": "Разлагане на многочлени",
+      "difficulty": "easy",
+      "points": 3,
+      "options": [
+        {
+          "option_id": "52e189ca-d6ad-464d-9d92-9cb0009be0fb",
+          "option_text": "(a + b)(a - 2)",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "95e0e2d3-6ffb-4d92-bcef-c8ad656f5c8d",
+          "option_text": "(a - b)(a - 2)",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "option_id": "a7a1f8ae-f72d-45f5-8d6d-7bc20a25a3bc",
+          "option_text": "(a - b)(a + 2)",
+          "is_correct": true,
+          "sort_order": 3
+        },
+        {
+          "option_id": "bc18fc45-3d88-4e8b-8506-f7a87154130e",
+          "option_text": "(a + b)(a + 2)",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "question_id": "6f6a2361-0220-4e32-8232-8a66621a91b1",
+      "sort_order": 24,
+      "question_text": "Стойността на израза a² - 2ab + b² при a = 6,5 и b = 3,5 е:",
+      "question_group": "bonus",
+      "question_type": "multiple_choice",
+      "is_published": false,
+      "expected_answer": null,
+      "explanation": "Тази задача се решава най-бързо, ако ученикът познае формулата за квадрат на разлика.",
+      "source_year": null,
+      "topic": "Формули за съкратено умножение",
+      "difficulty": "easy",
+      "points": 2,
+      "options": [
+        {
+          "option_id": "941e3dd0-fb0c-4a78-a260-7f27858b8453",
+          "option_text": "3",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "option_id": "0db3be9f-5620-4c58-bc83-2d29b638d99b",
+          "option_text": "9",
+          "is_correct": true,
+          "sort_order": 2
+        },
+        {
+          "option_id": "f05c1256-91de-477c-909f-9aa7d46979fb",
+          "option_text": "10",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "option_id": "df724a81-0fc0-4c8a-baed-259abbb8347e",
+          "option_text": "100",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    }
+  ]
+}

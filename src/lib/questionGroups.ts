@@ -1,4 +1,5 @@
 export type QuestionGroup = "practice" | "quiz" | "bonus";
+export const MAX_BONUS_QUESTIONS_PER_ATTEMPT = 10;
 
 interface QuestionGroupLike {
   question_group?: string | null;
@@ -85,6 +86,10 @@ export function getBonusQuestions<T extends SortableQuestionGroupLike>(questions
   return sortQuestionsByOrder(
     questions.filter((question) => resolveQuestionGroup(question) === "bonus"),
   );
+}
+
+export function getBonusQuestionsForAttempt<T extends SortableQuestionGroupLike>(questions: T[]) {
+  return getBonusQuestions(questions).slice(0, MAX_BONUS_QUESTIONS_PER_ATTEMPT);
 }
 
 export function hasMiniTestQuestions<T extends SortableQuestionGroupLike>(questions: T[]) {

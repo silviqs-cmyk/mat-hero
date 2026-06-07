@@ -5,7 +5,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { requireStudent } from "@/lib/auth/server";
 import { parseDayNumberParam } from "@/lib/studentFlow";
-import { resolveQuestionGroup } from "@/lib/questionGroups";
+import { getBonusQuestionsForAttempt, resolveQuestionGroup } from "@/lib/questionGroups";
 import {
   getCourseDayServer,
   getPublishedCourseBySlugServer,
@@ -74,7 +74,8 @@ export default async function CourseBonusPage({
       getUserCourseProgressServer(profile.id, course.id),
       getCourseDayServer(course.slug, dayNumber),
     ]);
-    const questions = bundle ? await getQuestionsWithOptionsForDayServer(bundle.day.id, true, "bonus") : [];
+    const allQuestions = bundle ? await getQuestionsWithOptionsForDayServer(bundle.day.id, true) : [];
+    const questions = getBonusQuestionsForAttempt(allQuestions);
     return { course, progress, bundle, questions };
   })()
     .then((data) => ({ data, error: null as string | null }))

@@ -1,4 +1,4 @@
-import { getBonusQuestions, getMiniTestQuestions, getPracticeQuestions } from "@/lib/questionGroups";
+import { getBonusQuestionsForAttempt, getMiniTestQuestions, getPracticeQuestions } from "@/lib/questionGroups";
 import { clampPercentage, getCourseProgressPercent } from "@/lib/progress";
 import type { DayPlanStep, DayTimelineItem, GoalProgressModel, HeroBuddyModel } from "@/types";
 import type { DayContentBundle, Lesson, Question } from "@/types/course";
@@ -109,7 +109,7 @@ function getExampleText(lesson: Lesson, questions: Question[]) {
 export function getPlanSteps(bundle: DayContentBundle, courseSlug: string): DayPlanStep[] {
   const practiceQuestions = getPracticeQuestions(bundle.questions);
   const quizQuestions = getMiniTestQuestions(bundle.questions);
-  const bonusQuestions = getBonusQuestions(bundle.questions);
+  const bonusQuestions = getBonusQuestionsForAttempt(bundle.questions);
   const hasQuiz = quizQuestions.length > 0;
 
   const steps: DayPlanStep[] = [
@@ -191,6 +191,15 @@ export function getLessonBlocks(bundle: DayContentBundle) {
 }
 
 export function getLearningOutcomes(bundle: DayContentBundle) {
+  if (bundle.day.day_number === 2) {
+    return [
+      "Буквени изрази",
+      "Скоби и подобни членове",
+      "Формули за съкратено умножение",
+      "Уравнения и неравенства",
+    ];
+  }
+
   const uniqueTopics = Array.from(
     bundle.questions
       .map((question) => question.topic?.trim())
@@ -246,6 +255,10 @@ export function normalizeAnswer(answer: string) {
 
 export function getResolvedCorrectAnswer(question: EvaluableQuestion) {
   const optionAnswer = question.options?.find((option) => option.is_correct)?.option_text ?? null;
+  if (question.question_type === "multiple_choice") {
+    return optionAnswer ?? question.expected_answer;
+  }
+
   return question.expected_answer ?? optionAnswer;
 }
 
