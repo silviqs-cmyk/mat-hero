@@ -190,7 +190,7 @@ export function AnswerFeedbackModal({
       initial={prefersReducedMotion ? { opacity: 1 } : { opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: "easeOut" }}
-      className="fixed inset-0 z-[9999] flex items-end justify-center bg-slate-950/82 p-0 backdrop-blur-sm sm:items-center sm:p-4"
+      className="fixed inset-0 z-[9999] flex justify-center overflow-y-auto bg-slate-950/82 p-0 backdrop-blur-sm sm:items-center sm:p-4"
     >
       <motion.div
         ref={dialogRef}
@@ -201,7 +201,7 @@ export function AnswerFeedbackModal({
         initial={dialogInitial}
         animate={dialogAnimate}
         transition={dialogTransition}
-        className={`mh-card flex max-h-[calc(100vh-1rem)] w-full flex-col overflow-hidden rounded-t-[28px] border bg-black px-5 py-6 sm:max-h-[min(48rem,calc(100vh-2rem))] sm:max-w-2xl sm:rounded-[28px] sm:px-6 ${
+        className={`mh-card my-3 flex w-full flex-col rounded-t-[28px] border bg-black px-5 py-6 sm:my-6 sm:max-w-2xl sm:rounded-[28px] sm:px-6 ${
           state === "completed"
             ? "border-lime-400/30 shadow-[0_0_40px_rgba(132,204,22,0.18)]"
             : state === "correct"
@@ -246,7 +246,7 @@ export function AnswerFeedbackModal({
               className="w-full justify-center"
               onClick={() => setShowWrongAnswerDetails((current) => !current)}
             >
-              {showWrongAnswerDetails ? "Скрий задачата" : "👀 Виж къде сбърка"}
+              {showWrongAnswerDetails ? "Скрий задачата" : "👀 Виж къде си сбъркал"}
             </NeonButton>
           ) : null}
 
@@ -258,7 +258,7 @@ export function AnswerFeedbackModal({
                 animate={{ opacity: 1, y: 0 }}
                 exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
                 transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
-                className="min-h-0 max-h-[34vh] space-y-3 overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-[42vh]"
+                className="space-y-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left"
               >
                 {showStandaloneCorrectAnswer && correctAnswer ? (
                   <p className="text-base font-semibold text-white">
@@ -277,14 +277,16 @@ export function AnswerFeedbackModal({
                 animate={{ opacity: 1, y: 0 }}
                 exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
                 transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
-                className="min-h-0 max-h-[34vh] overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left sm:max-h-[42vh]"
+                className="rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left"
               >
                 {wrongAnswerPreview}
               </motion.div>
             ) : null}
           </AnimatePresence>
 
-          <div className="sticky bottom-0 mt-auto flex flex-col gap-3 border-t border-white/8 bg-black pt-4 sm:flex-row sm:justify-end">
+
+
+          <div className="mt-auto flex flex-col gap-3 border-t border-white/8 bg-black pt-4 sm:flex-row sm:justify-end">
             {shouldRenderAskMat ? (
               <NeonButton
                 type="button"

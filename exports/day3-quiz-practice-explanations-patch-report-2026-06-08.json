@@ -1,0 +1,136 @@
+{
+  "quiz": [
+    {
+      "sort_order": 1,
+      "id": "36764529-577f-4518-a8de-9d972be6da3a",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    },
+    {
+      "sort_order": 2,
+      "id": "51cdacf7-80ec-44eb-bad7-bec56de9ee7c",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    },
+    {
+      "sort_order": 3,
+      "id": "fca3b4be-06fa-45fd-8f2d-080ed6c2b2e8",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    },
+    {
+      "sort_order": 4,
+      "id": "97faec71-9257-46ff-90af-c1985c77d869",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    },
+    {
+      "sort_order": 5,
+      "id": "809f0e86-ba95-482c-a900-060c9fd95322",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    },
+    {
+      "sort_order": 6,
+      "id": "6d4e056f-96a7-41c5-9786-f519221e29c0",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    },
+    {
+      "sort_order": 7,
+      "id": "1c20100e-306b-44e0-9865-2231ca63be48",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    },
+    {
+      "sort_order": 8,
+      "id": "cbd898b8-a6a2-420d-b8df-e4e7ac0713e5",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    },
+    {
+      "sort_order": 9,
+      "id": "0c08237d-b1bc-43dd-a16b-43ca872e12bc",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    },
+    {
+      "sort_order": 10,
+      "id": "d1efd507-9e45-4c32-9c19-37e728ab15e7",
+      "has_explanation": true,
+      "explanation_quality": "short_structured"
+    }
+  ],
+  "practice": [
+    {
+      "sort_order": 11,
+      "id": "96113197-dc1b-473d-bd6f-d16db7714738",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    },
+    {
+      "sort_order": 12,
+      "id": "2ade9ee3-7c51-47a9-888c-5ca742fef389",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    },
+    {
+      "sort_order": 13,
+      "id": "86f485ca-6e5c-4eeb-aa95-cc494e7e07d4",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    },
+    {
+      "sort_order": 14,
+      "id": "b860c80f-803d-416d-b6e7-e4ba52e662b7",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    },
+    {
+      "sort_order": 15,
+      "id": "2e2fbeb7-34de-4a7e-a101-30930265513b",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    },
+    {
+      "sort_order": 16,
+      "id": "893d76d1-cc47-413a-8b6c-08fee6549aed",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    },
+    {
+      "sort_order": 17,
+      "id": "f3eba346-d00c-45fd-9a4f-16b349f11280",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    },
+    {
+      "sort_order": 18,
+      "id": "317dcf2c-b426-4b23-a95a-6f0d43e8bbd3",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    },
+    {
+      "sort_order": 19,
+      "id": "2f898234-b611-443d-8bf3-76dc2cb629f7",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    },
+    {
+      "sort_order": 20,
+      "id": "a1ee185d-ded9-4b67-8893-506d149e25d4",
+      "has_explanation": true,
+      "explanation_quality": "detailed_structured"
+    }
+  ],
+  "checks": {
+    "promptsUnchanged": true,
+    "optionsUnchanged": true,
+    "expectedAnswersUnchanged": true,
+    "correctOptionsUnchanged": true,
+    "bonusUntouched": true,
+    "codeUntouched": true,
+    "schemaUntouched": true,
+    "uiUntouched": true
+  }
+}

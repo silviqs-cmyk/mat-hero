@@ -1,0 +1,77 @@
+{
+  "course_day_id": "7f9b0f4b-b75d-4a25-a5dc-0a337f92aa13",
+  "lesson_id": "20d1e00b-9a2a-43d1-8817-8babfcd004c8",
+  "sections_before_count": 10,
+  "bonus_before": [
+    {
+      "id": "7a726d71-8979-4f8d-bc30-3313d82bb158",
+      "sort_order": 1,
+      "is_published": true,
+      "source_year": 2010,
+      "prompt_preview": "След намаление на цената с 20% готварска печка струва 220 лв. Колко е струвала преди намалението?"
+    },
+    {
+      "id": "7b50d9c2-05bf-400f-9563-517516f07579",
+      "sort_order": 2,
+      "is_published": false,
+      "source_year": null,
+      "prompt_preview": "В един клас има 25 ученици, от които 18 са момчета. Колко процента са момичетата в този клас?"
+    },
+    {
+      "id": "36592ba5-b118-443a-83a9-4f17ca70f72e",
+      "sort_order": 3,
+      "is_published": false,
+      "source_year": null,
+      "prompt_preview": "На географска карта на 9 cm съответстват 3690 km действително разстояние. Ако разстоянието между два града на картата е 3 cm, действителното разстояние е:"
+    },
+    {
+      "id": "452b9907-cc65-56c8-c74d-464febd505b0",
+      "sort_order": 4,
+      "is_published": false,
+      "source_year": null,
+      "prompt_preview": "Колко е 15% от 240?"
+    },
+    {
+      "id": "d621aa71-2921-0904-f9a5-29786c898d1a",
+      "sort_order": 5,
+      "is_published": false,
+      "source_year": null,
+      "prompt_preview": "30% от едно число са 27. Кое е числото?"
+    },
+    {
+      "id": "522936ea-837a-4a9c-0c91-63c0e540a1d2",
+      "sort_order": 6,
+      "is_published": false,
+      "source_year": null,
+      "prompt_preview": "Цена 120 лв. е увеличена с 25%. Каква става новата цена?"
+    },
+    {
+      "id": "a4293622-25da-99ce-75ac-f00e98cc49fd",
+      "sort_order": 7,
+      "is_published": false,
+      "source_year": null,
+      "prompt_preview": "Цена 80 лв. е намалена с 15%. Каква е новата цена?"
+    },
+    {
+      "id": "941ab60c-3ce2-07ab-38e6-103f87923062",
+      "sort_order": 8,
+      "is_published": false,
+      "source_year": null,
+      "prompt_preview": "Отношението 18 : 24 е равно на:"
+    },
+    {
+      "id": "e4b068a6-fbe4-e5a0-5c84-6a968a5b7677",
+      "sort_order": 9,
+      "is_published": false,
+      "source_year": null,
+      "prompt_preview": "Кое число трябва да се постави на мястото на x, за да е вярна пропорцията 4 : 7 = x : 21?"
+    },
+    {
+      "id": "b222e943-60a8-da11-20a8-a144b11d6587",
+      "sort_order": 10,
+      "is_published": false,
+      "source_year": null,
+      "prompt_preview": "Ако 6 работници свършват работа за 15 дни, за колко дни биха я свършили 10 работници при същата производителност?"
+    }
+  ]
+}

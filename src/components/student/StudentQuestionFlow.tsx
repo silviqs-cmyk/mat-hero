@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnswerOption } from "@/components/AnswerOption";
@@ -22,8 +23,10 @@ import {
   buildPracticeHref,
   buildResultsHref,
   evaluateQuestionAnswer,
+  getMultiPartAnswerSpec,
   getResolvedCorrectAnswer,
   normalizeAnswer,
+  serializeMultiPartAnswer,
 } from "@/lib/studentFlow";
 import { listUserAnswersForDay, saveUserAnswer } from "@/services/questions";
 import { upsertUserCourseProgress } from "@/services/progress";
@@ -111,6 +114,24 @@ function getFeedbackPanelText(sectionType: string | null | undefined, isOpenAnsw
   return DEFAULT_FEEDBACK_PANEL_TEXT;
 }
 
+function getFeedbackPanelVisual(sectionType: string | null | undefined, isOpenAnswer: boolean) {
+  if (isOpenAnswer || sectionType === "practice") {
+    return {
+      src: "/images/feedback/penandpapper.png",
+      alt: "Лист и химикал",
+    };
+  }
+
+  if (sectionType === "bonus" || sectionType === "exam") {
+    return {
+      src: "/images/feedback/nvo.png",
+      alt: "НВО задача",
+    };
+  }
+
+  return null;
+}
+
 function getFlowCopy(mode: FlowMode) {
   if (mode === "quiz") {
     return {
@@ -184,6 +205,7 @@ export function StudentQuestionFlow({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [answerText, setAnswerText] = useState("");
+  const [multiPartAnswers, setMultiPartAnswers] = useState<Record<string, string>>({});
   const [showFeedback, setShowFeedback] = useState(false);
   const [saving, setSaving] = useState(false);
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
@@ -202,13 +224,19 @@ export function StudentQuestionFlow({
     [currentQuestion],
   );
   const isOpenAnswer = isOpenAnswerQuestion(currentQuestion);
+  const multiPartSpec = currentQuestion ? getMultiPartAnswerSpec(currentQuestion) : null;
+  const isMultiPartOpenAnswer = Boolean(multiPartSpec);
+  const multiPartFields = multiPartSpec?.fields ?? [];
   const feedbackPanelText = getFeedbackPanelText(currentQuestion?.question_group ?? mode, isOpenAnswer);
+  const feedbackPanelVisual = getFeedbackPanelVisual(currentQuestion?.question_group ?? mode, isOpenAnswer);
   const flowCopy = getFlowCopy(mode);
   const totalQuestions = questions.length;
   const questionIdsSignature = useMemo(() => questions.map((question) => question.id).join("|"), [questions]);
   const submittedAnswer =
     isOpenAnswer
-      ? answerText
+      ? multiPartSpec
+        ? serializeMultiPartAnswer(multiPartSpec, multiPartAnswers)
+        : answerText
       : currentOptions.find((option) => option.id === selectedOptionId)?.option_text ?? "";
   const resolvedCorrectAnswer = currentQuestion
     ? getResolvedCorrectAnswer({ ...currentQuestion, options: currentOptions })
@@ -288,7 +316,7 @@ export function StudentQuestionFlow({
     Boolean(currentQuestion?.explanation?.trim() || resolvedCorrectAnswer?.trim()) &&
     (mode === "bonus" || !isCorrect);
   const shouldShowWrongAnswerState = showFeedback && !isCorrect;
-  const revealCorrectAnswerInPreview = mode !== "bonus";
+  const revealCorrectAnswerInPreview = true;
   const wrongAnswerPreview = shouldShowWrongAnswerState ? (
     <QuestionFeedbackPreview
       prompt={currentQuestion.prompt}
@@ -306,6 +334,7 @@ export function StudentQuestionFlow({
     setCurrentIndex(0);
     setSelectedOptionId(null);
     setAnswerText("");
+    setMultiPartAnswers({});
     setShowFeedback(false);
     setSaving(false);
     setAnswers([]);
@@ -345,7 +374,9 @@ export function StudentQuestionFlow({
     const nextAnswerText = overrides?.answerText ?? answerText;
     const nextSubmittedAnswer =
       currentQuestion.question_type === "open_answer"
-        ? nextAnswerText
+        ? multiPartSpec
+          ? serializeMultiPartAnswer(multiPartSpec, multiPartAnswers)
+          : nextAnswerText
         : currentOptions.find((option) => option.id === nextSelectedOptionId)?.option_text ?? "";
     const nextIsCorrect = evaluateQuestionAnswer(
       { ...currentQuestion, options: currentOptions },
@@ -353,7 +384,14 @@ export function StudentQuestionFlow({
       nextSelectedOptionId,
     );
 
-    if (currentQuestion.question_type === "open_answer" && nextAnswerText.trim().length === 0) {
+    if (
+      currentQuestion.question_type === "open_answer" &&
+      (
+        multiPartSpec
+          ? multiPartFields.some((field) => !(multiPartAnswers[field.key] ?? "").trim())
+          : nextAnswerText.trim().length === 0
+      )
+    ) {
       return;
     }
 
@@ -386,7 +424,7 @@ export function StudentQuestionFlow({
         userId: profile.id,
         questionId: currentQuestion.id,
         selectedOptionId: nextSelectedOptionId,
-        openAnswer: currentQuestion.question_type === "open_answer" ? nextAnswerText : null,
+        openAnswer: currentQuestion.question_type === "open_answer" ? nextSubmittedAnswer : null,
         isCorrect: answerRecord.isCorrect,
         pointsEarned: answerRecord.pointsEarned,
       });
@@ -460,7 +498,7 @@ export function StudentQuestionFlow({
           last_active_at: new Date().toISOString(),
         }),
       ]);
-      router.push(resultsHref);
+      navigateToRoute(resultsHref);
     } finally {
       setSaving(false);
     }
@@ -502,6 +540,7 @@ export function StudentQuestionFlow({
       setCurrentIndex((index) => index + 1);
       setSelectedOptionId(null);
       setAnswerText("");
+      setMultiPartAnswers({});
       setLastSubmittedAnswer(null);
       setShowFeedback(false);
       return;
@@ -521,7 +560,7 @@ export function StudentQuestionFlow({
         route: nextRoute,
         reason: "section-completed",
       });
-      router.push(nextRoute);
+      navigateToRoute(nextRoute);
       return;
     }
 
@@ -532,7 +571,11 @@ export function StudentQuestionFlow({
     return null;
   }
 
-  const buttonDisabled = saving || answerText.trim().length === 0;
+  const buttonDisabled =
+    saving ||
+    (isMultiPartOpenAnswer
+      ? multiPartFields.some((field) => !(multiPartAnswers[field.key] ?? "").trim())
+      : answerText.trim().length === 0);
   const questionTopicLabel = currentQuestion.topic?.trim() ? formatTopicLabel(currentQuestion.topic) : null;
   const questionWithSourceMeta = currentQuestion as Question & {
     exam_type?: string | null;
@@ -555,6 +598,18 @@ export function StudentQuestionFlow({
   const feedbackPanelMessage = shouldShowWrongAnswerState
     ? "Не е този отговор. Виж условието още веднъж и сравни с обяснението."
     : feedbackPanelText;
+
+  function navigateToRoute(nextHref: string) {
+    router.push(nextHref);
+
+    if (typeof window !== "undefined") {
+      window.setTimeout(() => {
+        if (window.location.pathname !== nextHref) {
+          window.location.assign(nextHref);
+        }
+      }, 180);
+    }
+  }
 
   function handleEnterSubmit() {
     if (showFeedback || buttonDisabled) {
@@ -664,20 +719,61 @@ export function StudentQuestionFlow({
           {currentQuestion.question_type === "open_answer" ? (
             <div className="mt-6">
               <p className="mh-label mb-3">Твоят отговор</p>
-              <FormInput
-                value={answerText}
-                onChange={(event) => setAnswerText(event.currentTarget.value)}
-                placeholder="Напиши отговора си"
-                disabled={showFeedback || saving}
-                onKeyDown={(event) => {
-                  if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
-                    return;
-                  }
+              {multiPartSpec ? (
+                <div className="space-y-4">
+                  <p className="mh-copy-sm text-slate-400">
+                    Попълни всички полета по реда от задачата.
+                  </p>
+                  {multiPartSpec.fields.map((field, index) => (
+                    <div key={field.key} className="space-y-2">
+                      <label className="block text-sm font-semibold text-[var(--mh-text-soft)]">
+                        {index + 1}. {field.label}
+                      </label>
+                      <div className="flex items-center gap-3 rounded-[20px] border border-white/8 bg-white/[0.03] px-4 py-3">
+                        <input
+                          value={multiPartAnswers[field.key] ?? ""}
+                          onChange={(event) => {
+                            const nextValue = event.currentTarget.value;
+                            setMultiPartAnswers((current) => ({
+                              ...current,
+                              [field.key]: nextValue,
+                            }));
+                          }}
+                          placeholder={field.placeholder ?? "Въведи отговор"}
+                          disabled={showFeedback || saving}
+                          className="min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-slate-500"
+                          onKeyDown={(event) => {
+                            if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+                              return;
+                            }
 
-                  event.preventDefault();
-                  handleEnterSubmit();
-                }}
-              />
+                            event.preventDefault();
+                            handleEnterSubmit();
+                          }}
+                        />
+                        {field.unit ? (
+                          <span className="shrink-0 text-sm font-semibold text-cyan-200">{field.unit}</span>
+                        ) : null}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <FormInput
+                  value={answerText}
+                  onChange={(event) => setAnswerText(event.currentTarget.value)}
+                  placeholder="Напиши отговора си"
+                  disabled={showFeedback || saving}
+                  onKeyDown={(event) => {
+                    if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) {
+                      return;
+                    }
+
+                    event.preventDefault();
+                    handleEnterSubmit();
+                  }}
+                />
+              )}
             </div>
           ) : (
             <div className="mt-6 space-y-4">
@@ -718,7 +814,19 @@ export function StudentQuestionFlow({
 
         <NeonCard padding="sm" className="bg-[rgb(1,1,2)] lg:p-6">
           <p className="mh-label">Обратна връзка</p>
-          <div className="mt-5 rounded-[22px] border border-white/8 bg-white/[0.03] p-4">
+          <div className="mt-5">
+            {feedbackPanelVisual ? (
+              <div className="mb-4 flex justify-center">
+                <Image
+                  src={feedbackPanelVisual.src}
+                  alt={feedbackPanelVisual.alt}
+                  width={104}
+                  height={104}
+                  className="h-[88px] w-[88px] object-contain sm:h-[104px] sm:w-[104px]"
+                  unoptimized
+                />
+              </div>
+            ) : null}
             <p className="mh-copy whitespace-pre-line text-slate-300">{feedbackPanelMessage}</p>
           </div>
 
@@ -730,7 +838,7 @@ export function StudentQuestionFlow({
                 className="w-full justify-center"
                 onClick={() => setShowWrongAnswerPreview((current) => !current)}
               >
-                {showWrongAnswerPreview ? "Скрий задачата" : "👀 Виж къде сбърка"}
+                {showWrongAnswerPreview ? "Скрий задачата" : "👀 Виж къде си сбъркал"}
               </NeonButton>
 
               <AnimatePresence initial={false}>
@@ -740,7 +848,7 @@ export function StudentQuestionFlow({
                     animate={{ opacity: 1, y: 0 }}
                     exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
                     transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
-                    className="max-h-[420px] overflow-y-auto rounded-[22px] border border-white/8 bg-white/[0.03] p-4"
+                    className="rounded-[22px] border border-white/8 bg-white/[0.03] p-4"
                   >
                     {wrongAnswerPreview}
                   </motion.div>

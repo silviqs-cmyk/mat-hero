@@ -11,10 +11,39 @@ interface EvaluableOption {
 }
 
 interface EvaluableQuestion {
+  id?: string;
   question_type?: string | null;
   expected_answer: string | null;
   options?: EvaluableOption[];
 }
+
+export interface MultiPartAnswerField {
+  key: string;
+  label: string;
+  unit?: string;
+  placeholder?: string;
+}
+
+export interface MultiPartAnswerSpec {
+  kind: "multi_part_numeric";
+  display: string;
+  fields: MultiPartAnswerField[];
+}
+
+const MULTI_PART_OPEN_ANSWER_SPECS: Record<string, MultiPartAnswerSpec> = {
+  "522936ea-837a-4a9c-0c91-63c0e540a1d2": {
+    kind: "multi_part_numeric",
+    display: "Атлас: 20%; общо продадени: 180; Атлас пакети: 36; Блян пакети: 54; Мечта пакети: 90; обща сума: 216000 лв.",
+    fields: [
+      { key: "atlas_percent", label: "Атлас е продала", unit: "%", placeholder: "20" },
+      { key: "sold_total", label: "Общо продадени пакети", placeholder: "180" },
+      { key: "atlas_packages", label: "Атлас пакети", placeholder: "36" },
+      { key: "blyan_packages", label: "Блян пакети", placeholder: "54" },
+      { key: "mechta_packages", label: "Мечта пакети", placeholder: "90" },
+      { key: "total_amount", label: "Обща сума", unit: "лв.", placeholder: "216000" },
+    ],
+  },
+};
 
 export function buildCourseHref(courseSlug: string) {
   void courseSlug;
@@ -200,6 +229,18 @@ export function getLearningOutcomes(bundle: DayContentBundle) {
     ];
   }
 
+  if (bundle.day.day_number === 3) {
+    return [
+      "Процент от число",
+      "Намиране на цяло по даден процент",
+      "Процентно увеличение и намаление",
+      "Последователни процентни промени",
+      "Отношения и пропорции",
+      "Мащаб и зависимости",
+      "Диаграми и таблици",
+    ];
+  }
+
   const uniqueTopics = Array.from(
     bundle.questions
       .map((question) => question.topic?.trim())
@@ -253,7 +294,61 @@ export function normalizeAnswer(answer: string) {
   return answer.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+function normalizeNumericPart(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/−/g, "-")
+    .replace(/,/g, ".")
+    .replace(/\s+/g, "")
+    .replace(/лв\.?|lv\.?|процента|процент|%|km|cm/gi, "");
+}
+
+function splitMultiPartAnswerParts(value: string) {
+  return value
+    .split(";")
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+}
+
+export function getMultiPartAnswerSpec(question: EvaluableQuestion) {
+  if (question.question_type !== "open_answer" || !question.id) {
+    return null;
+  }
+
+  return MULTI_PART_OPEN_ANSWER_SPECS[question.id] ?? null;
+}
+
+export function serializeMultiPartAnswer(
+  spec: MultiPartAnswerSpec,
+  answers: Record<string, string>,
+) {
+  return spec.fields.map((field) => (answers[field.key] ?? "").trim()).join("; ");
+}
+
+function evaluateMultiPartAnswer(
+  question: EvaluableQuestion,
+  spec: MultiPartAnswerSpec,
+  submittedAnswer: string,
+) {
+  const submittedParts = splitMultiPartAnswerParts(submittedAnswer);
+  const expectedParts = splitMultiPartAnswerParts(question.expected_answer ?? "");
+
+  if (submittedParts.length !== spec.fields.length || expectedParts.length !== spec.fields.length) {
+    return false;
+  }
+
+  return spec.fields.every((_, index) => {
+    return normalizeNumericPart(submittedParts[index] ?? "") === normalizeNumericPart(expectedParts[index] ?? "");
+  });
+}
+
 export function getResolvedCorrectAnswer(question: EvaluableQuestion) {
+  const multiPartSpec = getMultiPartAnswerSpec(question);
+  if (multiPartSpec) {
+    return multiPartSpec.display;
+  }
+
   const optionAnswer = question.options?.find((option) => option.is_correct)?.option_text ?? null;
   if (question.question_type === "multiple_choice") {
     return optionAnswer ?? question.expected_answer;
@@ -326,6 +421,11 @@ export function evaluateQuestionAnswer(
     }
 
     return submittedOption.is_correct;
+  }
+
+  const multiPartSpec = getMultiPartAnswerSpec(question);
+  if (multiPartSpec) {
+    return evaluateMultiPartAnswer(question, multiPartSpec, submittedAnswer);
   }
 
   const resolvedCorrectAnswer = getResolvedCorrectAnswer(question);

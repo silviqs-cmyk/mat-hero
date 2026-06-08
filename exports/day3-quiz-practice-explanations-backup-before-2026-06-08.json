@@ -1,0 +1,657 @@
+[
+  {
+    "id": "36764529-577f-4518-a8de-9d972be6da3a",
+    "sort_order": 1,
+    "question_group": "quiz",
+    "question_type": "multiple_choice",
+    "prompt": "Колко е 25% като десетично число?",
+    "expected_answer": null,
+    "difficulty": "easy",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [
+      {
+        "id": "12e3bcfb-f434-499f-b89e-1d2e80d94803",
+        "option_text": "0.025",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "a04ace30-c6fc-43dd-b862-dc34e0737d5c",
+        "option_text": "0.25",
+        "is_correct": true,
+        "sort_order": 2
+      },
+      {
+        "id": "2886d382-28e3-45d3-bc01-8638ebbe5eed",
+        "option_text": "2.5",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "d7467826-832a-4f5f-a73a-2b84da7ec74a",
+        "option_text": "25",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "25% = 25/100 = 0.25."
+  },
+  {
+    "id": "51cdacf7-80ec-44eb-bad7-bec56de9ee7c",
+    "sort_order": 2,
+    "question_group": "quiz",
+    "question_type": "multiple_choice",
+    "prompt": "Колко е 15% от 200?",
+    "expected_answer": null,
+    "difficulty": "easy",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [
+      {
+        "id": "dbc345f7-20aa-4cf9-b575-7fd016aaedc9",
+        "option_text": "20",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "dfd8f961-906b-4732-bb4d-4506bd56c6fe",
+        "option_text": "25",
+        "is_correct": false,
+        "sort_order": 2
+      },
+      {
+        "id": "09a7e73c-3a45-4e7a-a56c-3de3d0e2cd46",
+        "option_text": "30",
+        "is_correct": true,
+        "sort_order": 3
+      },
+      {
+        "id": "c898e4b5-ef7f-4525-ad2b-a7204bc881fd",
+        "option_text": "35",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "15% от 200 е 0.15 . 200 = 30."
+  },
+  {
+    "id": "fca3b4be-06fa-45fd-8f2d-080ed6c2b2e8",
+    "sort_order": 3,
+    "question_group": "quiz",
+    "question_type": "open_answer",
+    "prompt": "30 е 20% от кое число?",
+    "expected_answer": "150",
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [],
+    "explanation": "Търсеното число е 30 / 0.20 = 150."
+  },
+  {
+    "id": "97faec71-9257-46ff-90af-c1985c77d869",
+    "sort_order": 4,
+    "question_group": "quiz",
+    "question_type": "multiple_choice",
+    "prompt": "Цена 80 лв. се увеличава с 10%. Колко става?",
+    "expected_answer": null,
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Процентно изменение",
+    "source_year": null,
+    "options": [
+      {
+        "id": "97722f67-ae0b-4a03-af7a-338d4156ffb5",
+        "option_text": "86",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "b32a2ec2-2a90-43b7-b683-b55c924b1612",
+        "option_text": "88",
+        "is_correct": true,
+        "sort_order": 2
+      },
+      {
+        "id": "40126e84-8426-4b4d-b10c-368868c5e1ab",
+        "option_text": "90",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "d41c0968-8800-440f-84f5-29a18459a4d4",
+        "option_text": "92",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "80 . 1.10 = 88."
+  },
+  {
+    "id": "809f0e86-ba95-482c-a900-060c9fd95322",
+    "sort_order": 5,
+    "question_group": "quiz",
+    "question_type": "multiple_choice",
+    "prompt": "Намери отношението 18 : 6.",
+    "expected_answer": null,
+    "difficulty": "easy",
+    "points": 10,
+    "topic": "Отношение",
+    "source_year": null,
+    "options": [
+      {
+        "id": "2320ab8b-d865-43dc-b29d-ee05c7da236e",
+        "option_text": "2",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "7cf95b75-3fe7-488a-a81a-c4deb9036959",
+        "option_text": "3",
+        "is_correct": true,
+        "sort_order": 2
+      },
+      {
+        "id": "f38360ce-3064-4776-a4b0-3e3d4bb917eb",
+        "option_text": "6",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "9b512667-7a3e-4114-8e2e-a2e968949062",
+        "option_text": "12",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "18 : 6 = 3."
+  },
+  {
+    "id": "6d4e056f-96a7-41c5-9786-f519221e29c0",
+    "sort_order": 6,
+    "question_group": "quiz",
+    "question_type": "multiple_choice",
+    "prompt": "Кое е вярно за пропорцията 2 : 5 = 6 : 15?",
+    "expected_answer": null,
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Пропорция",
+    "source_year": null,
+    "options": [
+      {
+        "id": "d567e63e-9fc7-4561-bc33-c10b0a89ae72",
+        "option_text": "Да, защото 2 . 15 = 5 . 6",
+        "is_correct": true,
+        "sort_order": 1
+      },
+      {
+        "id": "4164df81-465a-45ef-a075-5aaad427a223",
+        "option_text": "Не, защото 2 + 5 не е равно на 6 + 15",
+        "is_correct": false,
+        "sort_order": 2
+      },
+      {
+        "id": "72445615-444b-4301-9455-c9757d12063d",
+        "option_text": "Не, защото 2 . 6 не е равно на 5 . 15",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "996cc421-98b2-4554-ae47-d528ef2acb83",
+        "option_text": "Да, защото 2 + 15 = 5 + 6",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "Проверяваме: 2 . 15 = 5 . 6 = 30."
+  },
+  {
+    "id": "1c20100e-306b-44e0-9865-2231ca63be48",
+    "sort_order": 7,
+    "question_group": "quiz",
+    "question_type": "open_answer",
+    "prompt": "Намери x от пропорцията 3 : 4 = x : 8.",
+    "expected_answer": "6",
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Пропорция",
+    "source_year": null,
+    "options": [],
+    "explanation": "3 . 8 = 4x, 24 = 4x, x = 6."
+  },
+  {
+    "id": "cbd898b8-a6a2-420d-b8df-e4e7ac0713e5",
+    "sort_order": 8,
+    "question_group": "quiz",
+    "question_type": "multiple_choice",
+    "prompt": "Ако 4 тетрадки струват 12 лв., колко струват 7 тетрадки при същата цена?",
+    "expected_answer": null,
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Правопропорционални величини",
+    "source_year": null,
+    "options": [
+      {
+        "id": "3ff0a570-57b1-4bec-a29a-8e9edaf6b45b",
+        "option_text": "18",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "047753cd-e2a2-470c-afc6-1a1361107760",
+        "option_text": "20",
+        "is_correct": false,
+        "sort_order": 2
+      },
+      {
+        "id": "220fd589-a1ea-45ba-9c03-ed5a674323e3",
+        "option_text": "21",
+        "is_correct": true,
+        "sort_order": 3
+      },
+      {
+        "id": "6e120938-c452-4441-ba94-854a472b92a6",
+        "option_text": "24",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "Една тетрадка струва 3 лв., 7 струват 21 лв."
+  },
+  {
+    "id": "0c08237d-b1bc-43dd-a16b-43ca872e12bc",
+    "sort_order": 9,
+    "question_group": "quiz",
+    "question_type": "open_answer",
+    "prompt": "Ако 2 работници свършват работа за 12 часа, за колко часа ще я свършат 4 работници?",
+    "expected_answer": "6",
+    "difficulty": "hard",
+    "points": 10,
+    "topic": "Обратнопропорционални величини",
+    "source_year": null,
+    "options": [],
+    "explanation": "При обратна пропорционалност 2 . 12 = 4 . x, x = 6."
+  },
+  {
+    "id": "d1efd507-9e45-4c32-9c19-37e728ab15e7",
+    "sort_order": 10,
+    "question_group": "quiz",
+    "question_type": "multiple_choice",
+    "prompt": "Кое число е равно на 60%?",
+    "expected_answer": null,
+    "difficulty": "easy",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [
+      {
+        "id": "c47745a5-ff84-44f4-a3c5-cda501a6da83",
+        "option_text": "0.06",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "4e2968e9-e931-496c-8c66-a5b1e6a3dbd0",
+        "option_text": "0.6",
+        "is_correct": true,
+        "sort_order": 2
+      },
+      {
+        "id": "05d97c45-686f-4556-ae9e-2841ba8e9b4c",
+        "option_text": "6",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "6ad1faa2-4e07-45fa-959f-230e670d4ce9",
+        "option_text": "60",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "60% = 60/100 = 0.6."
+  },
+  {
+    "id": "96113197-dc1b-473d-bd6f-d16db7714738",
+    "sort_order": 11,
+    "question_group": "practice",
+    "question_type": "multiple_choice",
+    "prompt": "Превърни 40% в десетично число.",
+    "expected_answer": null,
+    "difficulty": "easy",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [
+      {
+        "id": "6680adc0-0525-4779-8e82-27ab2974f301",
+        "option_text": "0.04",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "eb256cc5-96ae-418d-899b-407183570cb9",
+        "option_text": "0.4",
+        "is_correct": true,
+        "sort_order": 2
+      },
+      {
+        "id": "bc7bc49b-532b-4e47-a265-febca581acb7",
+        "option_text": "4",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "bb85de91-5b91-451a-82d0-2934d7f9d0e9",
+        "option_text": "40",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "40% = 0.40 = 0.4."
+  },
+  {
+    "id": "2ade9ee3-7c51-47a9-888c-5ca742fef389",
+    "sort_order": 12,
+    "question_group": "practice",
+    "question_type": "multiple_choice",
+    "prompt": "Превърни 5% в десетично число.",
+    "expected_answer": null,
+    "difficulty": "easy",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [
+      {
+        "id": "315988b5-3b2c-4c50-9dcc-6fd2a87faa65",
+        "option_text": "0.5",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "3e74398d-8cf2-4410-bafc-aaee4455615c",
+        "option_text": "0.05",
+        "is_correct": true,
+        "sort_order": 2
+      },
+      {
+        "id": "d09a1100-5062-48b8-bb09-aa9317a4c1bc",
+        "option_text": "5",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "5a4d1ca9-3e0a-4426-b768-dd3877910e2a",
+        "option_text": "0.005",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "5% = 0.05."
+  },
+  {
+    "id": "86f485ca-6e5c-4eeb-aa95-cc494e7e07d4",
+    "sort_order": 13,
+    "question_group": "practice",
+    "question_type": "multiple_choice",
+    "prompt": "Колко е 30% от 90?",
+    "expected_answer": null,
+    "difficulty": "easy",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [
+      {
+        "id": "2cc34cad-98b5-4b44-a975-92ee343d8a1f",
+        "option_text": "18",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "1badf766-6044-4bbc-8029-908e9b793d8d",
+        "option_text": "27",
+        "is_correct": true,
+        "sort_order": 2
+      },
+      {
+        "id": "e7d5e5c4-d02c-4070-89b8-c98c9033db36",
+        "option_text": "30",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "5249f608-ab21-4ee7-ae93-3e17e9ec2c84",
+        "option_text": "36",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "0.30 . 90 = 27."
+  },
+  {
+    "id": "b860c80f-803d-416d-b6e7-e4ba52e662b7",
+    "sort_order": 14,
+    "question_group": "practice",
+    "question_type": "multiple_choice",
+    "prompt": "Колко е 12% от 50?",
+    "expected_answer": null,
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [
+      {
+        "id": "86fb04da-f066-4551-a25d-c35f7c20cbff",
+        "option_text": "5",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "ec8e3efe-aaf3-4256-a1c8-0a9e553039f9",
+        "option_text": "6",
+        "is_correct": true,
+        "sort_order": 2
+      },
+      {
+        "id": "80cdc940-a976-4d11-a8c1-8f889defb4d0",
+        "option_text": "7",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "880df8d7-731a-41c7-9e5f-4f6cb956aacf",
+        "option_text": "8",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "0.12 . 50 = 6."
+  },
+  {
+    "id": "2e2fbeb7-34de-4a7e-a101-30930265513b",
+    "sort_order": 15,
+    "question_group": "practice",
+    "question_type": "open_answer",
+    "prompt": "24 е 30% от кое число?",
+    "expected_answer": "80",
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [],
+    "explanation": "24 / 0.30 = 80."
+  },
+  {
+    "id": "893d76d1-cc47-413a-8b6c-08fee6549aed",
+    "sort_order": 16,
+    "question_group": "practice",
+    "question_type": "open_answer",
+    "prompt": "45 е 15% от кое число?",
+    "expected_answer": "300",
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Проценти",
+    "source_year": null,
+    "options": [],
+    "explanation": "45 / 0.15 = 300."
+  },
+  {
+    "id": "f3eba346-d00c-45fd-9a4f-16b349f11280",
+    "sort_order": 17,
+    "question_group": "practice",
+    "question_type": "multiple_choice",
+    "prompt": "Намали 120 с 25%. Колко получаваш?",
+    "expected_answer": null,
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Процентно изменение",
+    "source_year": null,
+    "options": [
+      {
+        "id": "b46642a4-d830-42b3-bbaa-251537200488",
+        "option_text": "80",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "bae10337-cbd8-499c-b484-7b5cdc2737be",
+        "option_text": "85",
+        "is_correct": false,
+        "sort_order": 2
+      },
+      {
+        "id": "a7e48b57-dbb5-4428-bc69-02e7a230d4ab",
+        "option_text": "90",
+        "is_correct": true,
+        "sort_order": 3
+      },
+      {
+        "id": "05c9e600-883c-4b9f-9e82-869882dd45e5",
+        "option_text": "95",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "120 . 0.75 = 90."
+  },
+  {
+    "id": "317dcf2c-b426-4b23-a95a-6f0d43e8bbd3",
+    "sort_order": 18,
+    "question_group": "practice",
+    "question_type": "multiple_choice",
+    "prompt": "Увеличи 70 с 20%. Колко получаваш?",
+    "expected_answer": null,
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Процентно изменение",
+    "source_year": null,
+    "options": [
+      {
+        "id": "8b7ae15d-fed4-4747-880f-688a4392ae9d",
+        "option_text": "80",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "165ac190-d1fb-456b-9202-03b5107650db",
+        "option_text": "82",
+        "is_correct": false,
+        "sort_order": 2
+      },
+      {
+        "id": "64007cab-5be7-498e-89c6-92f09f05d28e",
+        "option_text": "84",
+        "is_correct": true,
+        "sort_order": 3
+      },
+      {
+        "id": "c4ca0cd8-42b3-400f-9afe-5b19fc43a79c",
+        "option_text": "86",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "70 . 1.20 = 84."
+  },
+  {
+    "id": "2f898234-b611-443d-8bf3-76dc2cb629f7",
+    "sort_order": 19,
+    "question_group": "practice",
+    "question_type": "multiple_choice",
+    "prompt": "Намери отношението 14 : 7.",
+    "expected_answer": null,
+    "difficulty": "easy",
+    "points": 10,
+    "topic": "Отношение",
+    "source_year": null,
+    "options": [
+      {
+        "id": "c18b67f4-e913-4418-8b20-29a69a393fcd",
+        "option_text": "1",
+        "is_correct": false,
+        "sort_order": 1
+      },
+      {
+        "id": "7737602c-9817-4d3b-81e3-449ad8eaf4ba",
+        "option_text": "2",
+        "is_correct": true,
+        "sort_order": 2
+      },
+      {
+        "id": "4e6967fb-8edb-41eb-acb6-fcbeb3086700",
+        "option_text": "7",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "f59ad54d-9774-4d0b-ac5b-4367ac2d28fe",
+        "option_text": "14",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "14 : 7 = 2."
+  },
+  {
+    "id": "a1ee185d-ded9-4b67-8893-506d149e25d4",
+    "sort_order": 20,
+    "question_group": "practice",
+    "question_type": "multiple_choice",
+    "prompt": "Намери отношението 9 : 12 в несъкратен вид като число.",
+    "expected_answer": null,
+    "difficulty": "medium",
+    "points": 10,
+    "topic": "Отношение",
+    "source_year": null,
+    "options": [
+      {
+        "id": "99cf06e1-6717-460f-8f26-8379b96a782e",
+        "option_text": "3/4",
+        "is_correct": true,
+        "sort_order": 1
+      },
+      {
+        "id": "e2407d54-b0ef-46d7-b42e-1bb432e6d840",
+        "option_text": "4/3",
+        "is_correct": false,
+        "sort_order": 2
+      },
+      {
+        "id": "4654077c-4e1b-45c5-8dbd-5af347baf3f8",
+        "option_text": "21",
+        "is_correct": false,
+        "sort_order": 3
+      },
+      {
+        "id": "7f8b1460-544f-47c4-b218-a780e1125aec",
+        "option_text": "108",
+        "is_correct": false,
+        "sort_order": 4
+      }
+    ],
+    "explanation": "9 : 12 = 9/12 = 3/4."
+  }
+]

@@ -17,7 +17,10 @@ type ContentBlock =
   | { type: "paragraph"; lines: string[] }
   | { type: "list"; ordered: boolean; items: string[] }
   | { type: "formula"; lines: string[] }
+  | { type: "table"; headers: string[]; rows: string[][]; alignments: TableAlignment[] }
   | { type: "section"; label: string; lines: string[]; tone: "neutral" | "cyan" | "gold" };
+
+type TableAlignment = "left" | "center" | "right";
 
 interface MiniTaskSplitResult {
   intro: string;
@@ -151,6 +154,82 @@ function renderInline(line: string, keyPrefix: string) {
   return renderFormattedInlineText(line, keyPrefix).map((node, index) => (
     <Fragment key={`${keyPrefix}-${index}`}>{node}</Fragment>
   ));
+}
+
+function parseMarkdownTableCells(line: string) {
+  const trimmed = line.trim();
+  if (!trimmed.startsWith("|") || !trimmed.endsWith("|")) {
+    return null;
+  }
+
+  const rawCells = trimmed
+    .slice(1, -1)
+    .split("|")
+    .map((cell) => cell.trim());
+
+  return rawCells.length >= 2 ? rawCells : null;
+}
+
+function parseMarkdownTableAlignment(line: string, columnCount: number) {
+  const cells = parseMarkdownTableCells(line);
+  if (!cells || cells.length !== columnCount) {
+    return null;
+  }
+
+  const alignments: TableAlignment[] = [];
+  for (const cell of cells) {
+    if (!/^:?-{3,}:?$/u.test(cell)) {
+      return null;
+    }
+
+    if (cell.startsWith(":") && cell.endsWith(":")) {
+      alignments.push("center");
+    } else if (cell.endsWith(":")) {
+      alignments.push("right");
+    } else {
+      alignments.push("left");
+    }
+  }
+
+  return alignments;
+}
+
+function parseMarkdownTableBlock(lines: string[], startIndex: number) {
+  const headerCells = parseMarkdownTableCells(lines[startIndex] ?? "");
+  if (!headerCells) {
+    return null;
+  }
+
+  const alignments = parseMarkdownTableAlignment(lines[startIndex + 1] ?? "", headerCells.length);
+  if (!alignments) {
+    return null;
+  }
+
+  const rows: string[][] = [];
+  let nextIndex = startIndex + 2;
+
+  while (nextIndex < lines.length) {
+    const rowCells = parseMarkdownTableCells(lines[nextIndex] ?? "");
+    if (!rowCells) {
+      break;
+    }
+
+    if (rowCells.length !== headerCells.length) {
+      return null;
+    }
+
+    rows.push(rowCells);
+    nextIndex += 1;
+  }
+
+  if (rows.length === 0) {
+    return null;
+  }
+
+  return {
+    block: { type: "table" as const, headers: headerCells, rows, alignments },
+    nextIndex,
+  };
 }
 
 function getStandaloneBoldText(line: string) {
@@ -377,6 +456,13 @@ function buildBlocks(content: string): ContentBlock[] {
       continue;
     }
 
+    const tableBlock = parseMarkdownTableBlock(lines.map((line) => line.trimEnd()), index);
+    if (tableBlock) {
+      blocks.push(tableBlock.block);
+      index = tableBlock.nextIndex;
+      continue;
+    }
+
     const groupLines: string[] = [];
     while (index < lines.length) {
       const nextLine = (lines[index] ?? "").trimEnd();
@@ -408,6 +494,97 @@ function buildBlocks(content: string): ContentBlock[] {
   }
 
   return blocks;
+}
+
+function getTableCellAlignClass(alignment: TableAlignment) {
+  switch (alignment) {
+    case "center":
+      return "text-center";
+    case "right":
+      return "text-right";
+    default:
+      return "text-left";
+  }
+}
+
+function renderTableBlock(
+  headers: string[],
+  rows: string[][],
+  alignments: TableAlignment[],
+  keyPrefix: string,
+) {
+  return (
+    <div key={keyPrefix} className="overflow-x-auto rounded-[20px] border border-white/10 bg-white/[0.03]">
+      <table className="min-w-full border-collapse text-[0.98rem] leading-7 text-[var(--mh-text)]">
+        <thead className="bg-white/[0.05] text-white">
+          <tr>
+            {headers.map((header, columnIndex) => (
+              <th
+                key={`${keyPrefix}-head-${columnIndex}`}
+                className={`border-b border-white/10 px-4 py-3 font-semibold ${getTableCellAlignClass(alignments[columnIndex] ?? "left")}`}
+              >
+                {renderInline(header, `${keyPrefix}-head-${columnIndex}`)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row, rowIndex) => (
+            <tr key={`${keyPrefix}-row-${rowIndex}`} className="odd:bg-white/[0.015]">
+              {row.map((cell, columnIndex) => (
+                <td
+                  key={`${keyPrefix}-cell-${rowIndex}-${columnIndex}`}
+                  className={`border-t border-white/8 px-4 py-3 align-top ${getTableCellAlignClass(alignments[columnIndex] ?? "left")}`}
+                >
+                  {renderInline(cell, `${keyPrefix}-cell-${rowIndex}-${columnIndex}`)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function renderSectionLinesWithTables(lines: string[], keyPrefix: string) {
+  const rendered: React.ReactNode[] = [];
+  let index = 0;
+
+  while (index < lines.length) {
+    const tableBlock = parseMarkdownTableBlock(lines, index);
+    if (tableBlock) {
+      rendered.push(
+        renderTableBlock(
+          tableBlock.block.headers,
+          tableBlock.block.rows,
+          tableBlock.block.alignments,
+          `${keyPrefix}-table-${index}`,
+        ),
+      );
+      index = tableBlock.nextIndex;
+      continue;
+    }
+
+    const line = lines[index] ?? "";
+    rendered.push(
+      getStandaloneBoldText(line) ? (
+        <h4
+          key={`${keyPrefix}-${index}`}
+          className="break-words text-[1rem] font-semibold leading-7 tracking-normal text-white"
+        >
+          {renderInline(getStandaloneBoldText(line) ?? line, `${keyPrefix}-${index}`)}
+        </h4>
+      ) : (
+        <p key={`${keyPrefix}-${index}`} className="break-words text-[1rem] leading-7 text-[var(--mh-text)]">
+          {renderInline(line, `${keyPrefix}-${index}`)}
+        </p>
+      ),
+    );
+    index += 1;
+  }
+
+  return rendered;
 }
 
 function getSectionToneClass(tone: "neutral" | "cyan" | "gold") {
@@ -575,31 +752,17 @@ function renderBlockContent(block: ContentBlock, blockIndex: number) {
     );
   }
 
+  if (block.type === "table") {
+    return renderTableBlock(block.headers, block.rows, block.alignments, `table-${blockIndex}`);
+  }
+
   return (
     <div
       key={`section-${blockIndex}`}
       className={`rounded-[22px] border px-4 py-4 ${getSectionToneClass(block.tone)}`}
     >
       <SectionLabel className={getSectionLabelClass(block.tone)}>{block.label}</SectionLabel>
-      <div className="mt-3 space-y-3.5">
-        {block.lines.map((line, lineIndex) =>
-          getStandaloneBoldText(line) ? (
-            <h4
-              key={`section-${blockIndex}-${lineIndex}`}
-              className="break-words text-[1rem] font-semibold leading-7 tracking-normal text-white"
-            >
-              {renderInline(getStandaloneBoldText(line) ?? line, `section-${blockIndex}-${lineIndex}`)}
-            </h4>
-          ) : (
-            <p
-              key={`section-${blockIndex}-${lineIndex}`}
-              className="break-words text-[1rem] leading-7 text-[var(--mh-text)]"
-            >
-              {renderInline(line, `section-${blockIndex}-${lineIndex}`)}
-            </p>
-          ),
-        )}
-      </div>
+      <div className="mt-3 space-y-3.5">{renderSectionLinesWithTables(block.lines, `section-${blockIndex}`)}</div>
     </div>
   );
 }
@@ -662,23 +825,7 @@ export function FormattedTheoryContent({ content, sectionId }: FormattedTheoryCo
           >
             <SectionLabel className={getSectionLabelClass(block.tone)}>{block.label}</SectionLabel>
             <div className="mt-3 space-y-3.5">
-              {miniTaskLeadLines.map((line, lineIndex) =>
-                getStandaloneBoldText(line) ? (
-                  <h4
-                    key={`section-${blockIndex}-${lineIndex}`}
-                    className="break-words text-[1rem] font-semibold leading-7 tracking-normal text-white"
-                  >
-                    {renderInline(getStandaloneBoldText(line) ?? line, `section-${blockIndex}-${lineIndex}`)}
-                  </h4>
-                ) : (
-                  <p
-                    key={`section-${blockIndex}-${lineIndex}`}
-                    className="break-words text-[1rem] leading-7 text-[var(--mh-text)]"
-                  >
-                    {renderInline(line, `section-${blockIndex}-${lineIndex}`)}
-                  </p>
-                ),
-              )}
+              {renderSectionLinesWithTables(miniTaskLeadLines, `section-${blockIndex}`)}
               {miniTaskSplit ? (
                 <div className="space-y-3">
                   <p className="break-words text-[1rem] leading-7 text-[var(--mh-text)]">

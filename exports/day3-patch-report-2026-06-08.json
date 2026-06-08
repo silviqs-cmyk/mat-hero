@@ -1,0 +1,174 @@
+{
+  "course_days_update": {
+    "title": "Проценти и пропорции",
+    "subtitle": "Проценти, отношения, мащаб и зависимости",
+    "description": "Ще тренираш проценти, процентно увеличение и намаление, намиране на цяло по даден процент, отношения, пропорции, мащаб, диаграми и пряка зависимост — точно както се срещат в реалните НВО задачи."
+  },
+  "lesson_update": {
+    "lesson_id": "20d1e00b-9a2a-43d1-8817-8babfcd004c8",
+    "content_preview": "Ден 3 събира едни от най-често срещаните НВО ситуации: проценти, намаления, увеличения, отношения, пропорции, мащаб и задачи по данни. Тук няма да учим процентите само като „20% от 80“. Ще ги разпознаваме в реални текстови задачи: цена след отстъпка, първоначална стойност, разтвор, карта, диаграма, продадени пакети и количество боя. Работи стъпка по стъпка: 1. Определи какво е цялото. 2. Запиши какво е дадено. 3. Пр…"
+  },
+  "theory_sections": {
+    "total_count": 13,
+    "new_sections": [
+      {
+        "id": "dce6d8ce-6afa-4671-8401-9354366626ce",
+        "title": "Последователни процентни промени",
+        "sort_order": 11
+      },
+      {
+        "id": "623301ed-0d26-4a21-8564-a51c4e187754",
+        "title": "Мащаб",
+        "sort_order": 12
+      },
+      {
+        "id": "befc2976-4f6c-4096-ba08-f9fca17cd5e6",
+        "title": "Диаграми и таблици",
+        "sort_order": 13
+      }
+    ]
+  },
+  "bonus_questions": [
+    {
+      "sort_order": 1,
+      "id": "7a726d71-8979-4f8d-bc30-3313d82bb158",
+      "source_year": 2010,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "multiple_choice",
+      "expected_answer": "В",
+      "has_explanation": true,
+      "options_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "sort_order": 2,
+      "id": "7b50d9c2-05bf-400f-9563-517516f07579",
+      "source_year": 2011,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "multiple_choice",
+      "expected_answer": "В",
+      "has_explanation": true,
+      "options_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "sort_order": 3,
+      "id": "36592ba5-b118-443a-83a9-4f17ca70f72e",
+      "source_year": 2014,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "multiple_choice",
+      "expected_answer": "Б",
+      "has_explanation": true,
+      "options_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "sort_order": 4,
+      "id": "452b9907-cc65-56c8-c74d-464febd505b0",
+      "source_year": 2020,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "multiple_choice",
+      "expected_answer": "Г",
+      "has_explanation": true,
+      "options_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "sort_order": 5,
+      "id": "d621aa71-2921-0904-f9a5-29786c898d1a",
+      "source_year": 2021,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "multiple_choice",
+      "expected_answer": "В",
+      "has_explanation": true,
+      "options_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "sort_order": 6,
+      "id": "522936ea-837a-4a9c-0c91-63c0e540a1d2",
+      "source_year": 2021,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "open_answer",
+      "expected_answer": "Атлас: 20%; общо продадени: 180; Атлас: 36; Блян: 54; Мечта: 90; обща сума: 216000 лв.",
+      "has_explanation": true,
+      "options_count": 0,
+      "correct_options_count": 0
+    },
+    {
+      "sort_order": 7,
+      "id": "a4293622-25da-99ce-75ac-f00e98cc49fd",
+      "source_year": 2022,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "multiple_choice",
+      "expected_answer": "Б",
+      "has_explanation": true,
+      "options_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "sort_order": 8,
+      "id": "941ab60c-3ce2-07ab-38e6-103f87923062",
+      "source_year": 2023,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "multiple_choice",
+      "expected_answer": "В",
+      "has_explanation": true,
+      "options_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "sort_order": 9,
+      "id": "e4b068a6-fbe4-e5a0-5c84-6a968a5b7677",
+      "source_year": 2024,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "multiple_choice",
+      "expected_answer": "В",
+      "has_explanation": true,
+      "options_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "sort_order": 10,
+      "id": "b222e943-60a8-da11-20a8-a144b11d6587",
+      "source_year": 2016,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "question_type": "open_answer",
+      "expected_answer": "116000000 cm; 1160 km",
+      "has_explanation": true,
+      "options_count": 0,
+      "correct_options_count": 0
+    }
+  ],
+  "checks": {
+    "bonus_published_count": 10,
+    "all_bonus_group_bonus": true,
+    "all_bonus_is_bonus_true": true,
+    "all_bonus_is_published_true": true,
+    "all_bonus_have_source_year": true,
+    "mc_have_one_correct_option": true,
+    "open_answer_have_expected_and_explanation": true,
+    "diagram_2022_note": "Подходяща за Ден 3, но изисква image/diagram support.",
+    "quiz_practice_untouched_note": "Quiz и practice не са пипани в този patch."
+  }
+}
