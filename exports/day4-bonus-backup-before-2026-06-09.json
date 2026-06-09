@@ -1,0 +1,441 @@
+{
+  "exported_at": "2026-06-09T14:53:52.609Z",
+  "day": {
+    "id": "7f9b0f4b-b75d-4a25-a5dc-0a337f92aa14",
+    "day_number": 4,
+    "title": "Текстови задачи"
+  },
+  "questions": [
+    {
+      "id": "77795ed5-bd82-4556-94b3-01278800c025",
+      "sort_order": 1,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "prompt": "Естествено число се умножава с 4 и от произведението се изважда 7. Получава се число, по-малко от 13. Намерете сбора на всички естествени числа с това свойство.",
+      "question_type": "multiple_choice",
+      "expected_answer": "А",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "subtopic": null,
+      "topic": "Текстови задачи",
+      "difficulty": "medium",
+      "points": 3,
+      "options": [
+        {
+          "id": "fc1b7e99-d2a9-40e6-9554-c58f7fe8fb01",
+          "question_id": "77795ed5-bd82-4556-94b3-01278800c025",
+          "option_text": "А) 10",
+          "is_correct": true,
+          "sort_order": 1
+        },
+        {
+          "id": "9bffa3a6-db71-4409-83f4-20d0909bbb23",
+          "question_id": "77795ed5-bd82-4556-94b3-01278800c025",
+          "option_text": "Б) 11",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "id": "4d7b77e1-06f7-4538-80f3-dd6b17f2f575",
+          "question_id": "77795ed5-bd82-4556-94b3-01278800c025",
+          "option_text": "В) 12",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "id": "a552b7b7-0d9e-49e4-9971-9a6d9c43d7e9",
+          "question_id": "77795ed5-bd82-4556-94b3-01278800c025",
+          "option_text": "Г) 15",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "id": "606b0934-c1cc-4190-88e7-7faad267bdc2",
+      "sort_order": 2,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": true,
+      "prompt": "Автобус тръгва от A към B в 8:00. Автомобил тръгва 15 min по-късно, задминава автобуса 45 min след тръгването си, спира за 20 min и пристига заедно с автобуса. Скоростта на автомобила е с 30 km/h по-голяма. Намерете часа на пристигане и разстоянието AB.",
+      "question_type": "open_answer",
+      "expected_answer": "10 ч 20 мин; 210 km",
+      "explanation": "Да се провери и допълни с подробно решение преди публикуване.",
+      "source_year": 2010,
+      "subtopic": null,
+      "topic": "Текстови задачи",
+      "difficulty": "hard",
+      "points": 10,
+      "options": []
+    },
+    {
+      "id": "8d54f7c7-37dc-4b02-a968-db0911fae29e",
+      "sort_order": 3,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": false,
+      "prompt": "Мария има a лева, с които може да си купи точно два шоколада по 2 лева и три вафли с еднаква цена. Кой израз представя цената на една вафла?",
+      "question_type": "multiple_choice",
+      "expected_answer": null,
+      "explanation": "Първо изваждаме цената на шоколадите, после делим останалите пари на броя вафли.",
+      "source_year": null,
+      "subtopic": "Израз с променлива",
+      "topic": "Текстови задачи",
+      "difficulty": "easy",
+      "points": 3,
+      "options": [
+        {
+          "id": "3bb3f1ce-992f-428c-ba02-06128b84dd51",
+          "question_id": "8d54f7c7-37dc-4b02-a968-db0911fae29e",
+          "option_text": "(a - 2) / 3",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "id": "709bd9e1-b0db-41a2-bc8d-69b4d8748099",
+          "question_id": "8d54f7c7-37dc-4b02-a968-db0911fae29e",
+          "option_text": "a - 4",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "id": "742fabb8-c563-4ef5-80e9-64534c7ba219",
+          "question_id": "8d54f7c7-37dc-4b02-a968-db0911fae29e",
+          "option_text": "(a + 4) / 3",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "id": "54711152-c397-4f10-ace1-7b55b721a2a7",
+          "question_id": "8d54f7c7-37dc-4b02-a968-db0911fae29e",
+          "option_text": "(a - 4) / 3",
+          "is_correct": true,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "id": "9601cc0c-fd81-1acc-4853-09bb07c1c1e9",
+      "sort_order": 4,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": false,
+      "prompt": "Сборът на две числа е 34, а разликата им е 8. Кое е по-голямото число?",
+      "question_type": "multiple_choice",
+      "expected_answer": null,
+      "explanation": "Ако по-голямото е x, а по-малкото y, то x + y = 34 и x - y = 8. Събираме уравненията: 2x = 42, затова x = 21.",
+      "source_year": null,
+      "subtopic": null,
+      "topic": "задачи за числа",
+      "difficulty": "hard",
+      "points": 10,
+      "options": [
+        {
+          "id": "20daa2d4-0186-c2cc-e23c-8720842358d3",
+          "question_id": "9601cc0c-fd81-1acc-4853-09bb07c1c1e9",
+          "option_text": "13",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "id": "86e79c74-fd26-13fa-4056-bba72eb3bd0a",
+          "question_id": "9601cc0c-fd81-1acc-4853-09bb07c1c1e9",
+          "option_text": "17",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "id": "ddb6c1b3-3861-79fe-732b-780690674676",
+          "question_id": "9601cc0c-fd81-1acc-4853-09bb07c1c1e9",
+          "option_text": "21",
+          "is_correct": true,
+          "sort_order": 3
+        },
+        {
+          "id": "101dc96d-5ddf-bd3f-4131-5ce8ef079fe9",
+          "question_id": "9601cc0c-fd81-1acc-4853-09bb07c1c1e9",
+          "option_text": "26",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "id": "f0641204-7633-d580-53b8-294523c198cf",
+      "sort_order": 5,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": false,
+      "prompt": "Майка е на 36 години, а дъщеря ѝ е на 12 години. След колко години майката ще бъде 2 пъти по-възрастна от дъщеря си?",
+      "question_type": "multiple_choice",
+      "expected_answer": null,
+      "explanation": "След x години: 36 + x = 2(12 + x). Решаваме: 36 + x = 24 + 2x, откъдето x = 12.",
+      "source_year": null,
+      "subtopic": null,
+      "topic": "възраст",
+      "difficulty": "medium",
+      "points": 10,
+      "options": [
+        {
+          "id": "99eb1c4c-f5b6-4989-593c-4d7dec44fa29",
+          "question_id": "f0641204-7633-d580-53b8-294523c198cf",
+          "option_text": "8",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "id": "90254595-fd63-11ab-4d91-8269db788130",
+          "question_id": "f0641204-7633-d580-53b8-294523c198cf",
+          "option_text": "10",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "id": "f855bf1e-1f01-d279-f516-cc239de2995c",
+          "question_id": "f0641204-7633-d580-53b8-294523c198cf",
+          "option_text": "12",
+          "is_correct": true,
+          "sort_order": 3
+        },
+        {
+          "id": "579bbe29-5bbd-c8e7-db7b-16998f07ee6e",
+          "question_id": "f0641204-7633-d580-53b8-294523c198cf",
+          "option_text": "14",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "id": "fb7f3137-6aba-fd96-eb08-39b4a7e76501",
+      "sort_order": 6,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": false,
+      "prompt": "Автомобил изминава 180 km със скорост 60 km/h. Колко часа пътува?",
+      "question_type": "multiple_choice",
+      "expected_answer": null,
+      "explanation": "Времето е път / скорост = 180 / 60 = 3 h.",
+      "source_year": null,
+      "subtopic": null,
+      "topic": "движение",
+      "difficulty": "easy",
+      "points": 10,
+      "options": [
+        {
+          "id": "37a5a2b5-01c1-7142-5fac-bbd2dd1cfd27",
+          "question_id": "fb7f3137-6aba-fd96-eb08-39b4a7e76501",
+          "option_text": "2 h",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "id": "558b6eb0-de9f-6715-8df6-b5e4b5310dbc",
+          "question_id": "fb7f3137-6aba-fd96-eb08-39b4a7e76501",
+          "option_text": "3 h",
+          "is_correct": true,
+          "sort_order": 2
+        },
+        {
+          "id": "bb906307-0a41-da9a-1ae2-122a496df84a",
+          "question_id": "fb7f3137-6aba-fd96-eb08-39b4a7e76501",
+          "option_text": "4 h",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "id": "a0477ea5-cd09-53e3-3acc-388d0a6579a4",
+          "question_id": "fb7f3137-6aba-fd96-eb08-39b4a7e76501",
+          "option_text": "5 h",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "id": "7657c1f2-717a-1607-5f7a-20cf4600968c",
+      "sort_order": 7,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": false,
+      "prompt": "Една машина изработва 48 детайла за 6 часа. Колко детайла ще изработи за 9 часа при същата производителност?",
+      "question_type": "multiple_choice",
+      "expected_answer": null,
+      "explanation": "За 1 час машината изработва 48 / 6 = 8 детайла. За 9 часа: 8 . 9 = 72.",
+      "source_year": null,
+      "subtopic": null,
+      "topic": "работа",
+      "difficulty": "medium",
+      "points": 10,
+      "options": [
+        {
+          "id": "746251ea-ed2e-3969-6c4d-536aaf98f662",
+          "question_id": "7657c1f2-717a-1607-5f7a-20cf4600968c",
+          "option_text": "64",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "id": "cfdeb1dd-d341-369c-620b-3b7ff68dbd34",
+          "question_id": "7657c1f2-717a-1607-5f7a-20cf4600968c",
+          "option_text": "72",
+          "is_correct": true,
+          "sort_order": 2
+        },
+        {
+          "id": "cf29a01d-8ab4-0bce-f7fe-48821854904a",
+          "question_id": "7657c1f2-717a-1607-5f7a-20cf4600968c",
+          "option_text": "78",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "id": "537594c7-a7e2-e74f-b3a1-7e56a5bf761f",
+          "question_id": "7657c1f2-717a-1607-5f7a-20cf4600968c",
+          "option_text": "81",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "id": "da64dbe5-cac1-7149-accf-6f004eeaabe1",
+      "sort_order": 8,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": false,
+      "prompt": "Купени са 3 тетрадки по 2,40 лв. и 2 химикалки по 1,80 лв. Колко лева е общата сума?",
+      "question_type": "multiple_choice",
+      "expected_answer": null,
+      "explanation": "3 . 2,40 = 7,20 лв., а 2 . 1,80 = 3,60 лв. Общата сума е 7,20 + 3,60 = 10,80 лв.",
+      "source_year": null,
+      "subtopic": null,
+      "topic": "покупки и цени",
+      "difficulty": "easy",
+      "points": 10,
+      "options": [
+        {
+          "id": "f938913a-6b87-000c-646c-27ccb711c8eb",
+          "question_id": "da64dbe5-cac1-7149-accf-6f004eeaabe1",
+          "option_text": "9,00",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "id": "9372d00e-d6b8-7248-72aa-edc7a9d0f68a",
+          "question_id": "da64dbe5-cac1-7149-accf-6f004eeaabe1",
+          "option_text": "10,20",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "id": "41c493c7-3368-5e71-53a1-c818394b1937",
+          "question_id": "da64dbe5-cac1-7149-accf-6f004eeaabe1",
+          "option_text": "10,80",
+          "is_correct": true,
+          "sort_order": 3
+        },
+        {
+          "id": "84414953-f14e-3640-f76f-7fd7f798a283",
+          "question_id": "da64dbe5-cac1-7149-accf-6f004eeaabe1",
+          "option_text": "11,40",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "id": "d6414fe3-5209-fba8-4733-77a73fd755e9",
+      "sort_order": 9,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": false,
+      "prompt": "Яке струва 90 лв. След намаление с 20% каква е цената му?",
+      "question_type": "multiple_choice",
+      "expected_answer": null,
+      "explanation": "20% от 90 лв. са 18 лв. Намалената цена е 90 - 18 = 72 лв.",
+      "source_year": null,
+      "subtopic": null,
+      "topic": "проценти в текстова задача",
+      "difficulty": "easy",
+      "points": 10,
+      "options": [
+        {
+          "id": "177acb09-4b64-f8d2-c9e5-3a8bcb38062c",
+          "question_id": "d6414fe3-5209-fba8-4733-77a73fd755e9",
+          "option_text": "70 лв.",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "id": "8c32935b-932c-4b2f-f243-0bbaebd5ba2f",
+          "question_id": "d6414fe3-5209-fba8-4733-77a73fd755e9",
+          "option_text": "72 лв.",
+          "is_correct": true,
+          "sort_order": 2
+        },
+        {
+          "id": "7f886bcd-307b-927a-d68a-0f62e5ff7073",
+          "question_id": "d6414fe3-5209-fba8-4733-77a73fd755e9",
+          "option_text": "75 лв.",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "id": "af152b80-159b-0ab7-ac3d-797e7b7b15da",
+          "question_id": "d6414fe3-5209-fba8-4733-77a73fd755e9",
+          "option_text": "78 лв.",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "id": "ce42f6db-6683-8d41-7db6-a34841935335",
+      "sort_order": 10,
+      "question_group": "bonus",
+      "is_bonus": true,
+      "is_published": false,
+      "prompt": "Периметърът на правоъгълник е 30 cm, а едната му страна е 9 cm. Колко е другата страна?",
+      "question_type": "multiple_choice",
+      "expected_answer": null,
+      "explanation": "За правоъгълник 2(a + b) = 30, следователно a + b = 15. Ако едната страна е 9 cm, другата е 15 - 9 = 6 cm.",
+      "source_year": null,
+      "subtopic": null,
+      "topic": "съставяне на уравнение",
+      "difficulty": "medium",
+      "points": 10,
+      "options": [
+        {
+          "id": "23a5fc07-10e4-ac4a-8072-91241fc3b4ea",
+          "question_id": "ce42f6db-6683-8d41-7db6-a34841935335",
+          "option_text": "6 cm",
+          "is_correct": true,
+          "sort_order": 1
+        },
+        {
+          "id": "542395b6-a188-36b6-62a8-e364e7023689",
+          "question_id": "ce42f6db-6683-8d41-7db6-a34841935335",
+          "option_text": "7 cm",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "id": "09392f8e-ac3e-701b-0ef7-3fb65cd00eb7",
+          "question_id": "ce42f6db-6683-8d41-7db6-a34841935335",
+          "option_text": "8 cm",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "id": "71a8c461-b6ad-d696-cf33-6058f67f0a84",
+          "question_id": "ce42f6db-6683-8d41-7db6-a34841935335",
+          "option_text": "9 cm",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    }
+  ]
+}

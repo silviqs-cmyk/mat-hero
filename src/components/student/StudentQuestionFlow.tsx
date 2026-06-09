@@ -883,6 +883,7 @@ export function StudentQuestionFlow({
         completionHint={null}
         mascotGifSrcOverride={null}
         wrongAnswerPreview={wrongAnswerPreview}
+        onBackToQuestion={() => setShowFeedback(false)}
         onContinue={() => void handleContinue()}
       />
     </motion.div>

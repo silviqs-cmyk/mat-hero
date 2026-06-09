@@ -24,6 +24,7 @@ interface AnswerFeedbackModalProps {
   completionHint?: string | null;
   mascotGifSrcOverride?: string | null;
   wrongAnswerPreview?: ReactNode;
+  onBackToQuestion?: (() => void) | null;
   onContinue: () => void;
 }
 
@@ -71,6 +72,7 @@ export function AnswerFeedbackModal({
   completionHint = null,
   mascotGifSrcOverride = null,
   wrongAnswerPreview = null,
+  onBackToQuestion = null,
   onContinue,
 }: AnswerFeedbackModalProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -91,6 +93,7 @@ export function AnswerFeedbackModal({
   const resolvedTitle = titleOverride ?? copy.title;
   const resolvedMessage = messageOverride ?? copy.message;
   const resolvedMascotGifSrc = mascotGifSrcOverride ?? askMatGifSrc;
+  const showBackToQuestionButton = state !== "completed" && typeof onBackToQuestion === "function";
 
   useEffect(() => {
     if (isOpen) {
@@ -260,10 +263,23 @@ export function AnswerFeedbackModal({
                 transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
                 className="space-y-3 rounded-[22px] border border-white/8 bg-white/[0.03] p-4 text-left"
               >
-                {showStandaloneCorrectAnswer && correctAnswer ? (
+                {showStandaloneCorrectAnswer && correctAnswer && !shouldRenderAskMat ? (
                   <p className="text-base font-semibold text-white">
                     Верен отговор: <MathText text={correctAnswer} as="span" inline />
                   </p>
+                ) : null}
+                {showStandaloneCorrectAnswer && correctAnswer && shouldRenderAskMat ? (
+                  <NeonButton
+                    type="button"
+                    variant="ghost"
+                    className="relative min-h-0 w-full justify-start border-0 bg-transparent px-0 py-0 text-left text-base font-semibold text-transparent shadow-none hover:bg-transparent hover:text-transparent sm:w-fit"
+                    onClick={() => setShowAskMatDetails(true)}
+                  >
+                    Към Питай Мат
+                    <span className="pointer-events-none absolute inset-0 flex items-center text-base font-semibold text-cyan-200 underline decoration-cyan-400/70 underline-offset-4 transition group-hover:text-cyan-100">
+                      Верен отговор → Питай Мат
+                    </span>
+                  </NeonButton>
                 ) : null}
                 {explanation ? <FormattedAskMatExplanation text={explanation} /> : null}
               </motion.div>
@@ -287,6 +303,11 @@ export function AnswerFeedbackModal({
 
 
           <div className="mt-auto flex flex-col gap-3 border-t border-white/8 bg-black pt-4 sm:flex-row sm:justify-end">
+            {showBackToQuestionButton ? (
+              <NeonButton type="button" variant="ghost" className="w-full justify-center sm:w-auto" onClick={onBackToQuestion}>
+                Върни се към задачата
+              </NeonButton>
+            ) : null}
             {shouldRenderAskMat ? (
               <NeonButton
                 type="button"

@@ -35,12 +35,12 @@ const MULTI_PART_OPEN_ANSWER_SPECS: Record<string, MultiPartAnswerSpec> = {
     kind: "multi_part_numeric",
     display: "Атлас: 20%; общо продадени: 180; Атлас пакети: 36; Блян пакети: 54; Мечта пакети: 90; обща сума: 216000 лв.",
     fields: [
-      { key: "atlas_percent", label: "Атлас е продала", unit: "%", placeholder: "20" },
-      { key: "sold_total", label: "Общо продадени пакети", placeholder: "180" },
-      { key: "atlas_packages", label: "Атлас пакети", placeholder: "36" },
-      { key: "blyan_packages", label: "Блян пакети", placeholder: "54" },
-      { key: "mechta_packages", label: "Мечта пакети", placeholder: "90" },
-      { key: "total_amount", label: "Обща сума", unit: "лв.", placeholder: "216000" },
+      { key: "atlas_percent", label: "Атлас е продала", unit: "%" },
+      { key: "sold_total", label: "Общо продадени пакети" },
+      { key: "atlas_packages", label: "Атлас пакети" },
+      { key: "blyan_packages", label: "Блян пакети" },
+      { key: "mechta_packages", label: "Мечта пакети" },
+      { key: "total_amount", label: "Обща сума", unit: "лв." },
     ],
   },
 };

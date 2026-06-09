@@ -1,0 +1,222 @@
+{
+  "exported_backup": "C:\\New folder\\maturohero\\exports\\day4-bonus-backup-before-2026-06-09.json",
+  "day": {
+    "id": "7f9b0f4b-b75d-4a25-a5dc-0a337f92aa14",
+    "day_number": 4,
+    "title": "Текстови задачи"
+  },
+  "updates": [
+    {
+      "id": "77795ed5-bd82-4556-94b3-01278800c025",
+      "sort_order": 1,
+      "source_year": 2012,
+      "source_task_number": 19,
+      "question_type": "open_answer",
+      "expected_answer": "Калина – 10 години; Симеон – 6 години",
+      "option_count": 0,
+      "correct_option_sort_order": null,
+      "correct_option_letter": null
+    },
+    {
+      "id": "606b0934-c1cc-4190-88e7-7faad267bdc2",
+      "sort_order": 2,
+      "source_year": 2013,
+      "source_task_number": 17,
+      "question_type": "open_answer",
+      "expected_answer": "10 часа",
+      "option_count": 0,
+      "correct_option_sort_order": null,
+      "correct_option_letter": null
+    },
+    {
+      "id": "8d54f7c7-37dc-4b02-a968-db0911fae29e",
+      "sort_order": 3,
+      "source_year": 2014,
+      "source_task_number": 12,
+      "question_type": "multiple_choice",
+      "expected_answer": "25",
+      "option_count": 4,
+      "correct_option_sort_order": 2,
+      "correct_option_letter": "Б"
+    },
+    {
+      "id": "9601cc0c-fd81-1acc-4853-09bb07c1c1e9",
+      "sort_order": 4,
+      "source_year": 2014,
+      "source_task_number": 13,
+      "question_type": "multiple_choice",
+      "expected_answer": "80",
+      "option_count": 4,
+      "correct_option_sort_order": 3,
+      "correct_option_letter": "В"
+    },
+    {
+      "id": "f0641204-7633-d580-53b8-294523c198cf",
+      "sort_order": 5,
+      "source_year": 2015,
+      "source_task_number": 12,
+      "question_type": "multiple_choice",
+      "expected_answer": "150",
+      "option_count": 4,
+      "correct_option_sort_order": 4,
+      "correct_option_letter": "Г"
+    },
+    {
+      "id": "fb7f3137-6aba-fd96-eb08-39b4a7e76501",
+      "sort_order": 6,
+      "source_year": 2015,
+      "source_task_number": 13,
+      "question_type": "multiple_choice",
+      "expected_answer": "1/2 + 1/3",
+      "option_count": 4,
+      "correct_option_sort_order": 2,
+      "correct_option_letter": "Б"
+    },
+    {
+      "id": "7657c1f2-717a-1607-5f7a-20cf4600968c",
+      "sort_order": 7,
+      "source_year": 2016,
+      "source_task_number": 7,
+      "question_type": "multiple_choice",
+      "expected_answer": "6x = 2(x + 4)",
+      "option_count": 4,
+      "correct_option_sort_order": 1,
+      "correct_option_letter": "А"
+    },
+    {
+      "id": "da64dbe5-cac1-7149-accf-6f004eeaabe1",
+      "sort_order": 8,
+      "source_year": 2016,
+      "source_task_number": 8,
+      "question_type": "multiple_choice",
+      "expected_answer": "1 час и 30 мин.",
+      "option_count": 4,
+      "correct_option_sort_order": 4,
+      "correct_option_letter": "Г"
+    },
+    {
+      "id": "d6414fe3-5209-fba8-4733-77a73fd755e9",
+      "sort_order": 9,
+      "source_year": 2020,
+      "source_task_number": 7,
+      "question_type": "multiple_choice",
+      "expected_answer": "1,20 · 0,90 · 1049",
+      "option_count": 4,
+      "correct_option_sort_order": 4,
+      "correct_option_letter": "Г"
+    },
+    {
+      "id": "ce42f6db-6683-8d41-7db6-a34841935335",
+      "sort_order": 10,
+      "source_year": 2020,
+      "source_task_number": 8,
+      "question_type": "multiple_choice",
+      "expected_answer": "20 лв.",
+      "option_count": 4,
+      "correct_option_sort_order": 4,
+      "correct_option_letter": "Г"
+    }
+  ],
+  "checks": [
+    {
+      "id": "77795ed5-bd82-4556-94b3-01278800c025",
+      "sort_order": 1,
+      "question_type": "open_answer",
+      "is_published": true,
+      "source_year": 2012,
+      "has_explanation": true,
+      "option_count": 0,
+      "correct_options_count": 0
+    },
+    {
+      "id": "606b0934-c1cc-4190-88e7-7faad267bdc2",
+      "sort_order": 2,
+      "question_type": "open_answer",
+      "is_published": true,
+      "source_year": 2013,
+      "has_explanation": true,
+      "option_count": 0,
+      "correct_options_count": 0
+    },
+    {
+      "id": "8d54f7c7-37dc-4b02-a968-db0911fae29e",
+      "sort_order": 3,
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "source_year": 2014,
+      "has_explanation": true,
+      "option_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "id": "9601cc0c-fd81-1acc-4853-09bb07c1c1e9",
+      "sort_order": 4,
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "source_year": 2014,
+      "has_explanation": true,
+      "option_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "id": "f0641204-7633-d580-53b8-294523c198cf",
+      "sort_order": 5,
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "source_year": 2015,
+      "has_explanation": true,
+      "option_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "id": "fb7f3137-6aba-fd96-eb08-39b4a7e76501",
+      "sort_order": 6,
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "source_year": 2015,
+      "has_explanation": true,
+      "option_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "id": "7657c1f2-717a-1607-5f7a-20cf4600968c",
+      "sort_order": 7,
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "source_year": 2016,
+      "has_explanation": true,
+      "option_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "id": "da64dbe5-cac1-7149-accf-6f004eeaabe1",
+      "sort_order": 8,
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "source_year": 2016,
+      "has_explanation": true,
+      "option_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "id": "d6414fe3-5209-fba8-4733-77a73fd755e9",
+      "sort_order": 9,
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "source_year": 2020,
+      "has_explanation": true,
+      "option_count": 4,
+      "correct_options_count": 1
+    },
+    {
+      "id": "ce42f6db-6683-8d41-7db6-a34841935335",
+      "sort_order": 10,
+      "question_type": "multiple_choice",
+      "is_published": true,
+      "source_year": 2020,
+      "has_explanation": true,
+      "option_count": 4,
+      "correct_options_count": 1
+    }
+  ]
+}

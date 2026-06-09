@@ -1,0 +1,41 @@
+{
+  "question": {
+    "id": "391de776-de55-4113-ab73-50a5ed78c2e1",
+    "sort_order": 1,
+    "question_group": "quiz",
+    "is_published": true,
+    "question_type": "multiple_choice",
+    "prompt": "??????, ????????? ? 7? ?? ??????? ????:",
+    "expected_answer": null,
+    "explanation": "??? ??????? ? x, ??????? ? x + 7.",
+    "topic": "??????????",
+    "difficulty": "easy",
+    "points": 10
+  },
+  "options": [
+    {
+      "id": "1432905f-9b1f-4402-a589-cd2061ce4a70",
+      "option_text": "x + 7",
+      "is_correct": true,
+      "sort_order": 1
+    },
+    {
+      "id": "da9441ba-5ee8-4889-a65b-e3aa1a1f08e3",
+      "option_text": "x - 7",
+      "is_correct": false,
+      "sort_order": 2
+    },
+    {
+      "id": "8fe611b8-32ee-4d3f-af43-a71adb8cbec8",
+      "option_text": "7 - x",
+      "is_correct": false,
+      "sort_order": 3
+    },
+    {
+      "id": "1a46603e-1c1b-487e-9529-6a7a69a879b4",
+      "option_text": "7x",
+      "is_correct": false,
+      "sort_order": 4
+    }
+  ]
+}
