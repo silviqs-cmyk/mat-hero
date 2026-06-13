@@ -1,6 +1,10 @@
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getNetworkErrorMessage } from "@/lib/auth/client";
 import { getQuestionGroupFlags } from "@/lib/questionGroups";
+import {
+  normalizeLessonSection,
+  saveLessonSectionCompat,
+} from "@/services/lessonSectionsCompat";
 import type {
   AdminDashboardStats,
   AdminUserOverview,
@@ -232,18 +236,14 @@ export async function listLessonSections(lessonId?: string): Promise<LessonSecti
     if (error) {
       throw new Error(error.message);
     }
-    return (data ?? []) as LessonSection[];
+    return ((data ?? []) as LessonSection[]).map((section) => normalizeLessonSection(section));
   });
 }
 
 export async function createLessonSection(input: LessonSectionInput): Promise<LessonSection> {
   return withAdminRequest(async () => {
     const supabase = getSupabaseBrowserClient();
-    const { data, error } = await supabase.from("lesson_sections").insert(input).select("*").single();
-    if (error) {
-      throw new Error(error.message);
-    }
-    return data as LessonSection;
+    return saveLessonSectionCompat(supabase, null, input);
   });
 }
 
@@ -253,16 +253,7 @@ export async function updateLessonSection(
 ): Promise<LessonSection> {
   return withAdminRequest(async () => {
     const supabase = getSupabaseBrowserClient();
-    const { data, error } = await supabase
-      .from("lesson_sections")
-      .update(input)
-      .eq("id", sectionId)
-      .select("*")
-      .single();
-    if (error) {
-      throw new Error(error.message);
-    }
-    return data as LessonSection;
+    return saveLessonSectionCompat(supabase, sectionId, input);
   });
 }
 

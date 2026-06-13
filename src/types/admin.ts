@@ -93,6 +93,7 @@ export interface QuestionInput {
   lesson_id: string | null;
   question_type: "multiple_choice" | "open_answer" | "true_false";
   prompt: string;
+  image_url: string | null;
   explanation: string;
   expected_answer: string | null;
   difficulty: "easy" | "medium" | "hard";

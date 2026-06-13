@@ -89,7 +89,13 @@ export function LessonSectionStepper({
         </div>
 
         <div className="mt-5">
-          <FormattedTheoryContent content={currentSection.content} sectionId={currentSection.id} />
+          <FormattedTheoryContent
+            content={currentSection.content}
+            sectionId={currentSection.id}
+            sectionTitle={getSectionTitle(currentSection, safeIndex)}
+            dayNumber={dayNumber}
+            sectionIndex={safeIndex}
+          />
         </div>
       </motion.div>
       </AnimatePresence>

@@ -178,6 +178,7 @@ function getEmptyQuestionForm(dayId = "", lessonId: string | null = null, group:
     lesson_id: lessonId,
     question_type: "multiple_choice",
     prompt: "",
+    image_url: null,
     explanation: "",
     expected_answer: null,
     difficulty: "medium",
@@ -1110,6 +1111,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
       lesson_id: question.lesson_id,
       question_type: question.question_type,
       prompt: question.prompt,
+      image_url: question.image_url,
       explanation: question.explanation,
       expected_answer: question.expected_answer,
       difficulty: question.difficulty,
@@ -1393,6 +1395,210 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
     }
   }
 
+  function renderSectionEditorCard() {
+    return (
+      <NeonCard tone="muted" padding="sm" className="space-y-4 rounded-[24px]">
+        <SectionHeader
+          label={editingSectionId ? "Section editor" : "Нова секция"}
+          title={editingSectionId ? "Редакция на секция" : "Добави секция"}
+        />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <FormInput
+            label="Заглавие"
+            value={sectionForm.title}
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "";
+              setSectionForm((current) => ({ ...current, title: value }));
+            }}
+          />
+          <FormSelect
+            label="Тип секция"
+            value={sectionForm.section_type}
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "theory";
+              setSectionForm((current) => ({ ...current, section_type: value }));
+            }}
+          >
+            {SECTION_TYPES.map((sectionType) => (
+              <option key={sectionType} value={sectionType}>
+                {getSectionTypeLabel(sectionType)}
+              </option>
+            ))}
+          </FormSelect>
+          <FormInput
+            label="Ред"
+            type="number"
+            min={1}
+            value={sectionForm.sort_order}
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "1";
+              setSectionForm((current) => ({ ...current, sort_order: Number(value) || 1 }));
+            }}
+          />
+          <div id="section-video-settings" className="contents">
+            <FormInput
+              label="Video URL"
+              placeholder="https://youtube.com/watch?v=..."
+              value={sectionForm.video_url ?? ""}
+              onChange={(event) => {
+                const value = event.currentTarget?.value ?? "";
+                setSectionForm((current) => ({ ...current, video_url: value.trim() || null }));
+              }}
+            />
+            <FormSelect
+              label="Video status"
+              value={sectionForm.video_status}
+              onChange={(event) => {
+                const value = (event.currentTarget?.value ?? "draft") as "draft" | "published";
+                setSectionForm((current) => ({ ...current, video_status: value }));
+              }}
+            >
+              <option value="draft">Draft</option>
+              <option value="published">Published</option>
+            </FormSelect>
+          </div>
+          <div className="space-y-3 rounded-[20px] border border-white/8 bg-white/[0.03] p-4 lg:col-span-2">
+            <div>
+              <p className="text-sm font-semibold text-white">Качи видео към секцията</p>
+              <p className="mt-1 text-xs text-[var(--mh-text-muted)]">
+                Позволени формати: mp4, webm, mov. Максимум {LESSON_VIDEO_MAX_MB} MB.
+              </p>
+            </div>
+            <FormInput
+              label="Upload video file"
+              type="file"
+              accept={LESSON_VIDEO_ALLOWED_TYPES.join(",")}
+              onChange={(event) => {
+                const input = event.currentTarget;
+                const file = input?.files?.[0];
+                if (file) {
+                  void handleSectionVideoUpload(file);
+                }
+                if (input) {
+                  input.value = "";
+                }
+              }}
+            />
+            {sectionVideoUpload.isUploading || sectionVideoUpload.error || sectionVideoUpload.success ? (
+              <div className="rounded-[18px] border border-white/10 bg-slate-950/45 p-4">
+                <div className="flex items-center justify-between gap-3 text-sm text-white">
+                  <span>
+                    {sectionVideoUpload.isUploading
+                      ? "Качвам видео към секцията..."
+                      : sectionVideoUpload.error
+                        ? "Качването не успя"
+                        : "Видеото е качено"}
+                  </span>
+                  <span>{sectionVideoUpload.progress}%</span>
+                </div>
+                <div className="mt-3 h-2 rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-cyan-300 transition-all"
+                    style={{ width: `${sectionVideoUpload.progress}%` }}
+                  />
+                </div>
+                {sectionVideoUpload.error ? (
+                  <p className="mt-3 text-sm text-rose-300">{sectionVideoUpload.error}</p>
+                ) : null}
+                {sectionVideoUpload.success ? (
+                  <p className="mt-3 text-sm text-emerald-300">{sectionVideoUpload.success}</p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+          <div className="lg:col-span-2">
+            <FormSwitch
+              checked={sectionForm.is_published}
+              onChange={(checked) => setSectionForm((current) => ({ ...current, is_published: checked }))}
+              label="Публикувана секция"
+              description="Ако е изключено, секцията остава скрита за ученика."
+            />
+          </div>
+          {sectionForm.video_url ? (
+            <div className="rounded-[20px] border border-white/8 bg-white/[0.03] p-4 lg:col-span-2">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-white">Preview на видеото</p>
+                  <p className="mt-1 text-xs text-[var(--mh-text-muted)]">
+                    Видеото ще се вижда при ученика само ако и секцията, и видеото са публикувани.
+                  </p>
+                </div>
+                <Badge tone={sectionForm.video_status === "published" ? "green" : "gold"}>
+                  {sectionForm.video_status === "published" ? "Published" : "Draft"}
+                </Badge>
+              </div>
+              {sectionPreviewVideo ? (
+                <div className="mt-4">
+                  {sectionPreviewVideo.kind === "embed" ? (
+                    <div className="aspect-video overflow-hidden rounded-[20px] border border-white/10">
+                      <iframe
+                        src={sectionPreviewVideo.src}
+                        title={sectionForm.title || "Section video"}
+                        className="h-full w-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                      />
+                    </div>
+                  ) : sectionPreviewVideo.kind === "file" ? (
+                    <video controls preload="metadata" className="w-full rounded-[20px] border border-white/10 bg-black">
+                      <source src={sectionPreviewVideo.src} />
+                    </video>
+                  ) : (
+                    <NeonButton href={sectionPreviewVideo.src} target="_blank" rel="noreferrer" variant="secondary">
+                      Отвори видеото
+                    </NeonButton>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-rose-300">URL адресът не може да бъде визуализиран.</p>
+              )}
+            </div>
+          ) : null}
+          <div className="lg:col-span-2">
+            <RichTextTextarea
+              label="Съдържание"
+              rows={10}
+              value={sectionForm.content}
+              onChangeValue={(value) => {
+                setSectionForm((current) => ({ ...current, content: value }));
+              }}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <NeonButton type="button" onClick={() => void handleSaveSection()} disabled={isSaving}>
+            <Save className="h-4 w-4" />
+            {editingSectionId ? "Запази секцията" : "Добави секцията"}
+          </NeonButton>
+          <NeonButton
+            type="button"
+            variant="ghost"
+            onClick={() => void handleSplitSectionIntoTopics()}
+            disabled={isSaving || sectionForm.section_type !== "theory"}
+          >
+            Раздели на теми
+          </NeonButton>
+          {editingSectionId ? (
+            <NeonButton
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                if (!activeLesson) {
+                  return;
+                }
+                setEditingSectionId(null);
+                setSectionForm(getEmptySectionForm(activeLesson.id, activeSections.length + 1));
+              }}
+            >
+              Отказ
+            </NeonButton>
+          ) : null}
+        </div>
+      </NeonCard>
+    );
+  }
+
   function renderDayActions(dayIndex: number) {
     return (
       <div className="flex flex-wrap gap-2">
@@ -1519,6 +1725,38 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
             setQuestionForm((current) => ({ ...current, prompt: value }));
           }}
         />
+        <div className="space-y-3 rounded-[24px] border border-white/10 bg-white/[0.03] p-4">
+          <FormInput
+            label="Чертеж / image URL"
+            placeholder="/images/den5_test_drawings/ime-na-faila.png"
+            hint="Ползвай път от public, например /images/..."
+            value={questionForm.image_url ?? ""}
+            onChange={(event) => {
+              const value = event.currentTarget?.value ?? "";
+              setQuestionForm((current) => ({ ...current, image_url: value.trim() || null }));
+            }}
+          />
+          <div className="flex flex-wrap gap-3">
+            <NeonButton
+              type="button"
+              variant="ghost"
+              onClick={() => setQuestionForm((current) => ({ ...current, image_url: null }))}
+              disabled={!questionForm.image_url}
+            >
+              Махни чертежа
+            </NeonButton>
+          </div>
+          {questionForm.image_url ? (
+            <div className="rounded-[20px] border border-white/8 bg-slate-950/45 p-4">
+              <p className="text-sm font-semibold text-white">Preview на чертежа</p>
+              <img
+                src={questionForm.image_url}
+                alt={questionForm.prompt || "Question drawing"}
+                className="mt-3 max-h-72 w-auto rounded-[16px] border border-white/10 bg-white object-contain"
+              />
+            </div>
+          ) : null}
+        </div>
         <FormTextarea
           label="Обяснение"
           rows={4}
@@ -2089,6 +2327,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
                         </NeonButton>
                       </div>
                     </div>
+                    {editingSectionId === section.id ? renderSectionEditorCard() : null}
                   </NeonCard>
                 ))}
               </div>
@@ -2098,6 +2337,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
               </p>
             )}
 
+            {!editingSectionId ? (
             <NeonCard tone="muted" padding="sm" className="space-y-4 rounded-[24px]">
               <SectionHeader
                 label={editingSectionId ? "Section editor" : "Нова секция"}
@@ -2294,6 +2534,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
                 ) : null}
               </div>
             </NeonCard>
+            ) : null}
           </NeonCard>
         ) : null}
 
@@ -2538,6 +2779,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
                       <Badge tone="gold">{currentQuestionGroup === "bonus" ? getDifficultyLabel(question.difficulty) : question.difficulty}</Badge>
                       <Badge tone="purple">{question.points} т.</Badge>
                       {question.source_year ? <Badge tone="gold">НВО {question.source_year}</Badge> : null}
+                      {question.image_url ? <Badge tone="cyan">Има чертеж</Badge> : null}
                       <Badge tone={question.is_published ? "green" : "gold"}>
                         {question.is_published ? "Публикувана" : "Чернова"}
                       </Badge>
@@ -2558,6 +2800,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
                           lesson_id: question.lesson_id,
                           question_type: question.question_type,
                           prompt: question.prompt,
+                          image_url: question.image_url,
                           explanation: question.explanation,
                           expected_answer: question.expected_answer,
                           difficulty: question.difficulty,

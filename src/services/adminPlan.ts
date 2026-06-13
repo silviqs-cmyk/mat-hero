@@ -350,6 +350,7 @@ export async function savePlanQuestion(questionId: string | null, input: Questio
       lesson_id: input.lesson_id,
       question_type: input.question_type,
       prompt: input.prompt,
+      image_url: input.image_url,
       explanation: input.explanation,
       expected_answer: input.expected_answer,
       difficulty: input.difficulty,

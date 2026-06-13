@@ -3,14 +3,77 @@ import type { LessonSectionInput } from "@/types/admin";
 
 type SupabaseLike = any;
 
-function isMissingPublishedColumn(error: unknown) {
+const OPTIONAL_LESSON_SECTION_COLUMNS = [
+  "is_published",
+  "video_url",
+  "video_provider",
+  "video_status",
+] as const;
+
+type OptionalLessonSectionColumn = (typeof OPTIONAL_LESSON_SECTION_COLUMNS)[number];
+
+function getErrorText(error: unknown) {
   if (!error || typeof error !== "object") {
-    return false;
+    return "";
+  }
+
+  const message = "message" in error ? String(error.message ?? "") : "";
+  const details = "details" in error ? String(error.details ?? "") : "";
+  const hint = "hint" in error ? String(error.hint ?? "") : "";
+  return [message, details, hint, JSON.stringify(error)].join(" ");
+}
+
+function getMissingLessonSectionColumn(error: unknown): OptionalLessonSectionColumn | null {
+  if (!error || typeof error !== "object") {
+    return null;
   }
 
   const code = "code" in error ? String(error.code ?? "") : "";
-  const message = "message" in error ? String(error.message ?? "") : "";
-  return code === "42703" || message.includes("lesson_sections.is_published");
+  if (code !== "42703" && code !== "PGRST204") {
+    return null;
+  }
+
+  const combinedText = getErrorText(error);
+  const lowerCombinedText = combinedText.toLowerCase();
+
+  for (const column of OPTIONAL_LESSON_SECTION_COLUMNS) {
+    if (
+      combinedText.includes(`lesson_sections.${column}`) ||
+      (combinedText.includes(`'${column}'`) && combinedText.includes("'lesson_sections'")) ||
+      (combinedText.includes(`"${column}"`) && combinedText.includes("\"lesson_sections\"")) ||
+      (lowerCombinedText.includes(column) &&
+        lowerCombinedText.includes("lesson_sections") &&
+        lowerCombinedText.includes("schema cache")) ||
+      lowerCombinedText.includes(`column lesson_sections.${column} does not exist`)
+    ) {
+      return column;
+    }
+  }
+
+  return null;
+}
+
+function stripLessonSectionFields<T extends LessonSectionInput | LessonSectionInput[]>(
+  payload: T,
+  fieldsToStrip: ReadonlySet<OptionalLessonSectionColumn>,
+): T {
+  if (fieldsToStrip.size === 0) {
+    return payload;
+  }
+
+  const stripItem = (item: LessonSectionInput) => {
+    const nextItem: Record<string, unknown> = { ...item };
+    for (const field of fieldsToStrip) {
+      delete nextItem[field];
+    }
+    return nextItem;
+  };
+
+  if (Array.isArray(payload)) {
+    return payload.map((item) => stripItem(item)) as unknown as T;
+  }
+
+  return stripItem(payload) as unknown as T;
 }
 
 export function normalizeLessonSection(section: Partial<LessonSection> & Pick<LessonSection, "id" | "lesson_id" | "title" | "section_type" | "content" | "sort_order" | "created_at" | "updated_at">): LessonSection {
@@ -25,15 +88,6 @@ export function normalizeLessonSection(section: Partial<LessonSection> & Pick<Le
   } as LessonSection;
 }
 
-function stripPublishedField<T extends LessonSectionInput | LessonSectionInput[]>(payload: T): T {
-  if (Array.isArray(payload)) {
-    return payload.map(({ is_published: _ignored, ...item }) => item) as T;
-  }
-
-  const { is_published: _ignored, ...item } = payload;
-  return item as T;
-}
-
 export async function listPublishedLessonSectionsCompat(supabase: SupabaseLike, lessonId: string): Promise<LessonSection[]> {
   const publishedQuery = await supabase
     .from("lesson_sections")
@@ -46,7 +100,7 @@ export async function listPublishedLessonSectionsCompat(supabase: SupabaseLike, 
     return ((publishedQuery.data ?? []) as LessonSection[]).map(normalizeLessonSection);
   }
 
-  if (!isMissingPublishedColumn(publishedQuery.error)) {
+  if (getMissingLessonSectionColumn(publishedQuery.error) !== "is_published") {
     throw new Error(publishedQuery.error.message);
   }
 
@@ -68,7 +122,7 @@ export async function saveLessonSectionCompat(
   sectionId: string | null,
   input: LessonSectionInput,
 ): Promise<LessonSection> {
-  const run = async (payload: LessonSectionInput | Omit<LessonSectionInput, "is_published">) => {
+  const run = async (payload: LessonSectionInput | Partial<LessonSectionInput>) => {
     if (!sectionId) {
       return supabase.from("lesson_sections").insert(payload).select("*").single();
     }
@@ -76,16 +130,22 @@ export async function saveLessonSectionCompat(
     return supabase.from("lesson_sections").update(payload).eq("id", sectionId).select("*").single();
   };
 
-  let result = await run(input);
-  if (result.error && isMissingPublishedColumn(result.error)) {
-    result = await run(stripPublishedField(input));
-  }
+  const missingColumns = new Set<OptionalLessonSectionColumn>();
 
-  if (result.error) {
-    throw new Error(result.error.message);
-  }
+  while (true) {
+    const result = await run(stripLessonSectionFields(input, missingColumns));
 
-  return normalizeLessonSection(result.data as LessonSection);
+    if (!result.error) {
+      return normalizeLessonSection(result.data as LessonSection);
+    }
+
+    const missingColumn = getMissingLessonSectionColumn(result.error);
+    if (!missingColumn || missingColumns.has(missingColumn)) {
+      throw new Error(result.error.message);
+    }
+
+    missingColumns.add(missingColumn);
+  }
 }
 
 export async function replaceLessonSectionsForLessonCompat(
@@ -102,17 +162,23 @@ export async function replaceLessonSectionsForLessonCompat(
     return [];
   }
 
-  const attemptInsert = async (payload: LessonSectionInput[] | Array<Omit<LessonSectionInput, "is_published">>) =>
+  const attemptInsert = async (payload: LessonSectionInput[] | Array<Partial<LessonSectionInput>>) =>
     supabase.from("lesson_sections").insert(payload).select("*");
 
-  let result = await attemptInsert(inputs);
-  if (result.error && isMissingPublishedColumn(result.error)) {
-    result = await attemptInsert(stripPublishedField(inputs));
-  }
+  const missingColumns = new Set<OptionalLessonSectionColumn>();
 
-  if (result.error) {
-    throw new Error(result.error.message);
-  }
+  while (true) {
+    const result = await attemptInsert(stripLessonSectionFields(inputs, missingColumns));
 
-  return ((result.data ?? []) as LessonSection[]).map(normalizeLessonSection);
+    if (!result.error) {
+      return ((result.data ?? []) as LessonSection[]).map(normalizeLessonSection);
+    }
+
+    const missingColumn = getMissingLessonSectionColumn(result.error);
+    if (!missingColumn || missingColumns.has(missingColumn)) {
+      throw new Error(result.error.message);
+    }
+
+    missingColumns.add(missingColumn);
+  }
 }

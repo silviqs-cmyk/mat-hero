@@ -1,0 +1,46 @@
+{
+  "backupPath": "C:\\New folder\\maturohero\\exports\\day5-content-backup-before-2026-06-10.json",
+  "dayId": "7f9b0f4b-b75d-4a25-a5dc-0a337f92aa15",
+  "lessonId": "ad3913cc-c8da-48cb-b044-189753c9b985",
+  "updatedSectionIds": [
+    "b92951b5-7f0a-4368-9bd7-19af66160348",
+    "94263ce1-22af-4fc4-98fd-c66b725cc1e8",
+    "03ba7cbf-586b-4cad-8171-e69dc559fced",
+    "a1841ba6-2f18-4213-ab51-a737e7127f18",
+    "5f6a06af-cf95-4407-b9b0-2507e5677db9",
+    "90dd7eee-251e-4467-938b-81651983e336",
+    "eca6f75e-cd30-430c-8c20-f856a708cb0c",
+    "65b27621-fe6e-4855-b299-7904aae5aa09",
+    "980b3008-4e9d-44e9-b742-a5b1ae71236e",
+    "4a06fa66-4895-4c4b-bdf9-8db8eaf71715"
+  ],
+  "updatedQuestionIds": [
+    "39660e0d-ed78-414e-9490-6c247d41ae2c",
+    "c3c5dbce-e2c4-4633-a2df-ee9b7486a7c5",
+    "f2fc3dbb-5aa6-4a54-8bed-ade7beaaff51",
+    "3f03635c-f54c-4c83-8d57-75ea07190dfa",
+    "b999ba66-cb46-4640-a0e8-7665c1ea9e5f",
+    "a5dbc34a-c8e3-4538-821d-d39133467e67",
+    "b6ad9107-9f26-4d0a-bad5-eb7ba6c5f007",
+    "b0b3684b-8135-46c6-ae75-02b324f96615",
+    "644fe184-de60-4ba3-aa03-8a27ffa64700",
+    "85a4bd46-e702-4985-82b6-114fefb666c6",
+    "27eca3ca-1186-4625-a7b4-9ac6da6989ee",
+    "6c4802a7-5d9a-495d-831e-843dcf73e3b9",
+    "24b8c172-cdd8-4827-9610-e9ddf125c5e9",
+    "74ea702f-f6c6-4951-8872-bde60d9f041a",
+    "3e307100-ad95-45f7-9fae-b920e062912f",
+    "451aab57-402f-4f27-9056-14d328853280",
+    "c5c4787a-4604-4dc8-b26f-932be536be24",
+    "a942f233-86e8-4aab-978b-3aae8228df3e",
+    "267f1f6a-b3a5-4d6a-b6de-69120add903d",
+    "458fd11f-23f8-4a40-99aa-a794c072079a"
+  ],
+  "summary": {
+    "theorySectionsCount": 10,
+    "quizPublishedCount": 10,
+    "practicePublishedCount": 10,
+    "bonusPublishedCount": 2,
+    "questionsWithImageUrlCount": 5
+  }
+}

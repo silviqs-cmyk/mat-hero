@@ -16,6 +16,7 @@ import { NeonButton } from "@/components/ui/NeonButton";
 import { NeonCard } from "@/components/ui/NeonCard";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { formatAskMatExplanation } from "@/lib/askMat";
+import { getDay5QuizImageUrl } from "@/lib/day5QuizImages";
 import { getBonusQuestions, getPracticeQuestions } from "@/lib/questionGroups";
 import { buildLessonTopicHref, formatTopicLabel } from "@/lib/topicLabels";
 import {
@@ -59,6 +60,13 @@ interface SubmitOverrides {
   answerText?: string;
 }
 
+interface QuestionViewState {
+  selectedOptionId: string | null;
+  answerText: string;
+  multiPartAnswers: Record<string, string>;
+  lastSubmittedAnswer: AnswerRecord | null;
+}
+
 const DEFAULT_FEEDBACK_PANEL_TEXT =
   "\u041f\u0440\u043e\u0447\u0435\u0442\u0438 \u0432\u0441\u0438\u0447\u043a\u0438 \u0432\u0430\u0440\u0438\u0430\u043d\u0442\u0438 \u0438 \u0438\u0437\u0431\u0435\u0440\u0438 \u0442\u043e\u0437\u0438, \u043a\u043e\u0439\u0442\u043e \u043c\u043e\u0436\u0435\u0448 \u0434\u0430 \u0437\u0430\u0449\u0438\u0442\u0438\u0448 \u0441 \u0440\u0435\u0448\u0435\u043d\u0438\u0435.";
 
@@ -70,6 +78,9 @@ const EXAM_FEEDBACK_PANEL_TEXT =
 
 const OPEN_ANSWER_FEEDBACK_PANEL_TEXT =
   "\u270d\ufe0f \u0412\u0437\u0435\u043c\u0438 \u043b\u0438\u0441\u0442 \u0438 \u0445\u0438\u043c\u0438\u043a\u0430\u043b.\n\n\u0417\u0430\u043f\u0438\u0448\u0438 \u0440\u0435\u0448\u0435\u043d\u0438\u0435\u0442\u043e \u0441\u0438 \u0441\u0442\u044a\u043f\u043a\u0430 \u043f\u043e \u0441\u0442\u044a\u043f\u043a\u0430, \u0441\u043b\u0435\u0434 \u0442\u043e\u0432\u0430 \u0432\u044a\u0432\u0435\u0434\u0438 \u043a\u0440\u0430\u0439\u043d\u0438\u044f \u043e\u0442\u0433\u043e\u0432\u043e\u0440.";
+
+const GEOMETRY_FEEDBACK_PANEL_TEXT =
+  "📐 Вземи линия или триъгълник.\n\nГеометрията не се решава “на око”.\nОтбележи равните страни, правите ъгли и дадените градуси, после смятай.";
 
 function buildQuestionOptions(question: Question) {
   if (question.question_type === "true_false" && (!question.options || question.options.length === 0)) {
@@ -94,7 +105,11 @@ function isOpenAnswerQuestion(question: Pick<Question, "question_type"> | null |
   return question?.question_type === "open_answer";
 }
 
-function getFeedbackPanelText(sectionType: string | null | undefined, isOpenAnswer: boolean) {
+function getFeedbackPanelText(dayNumber: number, sectionType: string | null | undefined, isOpenAnswer: boolean) {
+  if (dayNumber === 5) {
+    return GEOMETRY_FEEDBACK_PANEL_TEXT;
+  }
+
   if (isOpenAnswer) {
     return OPEN_ANSWER_FEEDBACK_PANEL_TEXT;
   }
@@ -114,7 +129,14 @@ function getFeedbackPanelText(sectionType: string | null | undefined, isOpenAnsw
   return DEFAULT_FEEDBACK_PANEL_TEXT;
 }
 
-function getFeedbackPanelVisual(sectionType: string | null | undefined, isOpenAnswer: boolean) {
+function getFeedbackPanelVisual(dayNumber: number, sectionType: string | null | undefined, isOpenAnswer: boolean) {
+  if (dayNumber === 5) {
+    return {
+      src: "/images/feedback/geometry-tools.png",
+      alt: "Линия, триъгълник и молив",
+    };
+  }
+
   if (isOpenAnswer || sectionType === "practice") {
     return {
       src: "/images/feedback/penandpapper.png",
@@ -212,11 +234,15 @@ export function StudentQuestionFlow({
   const [lastSubmittedAnswer, setLastSubmittedAnswer] = useState<AnswerRecord | null>(null);
   const [practiceCompleted, setPracticeCompleted] = useState(false);
   const [showWrongAnswerPreview, setShowWrongAnswerPreview] = useState(false);
+  const [returnedToQuestionMode, setReturnedToQuestionMode] = useState(false);
+  const [highestVisitedIndex, setHighestVisitedIndex] = useState(0);
   const submissionLockRef = useRef(false);
   const submittedQuestionIdsRef = useRef<Set<string>>(new Set());
   const continueLockRef = useRef(false);
   const continuedQuestionIdsRef = useRef<Set<string>>(new Set());
   const postContinueGuardUntilRef = useRef(0);
+  const questionPanelRef = useRef<HTMLDivElement | null>(null);
+  const questionStateByIdRef = useRef<Record<string, QuestionViewState>>({});
 
   const currentQuestion = questions[currentIndex];
   const currentOptions = useMemo(
@@ -227,10 +253,21 @@ export function StudentQuestionFlow({
   const multiPartSpec = currentQuestion ? getMultiPartAnswerSpec(currentQuestion) : null;
   const isMultiPartOpenAnswer = Boolean(multiPartSpec);
   const multiPartFields = multiPartSpec?.fields ?? [];
-  const feedbackPanelText = getFeedbackPanelText(currentQuestion?.question_group ?? mode, isOpenAnswer);
-  const feedbackPanelVisual = getFeedbackPanelVisual(currentQuestion?.question_group ?? mode, isOpenAnswer);
+  const feedbackPanelText = getFeedbackPanelText(
+    bundle.day.day_number,
+    currentQuestion?.question_group ?? mode,
+    isOpenAnswer,
+  );
+  const feedbackPanelVisual = getFeedbackPanelVisual(
+    bundle.day.day_number,
+    currentQuestion?.question_group ?? mode,
+    isOpenAnswer,
+  );
   const flowCopy = getFlowCopy(mode);
   const totalQuestions = questions.length;
+  const questionImageUrl =
+    currentQuestion?.image_url ??
+    (mode === "quiz" && bundle.day.day_number === 5 ? getDay5QuizImageUrl(currentIndex) : null);
   const questionIdsSignature = useMemo(() => questions.map((question) => question.id).join("|"), [questions]);
   const submittedAnswer =
     isOpenAnswer
@@ -259,7 +296,8 @@ export function StudentQuestionFlow({
   const isLastQuestion = currentIndex === totalQuestions - 1;
   const hasPracticeQuestions = getPracticeQuestions(bundle.questions).length > 0;
   const hasBonusQuestions = getBonusQuestions(bundle.questions).length > 0;
-  const feedbackState = isCorrect ? "correct" : "incorrect";
+  const shouldShowCompletionState = isLastQuestion && isCorrect;
+  const feedbackState = shouldShowCompletionState ? "completed" : isCorrect ? "correct" : "incorrect";
   const nextRoute = getNextRouteAfterSection(
     mode,
     course.slug,
@@ -316,11 +354,16 @@ export function StudentQuestionFlow({
     Boolean(currentQuestion?.explanation?.trim() || resolvedCorrectAnswer?.trim()) &&
     (mode === "bonus" || !isCorrect);
   const shouldShowWrongAnswerState = showFeedback && !isCorrect;
+  const isRetryingCurrentQuestion =
+    !showFeedback &&
+    returnedToQuestionMode &&
+    Boolean(lastSubmittedAnswer && !lastSubmittedAnswer.isCorrect && lastSubmittedAnswer.questionId === currentQuestion.id);
+  const shouldRenderWrongAnswerPreview = shouldShowWrongAnswerState || isRetryingCurrentQuestion;
   const revealCorrectAnswerInPreview = true;
-  const wrongAnswerPreview = shouldShowWrongAnswerState ? (
+  const wrongAnswerPreview = shouldRenderWrongAnswerPreview ? (
     <QuestionFeedbackPreview
       prompt={currentQuestion.prompt}
-      imageUrl={currentQuestion.image_url}
+      imageUrl={questionImageUrl}
       questionType={currentQuestion.question_type}
       options={currentOptions}
       selectedOptionId={selectedOptionId}
@@ -341,10 +384,13 @@ export function StudentQuestionFlow({
     setLastSubmittedAnswer(null);
     setPracticeCompleted(false);
     setShowWrongAnswerPreview(false);
+    setReturnedToQuestionMode(false);
+    setHighestVisitedIndex(0);
     submissionLockRef.current = false;
     submittedQuestionIdsRef.current = new Set();
     continuedQuestionIdsRef.current = new Set();
     postContinueGuardUntilRef.current = 0;
+    questionStateByIdRef.current = {};
   }, [mode, bundle.day.id, questionIdsSignature]);
 
   useEffect(() => {
@@ -358,6 +404,22 @@ export function StudentQuestionFlow({
       setShowWrongAnswerPreview(false);
     }
   }, [currentQuestion?.id, isCorrect, showFeedback]);
+
+  useEffect(() => {
+    if (showFeedback || !returnedToQuestionMode || typeof window === "undefined") {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      questionPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const firstFocusableField = questionPanelRef.current?.querySelector<HTMLElement>(
+        'input:not([disabled]), textarea:not([disabled]), button:not([disabled])',
+      );
+      firstFocusableField?.focus();
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [returnedToQuestionMode, showFeedback, currentQuestion?.id]);
 
   async function handleSubmit(overrides?: SubmitOverrides) {
     if (
@@ -402,6 +464,7 @@ export function StudentQuestionFlow({
     submissionLockRef.current = true;
     submittedQuestionIdsRef.current.add(currentQuestion.id);
     setSaving(true);
+    setReturnedToQuestionMode(false);
     try {
       const answerRecord = {
         questionId: currentQuestion.id,
@@ -415,6 +478,12 @@ export function StudentQuestionFlow({
       if (nextSelectedOptionId !== selectedOptionId) {
         setSelectedOptionId(nextSelectedOptionId);
       }
+      questionStateByIdRef.current[currentQuestion.id] = {
+        selectedOptionId: nextSelectedOptionId,
+        answerText: currentQuestion.question_type === "open_answer" ? nextSubmittedAnswer : "",
+        multiPartAnswers: multiPartSpec ? { ...multiPartAnswers } : {},
+        lastSubmittedAnswer: answerRecord,
+      };
       setAnswers((previous) => [...previous, answerRecord]);
       setLastSubmittedAnswer(answerRecord);
       continueLockRef.current = false;
@@ -504,16 +573,12 @@ export function StudentQuestionFlow({
     }
   }
 
-  async function handleContinue() {
+  async function continueAfterFeedback() {
     if (!currentQuestion) {
       return;
     }
 
     if (saving) {
-      return;
-    }
-
-    if (!showFeedback) {
       return;
     }
 
@@ -529,6 +594,12 @@ export function StudentQuestionFlow({
     continueLockRef.current = true;
 
     if (!isLastQuestion) {
+      questionStateByIdRef.current[currentQuestion.id] = {
+        selectedOptionId,
+        answerText,
+        multiPartAnswers: { ...multiPartAnswers },
+        lastSubmittedAnswer,
+      };
       postContinueGuardUntilRef.current = Date.now() + 350;
       console.log("[StudentQuestionFlow] handleContinue:advance", {
         mode,
@@ -537,12 +608,17 @@ export function StudentQuestionFlow({
         questionId: currentQuestion.id,
         showFeedback,
       });
-      setCurrentIndex((index) => index + 1);
-      setSelectedOptionId(null);
-      setAnswerText("");
-      setMultiPartAnswers({});
-      setLastSubmittedAnswer(null);
+      const nextIndex = currentIndex + 1;
+      const nextQuestion = questions[nextIndex];
+      const nextQuestionState = nextQuestion ? questionStateByIdRef.current[nextQuestion.id] : null;
+      setCurrentIndex(nextIndex);
+      setHighestVisitedIndex((current) => Math.max(current, nextIndex));
+      setSelectedOptionId(nextQuestionState?.selectedOptionId ?? null);
+      setAnswerText(nextQuestionState?.answerText ?? "");
+      setMultiPartAnswers(nextQuestionState?.multiPartAnswers ?? {});
+      setLastSubmittedAnswer(nextQuestionState?.lastSubmittedAnswer ?? null);
       setShowFeedback(false);
+      setReturnedToQuestionMode(false);
       return;
     }
 
@@ -565,6 +641,41 @@ export function StudentQuestionFlow({
     }
 
     await finalizeDayAndGoToResults(weakTopics);
+  }
+
+  async function handleContinue() {
+    if (!showFeedback) {
+      return;
+    }
+
+    await continueAfterFeedback();
+  }
+
+  function navigateToVisitedQuestion(targetIndex: number) {
+    if (targetIndex < 0 || targetIndex >= questions.length || targetIndex === currentIndex) {
+      return;
+    }
+
+    if (currentQuestion) {
+      questionStateByIdRef.current[currentQuestion.id] = {
+        selectedOptionId,
+        answerText,
+        multiPartAnswers: { ...multiPartAnswers },
+        lastSubmittedAnswer,
+      };
+    }
+
+    const targetQuestion = questions[targetIndex];
+    const targetState = questionStateByIdRef.current[targetQuestion.id];
+
+    setCurrentIndex(targetIndex);
+    setSelectedOptionId(targetState?.selectedOptionId ?? null);
+    setAnswerText(targetState?.answerText ?? "");
+    setMultiPartAnswers(targetState?.multiPartAnswers ?? {});
+    setLastSubmittedAnswer(targetState?.lastSubmittedAnswer ?? null);
+    setShowFeedback(false);
+    setShowWrongAnswerPreview(false);
+    setReturnedToQuestionMode(false);
   }
 
   if (!currentQuestion) {
@@ -595,6 +706,8 @@ export function StudentQuestionFlow({
     currentQuestion.topic?.trim()
       ? buildLessonTopicHref(course.slug, bundle.day.day_number, currentQuestion.topic)
       : null;
+  const canGoToPreviousQuestion = !showFeedback && currentIndex > 0;
+  const canGoToNextVisitedQuestion = !showFeedback && currentIndex < highestVisitedIndex;
   const feedbackPanelMessage = shouldShowWrongAnswerState
     ? "Не е този отговор. Виж условието още веднъж и сравни с обяснението."
     : feedbackPanelText;
@@ -680,6 +793,7 @@ export function StudentQuestionFlow({
           transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeOut" }}
           className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]"
         >
+        <div ref={questionPanelRef}>
         <NeonCard as="article" padding="md" className="lg:p-7">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -702,11 +816,11 @@ export function StudentQuestionFlow({
               />
             </div>
 
-            {currentQuestion.image_url ? (
+            {questionImageUrl ? (
               <div className="mt-5 flex justify-center">
                 <div className="w-full max-w-3xl overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.03]">
                   <img
-                    src={currentQuestion.image_url}
+                    src={questionImageUrl}
                     alt={`Илюстрация към задача ${currentIndex + 1}`}
                     className="block h-auto max-w-full w-full object-contain"
                     loading="lazy"
@@ -805,12 +919,36 @@ export function StudentQuestionFlow({
             </div>
           ) : null}
 
+          {!showFeedback && returnedToQuestionMode ? (
+            <div className="mt-6">
+              <NeonButton type="button" onClick={() => void continueAfterFeedback()} disabled={saving}>
+                {resolvedPrimaryLabel}
+              </NeonButton>
+            </div>
+          ) : null}
+
+          {canGoToPreviousQuestion || canGoToNextVisitedQuestion ? (
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              {canGoToPreviousQuestion ? (
+                <NeonButton type="button" variant="ghost" onClick={() => navigateToVisitedQuestion(currentIndex - 1)}>
+                  Предишна задача
+                </NeonButton>
+              ) : null}
+              {canGoToNextVisitedQuestion ? (
+                <NeonButton type="button" variant="ghost" onClick={() => navigateToVisitedQuestion(currentIndex + 1)}>
+                  Напред
+                </NeonButton>
+              ) : null}
+            </div>
+          ) : null}
+
           {showRealNvoSourceLabel ? (
             <p className="mt-6 text-sm leading-6 text-slate-500">
               Източник: реална НВО задача
             </p>
           ) : null}
         </NeonCard>
+        </div>
 
         <NeonCard padding="sm" className="bg-[rgb(1,1,2)] lg:p-6">
           <p className="mh-label">Обратна връзка</p>
@@ -829,33 +967,6 @@ export function StudentQuestionFlow({
             ) : null}
             <p className="mh-copy whitespace-pre-line text-slate-300">{feedbackPanelMessage}</p>
           </div>
-
-          {shouldShowWrongAnswerState ? (
-            <div className="mt-4 space-y-3">
-              <NeonButton
-                type="button"
-                variant="ghost"
-                className="w-full justify-center"
-                onClick={() => setShowWrongAnswerPreview((current) => !current)}
-              >
-                {showWrongAnswerPreview ? "Скрий задачата" : "👀 Виж къде си сбъркал"}
-              </NeonButton>
-
-              <AnimatePresence initial={false}>
-                {showWrongAnswerPreview && wrongAnswerPreview ? (
-                  <motion.div
-                    initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, y: -6 }}
-                    transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.22, ease: "easeOut" }}
-                    className="rounded-[22px] border border-white/8 bg-white/[0.03] p-4"
-                  >
-                    {wrongAnswerPreview}
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
-            </div>
-          ) : null}
 
           {topicHref ? (
             <div className="mt-4">
@@ -878,12 +989,16 @@ export function StudentQuestionFlow({
         pointsEarned={isCorrect ? currentQuestion.points : 0}
         primaryLabel={resolvedPrimaryLabel}
         showAskMat={showAskMatInFeedback}
-        titleOverride={undefined}
-        messageOverride={undefined}
-        completionHint={null}
-        mascotGifSrcOverride={null}
+        titleOverride={shouldShowCompletionState ? completedTitle ?? undefined : undefined}
+        messageOverride={shouldShowCompletionState ? completedMessage ?? undefined : undefined}
+        completionHint={shouldShowCompletionState ? completedHint : null}
+        mascotGifSrcOverride={shouldShowCompletionState ? completedMascotGifSrc : null}
         wrongAnswerPreview={wrongAnswerPreview}
-        onBackToQuestion={() => setShowFeedback(false)}
+        onBackToQuestion={() => {
+          setShowFeedback(false);
+          setShowWrongAnswerPreview(true);
+          setReturnedToQuestionMode(true);
+        }}
         onContinue={() => void handleContinue()}
       />
     </motion.div>

@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { Fragment, useState } from "react";
 import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
+import { DayFiveTheoryDiagram } from "@/components/student/DayFiveTheoryDiagram";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { getMiniTaskAskMatContent } from "@/lib/miniTaskAskMatContent";
@@ -11,6 +12,9 @@ import { getMiniTaskAskMatContent } from "@/lib/miniTaskAskMatContent";
 interface FormattedTheoryContentProps {
   content: string;
   sectionId?: string;
+  sectionTitle?: string;
+  dayNumber?: number;
+  sectionIndex?: number;
 }
 
 type ContentBlock =
@@ -767,14 +771,51 @@ function renderBlockContent(block: ContentBlock, blockIndex: number) {
   );
 }
 
-export function FormattedTheoryContent({ content, sectionId }: FormattedTheoryContentProps) {
+function shouldHideDayFiveAnglesRuleBlock(
+  block: ContentBlock,
+  dayNumber?: number,
+  sectionTitle?: string,
+) {
+  if (dayNumber !== 5 || sectionTitle?.trim() !== "Видове ъгли") {
+    return false;
+  }
+
+  if (block.type !== "section" || block.label !== "НАЙ-ВАЖНОТО ПРАВИЛО") {
+    return false;
+  }
+
+  const normalizedLines = block.lines
+    .map((line) => line.toLocaleLowerCase("bg-BG").trim())
+    .join(" ");
+
+  return (
+    normalizedLines.includes("ъгълът показва колко са") &&
+    normalizedLines.includes("най-често срещаните ъгли са") &&
+    normalizedLines.includes("разгънат ъгъл")
+  );
+}
+
+export function FormattedTheoryContent({
+  content,
+  sectionId,
+  sectionTitle,
+  dayNumber,
+  sectionIndex,
+}: FormattedTheoryContentProps) {
   const blocks = buildBlocks(content);
   const consumedBlockIndexes = new Set<number>();
 
   return (
     <div className="max-w-3xl space-y-5">
+      {dayNumber === 5 && sectionTitle && typeof sectionIndex === "number" ? (
+        <DayFiveTheoryDiagram sectionTitle={sectionTitle} sectionIndex={sectionIndex} />
+      ) : null}
       {blocks.map((block, blockIndex) => {
         if (consumedBlockIndexes.has(blockIndex)) {
+          return null;
+        }
+
+        if (shouldHideDayFiveAnglesRuleBlock(block, dayNumber, sectionTitle)) {
           return null;
         }
 
