@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Fragment, useState } from "react";
 import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
 import { DayFiveTheoryDiagram } from "@/components/student/DayFiveTheoryDiagram";
+import { DaySixTheoryDiagram } from "@/components/student/DaySixTheoryDiagram";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { getMiniTaskAskMatContent } from "@/lib/miniTaskAskMatContent";
@@ -763,10 +764,10 @@ function renderBlockContent(block: ContentBlock, blockIndex: number) {
   return (
     <div
       key={`section-${blockIndex}`}
-      className={`rounded-[22px] border px-4 py-4 ${getSectionToneClass(block.tone)}`}
+      className="space-y-2.5"
     >
       <SectionLabel className={getSectionLabelClass(block.tone)}>{block.label}</SectionLabel>
-      <div className="mt-3 space-y-3.5">{renderSectionLinesWithTables(block.lines, `section-${blockIndex}`)}</div>
+      <div className="space-y-3">{renderSectionLinesWithTables(block.lines, `section-${blockIndex}`)}</div>
     </div>
   );
 }
@@ -795,6 +796,10 @@ function shouldHideDayFiveAnglesRuleBlock(
   );
 }
 
+function shouldShowTheoryAskMat(dayNumber?: number) {
+  return dayNumber !== 6;
+}
+
 export function FormattedTheoryContent({
   content,
   sectionId,
@@ -809,6 +814,9 @@ export function FormattedTheoryContent({
     <div className="max-w-3xl space-y-5">
       {dayNumber === 5 && sectionTitle && typeof sectionIndex === "number" ? (
         <DayFiveTheoryDiagram sectionTitle={sectionTitle} sectionIndex={sectionIndex} />
+      ) : null}
+      {dayNumber === 6 && sectionTitle && typeof sectionIndex === "number" ? (
+        <DaySixTheoryDiagram sectionTitle={sectionTitle} sectionIndex={sectionIndex} />
       ) : null}
       {blocks.map((block, blockIndex) => {
         if (consumedBlockIndexes.has(blockIndex)) {
@@ -862,10 +870,10 @@ export function FormattedTheoryContent({
         return (
           <div
             key={`section-${blockIndex}`}
-            className={`rounded-[22px] border px-4 py-4 ${getSectionToneClass(block.tone)}`}
+            className="space-y-2.5"
           >
             <SectionLabel className={getSectionLabelClass(block.tone)}>{block.label}</SectionLabel>
-            <div className="mt-3 space-y-3.5">
+            <div className="space-y-3">
               {renderSectionLinesWithTables(miniTaskLeadLines, `section-${blockIndex}`)}
               {miniTaskSplit ? (
                 <div className="space-y-3">
@@ -881,7 +889,9 @@ export function FormattedTheoryContent({
                 </Fragment>
               ))}
             </div>
-            <AskMatMiniTask prompt={block.lines[0] ?? ""} sectionId={sectionId} />
+            {shouldShowTheoryAskMat(dayNumber) ? (
+              <AskMatMiniTask prompt={block.lines[0] ?? ""} sectionId={sectionId} />
+            ) : null}
           </div>
         );
       })}

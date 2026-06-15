@@ -1,0 +1,444 @@
+{
+  "publishedByGroup": {
+    "quiz": 10,
+    "practice": 10
+  },
+  "allByGroup": {
+    "quiz": 10,
+    "bonus": 10,
+    "practice": 20
+  },
+  "practicePublishedSortOrders": [
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "quizPublishedSortOrders": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "bonusPublishedSortOrders": [],
+  "targeted": [
+    {
+      "id": "445786b6-3bca-4b5f-ba21-7d63b1175b6f",
+      "sort_order": 2,
+      "question_group": "quiz",
+      "prompt": "Три ъгъла на четириъгълник са 80°, 100° и 90°. Намери четвъртия.",
+      "explanation": "360 - 80 - 100 - 90 = 90.",
+      "expected_answer": "90",
+      "is_published": true,
+      "image_url": null,
+      "options": []
+    },
+    {
+      "id": "d9f95ca9-520a-4e26-8505-f0f4d40cb798",
+      "sort_order": 5,
+      "question_group": "quiz",
+      "prompt": "Коя фигура има 4 равни страни, но не задължително прави ъгли?",
+      "explanation": "Това е ромб.",
+      "expected_answer": null,
+      "is_published": true,
+      "image_url": null,
+      "options": [
+        {
+          "id": "597c916d-7da4-4f3d-9082-9eec76d9a4a6",
+          "question_id": "d9f95ca9-520a-4e26-8505-f0f4d40cb798",
+          "option_text": "трапец",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "id": "cbee7bec-3f2d-4fa5-ad83-96e8d76c9bc0",
+          "question_id": "d9f95ca9-520a-4e26-8505-f0f4d40cb798",
+          "option_text": "ромб",
+          "is_correct": true,
+          "sort_order": 2
+        },
+        {
+          "id": "214fabe4-4a60-4181-9ce5-25e25826fa25",
+          "question_id": "d9f95ca9-520a-4e26-8505-f0f4d40cb798",
+          "option_text": "правоъгълник",
+          "is_correct": false,
+          "sort_order": 3
+        },
+        {
+          "id": "c0d877a6-9c3f-4c6b-8cb6-8f21a9fa1dd6",
+          "question_id": "d9f95ca9-520a-4e26-8505-f0f4d40cb798",
+          "option_text": "триъгълник",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    },
+    {
+      "id": "3c8c1632-2f0c-4e04-8c93-58a6e381d813",
+      "sort_order": 7,
+      "question_group": "quiz",
+      "prompt": "Основите на трапец са 6 cm и 14 cm. Намери средната основа.",
+      "explanation": "(6 + 14) / 2 = 10.",
+      "expected_answer": "10",
+      "is_published": true,
+      "image_url": null,
+      "options": []
+    },
+    {
+      "id": "dec25c8a-5705-46f2-8638-a169c99ffa33",
+      "sort_order": 10,
+      "question_group": "quiz",
+      "prompt": "Кое има точно една обща точка с окръжността?",
+      "explanation": "Това е допирателната.",
+      "expected_answer": null,
+      "is_published": true,
+      "image_url": null,
+      "options": [
+        {
+          "id": "8968669c-45cb-4c3f-b335-69184161287c",
+          "question_id": "dec25c8a-5705-46f2-8638-a169c99ffa33",
+          "option_text": "радиусът",
+          "is_correct": false,
+          "sort_order": 1
+        },
+        {
+          "id": "47b94a53-7ca9-40dd-844e-4c5f4892220a",
+          "question_id": "dec25c8a-5705-46f2-8638-a169c99ffa33",
+          "option_text": "хордата",
+          "is_correct": false,
+          "sort_order": 2
+        },
+        {
+          "id": "fe6ee156-31c2-478f-ac70-1688e482a74b",
+          "question_id": "dec25c8a-5705-46f2-8638-a169c99ffa33",
+          "option_text": "допирателната",
+          "is_correct": true,
+          "sort_order": 3
+        },
+        {
+          "id": "81635171-b4fc-429b-ba93-034214fa71d7",
+          "question_id": "dec25c8a-5705-46f2-8638-a169c99ffa33",
+          "option_text": "диаметърът",
+          "is_correct": false,
+          "sort_order": 4
+        }
+      ]
+    }
+  ],
+  "shortPracticeExplanations": [
+    {
+      "id": "7d2a469a-f82a-4d0a-b63c-27d7b274fd72",
+      "sort_order": 11,
+      "len": 29,
+      "prompt": "Колко страни има четириъгълник?",
+      "explanation": "Четириъгълникът има 4 страни.",
+      "image_url": null
+    },
+    {
+      "id": "78fd4b93-cb93-4d99-8998-b968fe096fa1",
+      "sort_order": 12,
+      "len": 32,
+      "prompt": "Колко диагонала има четириъгълник?",
+      "explanation": "Четириъгълникът има 2 диагонала.",
+      "image_url": null
+    },
+    {
+      "id": "574d6b1e-3cd7-48e9-b5f5-e05db1e27c1e",
+      "sort_order": 13,
+      "len": 25,
+      "prompt": "Три ъгъла на четириъгълник са 70°, 110° и 95°. Намери четвъртия.",
+      "explanation": "360 - 70 - 110 - 95 = 85.",
+      "image_url": null
+    },
+    {
+      "id": "8c1db104-af17-460b-b4ac-cfaf379f128f",
+      "sort_order": 14,
+      "len": 42,
+      "prompt": "Ако един ъгъл в успоредник е 110°, срещуположният е:",
+      "explanation": "Срещуположните ъгли в успоредник са равни.",
+      "image_url": null
+    },
+    {
+      "id": "9ed2ec5c-2504-428a-baae-59b00050f8be",
+      "sort_order": 15,
+      "len": 15,
+      "prompt": "Ако един ъгъл в успоредник е 110°, съседният е:",
+      "explanation": "180 - 110 = 70.",
+      "image_url": null
+    },
+    {
+      "id": "0b46af9c-0d6f-48e8-9361-41cc2d42a4b4",
+      "sort_order": 16,
+      "len": 33,
+      "prompt": "Колко прави ъгъла има правоъгълник?",
+      "explanation": "Правоъгълникът има 4 прави ъгъла.",
+      "image_url": null
+    },
+    {
+      "id": "afd173c5-5879-4828-b103-09e91de8447f",
+      "sort_order": 17,
+      "len": 15,
+      "prompt": "Коя фигура има 4 равни страни и 4 прави ъгъла?",
+      "explanation": "Това е квадрат.",
+      "image_url": null
+    },
+    {
+      "id": "af326ca6-b67d-46d2-a261-a54c76346bac",
+      "sort_order": 18,
+      "len": 14,
+      "prompt": "Коя фигура има една двойка успоредни страни?",
+      "explanation": "Това е трапец.",
+      "image_url": null
+    },
+    {
+      "id": "ad552513-2d3b-44ef-8f9a-be5dd641ebfb",
+      "sort_order": 19,
+      "len": 18,
+      "prompt": "Основите на трапец са 8 cm и 12 cm. Намери средната основа.",
+      "explanation": "(8 + 12) / 2 = 10.",
+      "image_url": null
+    },
+    {
+      "id": "a927a2dd-be7b-4c1e-aaeb-91c9b1b1462a",
+      "sort_order": 20,
+      "len": 18,
+      "prompt": "Основите на трапец са 5 cm и 17 cm. Намери средната основа.",
+      "explanation": "(5 + 17) / 2 = 11.",
+      "image_url": null
+    },
+    {
+      "id": "1b35c62e-bfc7-4f85-80d4-def66925a914",
+      "sort_order": 21,
+      "len": 22,
+      "prompt": "Кое е линията?",
+      "explanation": "Окръжността е линията.",
+      "image_url": null
+    },
+    {
+      "id": "df48d84d-2535-477f-a2e3-43d83d23d3c3",
+      "sort_order": 22,
+      "len": 14,
+      "prompt": "Кое е частта от равнината, оградена от окръжността?",
+      "explanation": "Това е кръгът.",
+      "image_url": null
+    },
+    {
+      "id": "f6c7c6b5-14a9-47c2-96a4-5c1af3cef976",
+      "sort_order": 23,
+      "len": 24,
+      "prompt": "Ако радиусът е 7 cm, колко е диаметърът?",
+      "explanation": "Диаметърът е 2 . 7 = 14.",
+      "image_url": null
+    },
+    {
+      "id": "5d2f728e-d3fd-46da-935e-72abcc00d99d",
+      "sort_order": 24,
+      "len": 23,
+      "prompt": "Ако диаметърът е 22 cm, колко е радиусът?",
+      "explanation": "Радиусът е 22 / 2 = 11.",
+      "image_url": null
+    },
+    {
+      "id": "48f2d693-e90d-40ae-85e6-b076666b5189",
+      "sort_order": 25,
+      "len": 14,
+      "prompt": "Кое свързва центъра с точка от окръжността?",
+      "explanation": "Това е радиус.",
+      "image_url": null
+    },
+    {
+      "id": "0d313d30-40db-4480-94e6-0e76bdf271b6",
+      "sort_order": 26,
+      "len": 13,
+      "prompt": "Кое свързва две точки от окръжността?",
+      "explanation": "Това е хорда.",
+      "image_url": null
+    },
+    {
+      "id": "ac82651f-c17e-434d-8d78-33626f1173dc",
+      "sort_order": 27,
+      "len": 16,
+      "prompt": "Кое минава през центъра и има краища на окръжността?",
+      "explanation": "Това е диаметър.",
+      "image_url": null
+    },
+    {
+      "id": "4e21884c-0249-4e9a-8d4d-b4679af1309f",
+      "sort_order": 28,
+      "len": 23,
+      "prompt": "Всяка диаметър е:",
+      "explanation": "Всеки диаметър е хорда.",
+      "image_url": null
+    },
+    {
+      "id": "a96a005d-be74-4017-9b9e-aaa17043711e",
+      "sort_order": 29,
+      "len": 37,
+      "prompt": "В правоъгълник всички ъгли са по колко градуса?",
+      "explanation": "Всички ъгли в правоъгълник са по 90°.",
+      "image_url": null
+    },
+    {
+      "id": "9e727274-ac6f-46db-aa75-c2ebafebdb30",
+      "sort_order": 30,
+      "len": 36,
+      "prompt": "Ако един ъгъл в ромб е 40°, колко е съседният?",
+      "explanation": "Съседните ъгли имат сбор 180°: 140°.",
+      "image_url": null
+    }
+  ],
+  "bonusValidation": [
+    {
+      "id": "5329df9d-7377-f66a-faab-2be234a5f63e",
+      "sort_order": 1,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "70°"
+      ],
+      "hasConflict": false,
+      "is_published": false
+    },
+    {
+      "id": "c85751fa-dbee-8639-7235-60e2607a64a0",
+      "sort_order": 2,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "68°"
+      ],
+      "hasConflict": false,
+      "is_published": false
+    },
+    {
+      "id": "b5427ad5-8e67-cfde-eaa6-0edb9dbe1472",
+      "sort_order": 3,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "38 cm"
+      ],
+      "hasConflict": false,
+      "is_published": false
+    },
+    {
+      "id": "0cbd4534-d3fc-4ac1-fe59-5684e624ce90",
+      "sort_order": 4,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "Срещуположните страни са равни и всички ъгли са прави."
+      ],
+      "hasConflict": false,
+      "is_published": false
+    },
+    {
+      "id": "ac43ad43-200c-5d45-b08c-37d18bab3783",
+      "sort_order": 5,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "Диагоналите му са взаимно перпендикулярни."
+      ],
+      "hasConflict": false,
+      "is_published": false
+    },
+    {
+      "id": "e2cc2790-0acb-203d-1282-d0cd5ba8a317",
+      "sort_order": 6,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "Всички страни са равни и всички ъгли са прави."
+      ],
+      "hasConflict": false,
+      "is_published": false
+    },
+    {
+      "id": "2747eb96-6994-3ddf-8842-de8d0b0dc8f4",
+      "sort_order": 7,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "11 cm"
+      ],
+      "hasConflict": false,
+      "is_published": false
+    },
+    {
+      "id": "35b39a32-faa7-2252-6b61-0fb7a70cb8f1",
+      "sort_order": 8,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "12 cm"
+      ],
+      "hasConflict": false,
+      "is_published": false
+    },
+    {
+      "id": "fb5d7591-f7f3-6045-6c71-c9a9ffea013d",
+      "sort_order": 9,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "12 cm"
+      ],
+      "hasConflict": false,
+      "is_published": false
+    },
+    {
+      "id": "98d3aa74-a3d6-af46-5bf8-d1091b3f02f0",
+      "sort_order": 10,
+      "question_type": "multiple_choice",
+      "is_bonus": true,
+      "optionCount": 4,
+      "correctCount": 1,
+      "expected_answer": null,
+      "correctOptions": [
+        "Хорда е отсечка с двата края върху окръжността."
+      ],
+      "hasConflict": false,
+      "is_published": false
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "course_day": {
+    "id": "7f9b0f4b-b75d-4a25-a5dc-0a337f92aa16",
+    "title": "Четириъгълници и окръжност",
+    "sort_order": 6
+  },
+  "lesson": {
+    "id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+    "title": "Ден 6: Четириъгълници и окръжност",
+    "course_day_id": "7f9b0f4b-b75d-4a25-a5dc-0a337f92aa16",
+    "sort_order": 1
+  },
+  "lesson_sections": [
+    {
+      "id": "8929a252-8d36-4ac0-9f93-92596ecbd38c",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Четириъгълник — основни елементи",
+      "sort_order": 1
+    },
+    {
+      "id": "c1b32795-c4c9-4151-b70a-31f2e2fbe484",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Сбор на ъглите в четириъгълник",
+      "sort_order": 2
+    },
+    {
+      "id": "e92d2c35-cb69-4fbf-a57d-f214ae504887",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Успоредник",
+      "sort_order": 3
+    },
+    {
+      "id": "e0792acd-1607-4064-9044-4e56495f2c49",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Правоъгълник",
+      "sort_order": 4
+    },
+    {
+      "id": "1351df31-9d6a-4c2d-b638-310e0bff7724",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Ромб",
+      "sort_order": 5
+    },
+    {
+      "id": "6d36948d-e424-4c65-aa52-ed4d78103c9d",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Квадрат",
+      "sort_order": 6
+    },
+    {
+      "id": "65bb0150-d81d-4a50-9790-fa6c61a50f4c",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Трапец",
+      "sort_order": 7
+    },
+    {
+      "id": "62e5ff90-b011-4c1c-8129-117486c2e0f5",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Видове трапец",
+      "sort_order": 8
+    },
+    {
+      "id": "24aba55d-443d-4ea1-86c0-d243785c2603",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Окръжност и кръг — основни понятия",
+      "sort_order": 9
+    },
+    {
+      "id": "b37b2358-e89e-4665-9a1d-b227d634c7e7",
+      "lesson_id": "d0e8131e-b773-43e3-ba0f-2ceeb58b8366",
+      "title": "Радиус, диаметър, хорда и допирателна",
+      "sort_order": 10
+    }
+  ],
+  "target_section": null
+}

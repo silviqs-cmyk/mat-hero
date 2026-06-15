@@ -1,0 +1,138 @@
+{
+  "asset_folder": "/images/day6-question-drawings/",
+  "assets_exist_in_repo": false,
+  "technical_note": "Day 6 theory images exist, but matching question drawing assets do not exist yet, so no image_url values were written to questions.",
+  "required_assets": [
+    "q02_quadrilateral_angles_80_100_90.png",
+    "q12_quadrilateral_diagonals.png",
+    "q14_parallelogram_opposite_angles_110.png",
+    "q15_parallelogram_adjacent_angles_110_70.png",
+    "q16_rectangle_right_angles_and_diagonals.png",
+    "q17_square_equal_sides_right_angles.png",
+    "q18_trapezoid_one_pair_parallel_sides.png",
+    "q19_trapezoid_midsegment_8_12.png",
+    "q23_circle_radius_diameter_chord_7.png",
+    "q10_tangent_to_circle.png"
+  ],
+  "questions_needing_drawings": [
+    {
+      "question_id": "445786b6-3bca-4b5f-ba21-7d63b1175b6f",
+      "sort_order": 2,
+      "question_group": "quiz",
+      "proposed_image_url": "/images/day6-question-drawings/q02_quadrilateral_angles_80_100_90.png",
+      "why": "A labeled quadrilateral makes the fourth-angle task faster and more intuitive for 7th-grade students."
+    },
+    {
+      "question_id": "78fd4b93-cb93-4d99-8998-b968fe096fa1",
+      "sort_order": 12,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q12_quadrilateral_diagonals.png",
+      "why": "The concept of diagonals is visual; a simple quadrilateral with both diagonals marked prevents confusion with sides."
+    },
+    {
+      "question_id": "8c1db104-af17-460b-b4ac-cfaf379f128f",
+      "sort_order": 14,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q14_parallelogram_opposite_angles_110.png",
+      "why": "A parallelogram with opposite angles highlighted helps students connect the rule with the correct pair of angles."
+    },
+    {
+      "question_id": "9ed2ec5c-2504-428a-baae-59b00050f8be",
+      "sort_order": 15,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q15_parallelogram_adjacent_angles_110_70.png",
+      "why": "A drawing is useful here because students often mix adjacent and opposite angles in a parallelogram."
+    },
+    {
+      "question_id": "0b46af9c-0d6f-48e8-9361-41cc2d42a4b4",
+      "sort_order": 16,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q16_rectangle_right_angles_and_diagonals.png",
+      "why": "A rectangle sketch supports recognition of right angles and can also be reused for rectangle-diagonal explanations."
+    },
+    {
+      "question_id": "afd173c5-5879-4828-b103-09e91de8447f",
+      "sort_order": 17,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q17_square_equal_sides_right_angles.png",
+      "why": "A square with equal-side ticks and right-angle marks reinforces why it is both a rhombus and a rectangle."
+    },
+    {
+      "question_id": "af326ca6-b67d-46d2-a261-a54c76346bac",
+      "sort_order": 18,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q18_trapezoid_one_pair_parallel_sides.png",
+      "why": "A trapezoid drawing with bases highlighted makes the one-pair-of-parallel-sides definition concrete."
+    },
+    {
+      "question_id": "3c8c1632-2f0c-4e04-8c93-58a6e381d813",
+      "sort_order": 7,
+      "question_group": "quiz",
+      "proposed_image_url": "/images/day6-question-drawings/q19_trapezoid_midsegment_8_12.png",
+      "why": "A trapezoid with both bases and the midsegment marked supports the formula for the middle base."
+    },
+    {
+      "question_id": "ad552513-2d3b-44ef-8f9a-be5dd641ebfb",
+      "sort_order": 19,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q19_trapezoid_midsegment_8_12.png",
+      "why": "The same midsegment trapezoid asset can be reused for a practice task with direct substitution into the formula."
+    },
+    {
+      "question_id": "a927a2dd-be7b-4c1e-aaeb-91c9b1b1462a",
+      "sort_order": 20,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q20_trapezoid_midsegment_5_17.png",
+      "why": "A second trapezoid variant keeps the visual aligned with the exact numbers used in the task."
+    },
+    {
+      "question_id": "f6c7c6b5-14a9-47c2-96a4-5c1af3cef976",
+      "sort_order": 23,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q23_circle_radius_diameter_chord_7.png",
+      "why": "A circle with center, radius, diameter and chord labeled clarifies the diameter-radius relation."
+    },
+    {
+      "question_id": "5d2f728e-d3fd-46da-935e-72abcc00d99d",
+      "sort_order": 24,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q24_circle_diameter_radius_22.png",
+      "why": "Students benefit from seeing the diameter split into two equal radii."
+    },
+    {
+      "question_id": "48f2d693-e90d-40ae-85e6-b076666b5189",
+      "sort_order": 25,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q25_circle_radius_from_center.png",
+      "why": "The radius definition is easiest to understand visually from the center to the circumference."
+    },
+    {
+      "question_id": "0d313d30-40db-4480-94e6-0e76bdf271b6",
+      "sort_order": 26,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q26_circle_chord_two_points.png",
+      "why": "A chord needs a picture so students do not confuse it with radius or diameter."
+    },
+    {
+      "question_id": "ac82651f-c17e-434d-8d78-33626f1173dc",
+      "sort_order": 27,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q27_circle_diameter_through_center.png",
+      "why": "A diameter is best shown as a special chord passing through the center."
+    },
+    {
+      "question_id": "4e21884c-0249-4e9a-8d4d-b4679af1309f",
+      "sort_order": 28,
+      "question_group": "practice",
+      "proposed_image_url": "/images/day6-question-drawings/q28_circle_diameter_is_chord.png",
+      "why": "This helps students see why every diameter is also a chord."
+    },
+    {
+      "question_id": "dec25c8a-5705-46f2-8638-a169c99ffa33",
+      "sort_order": 10,
+      "question_group": "quiz",
+      "proposed_image_url": "/images/day6-question-drawings/q10_tangent_to_circle.png",
+      "why": "A tangent touching the circle at exactly one point is a classic visual concept and should be shown."
+    }
+  ]
+}

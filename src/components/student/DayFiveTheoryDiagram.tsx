@@ -33,7 +33,7 @@ export function DayFiveTheoryDiagram({ sectionIndex, sectionTitle }: DayFiveTheo
       alt={`Чертеж към ${sectionTitle}`}
       width={1200}
       height={900}
-      className="h-auto w-full object-contain"
+      className="block h-auto max-h-[320px] w-auto max-w-full object-contain"
       priority={sectionIndex === 0}
       unoptimized
     />
