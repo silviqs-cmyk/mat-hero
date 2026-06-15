@@ -1,1 +1,5 @@
-export { default } from "./login/page";
+import { HomeLandingPage } from "@/components/marketing/HomeLandingPage";
+
+export default function HomePage() {
+  return <HomeLandingPage />;
+}

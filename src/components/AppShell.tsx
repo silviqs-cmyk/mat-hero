@@ -44,6 +44,7 @@ function isStudentAppRoute(pathname: string) {
 function shouldShowDesktopFooter(pathname: string) {
   if (
     pathname === "/" ||
+    pathname === "/new-era-edu" ||
     pathname.startsWith("/admin") ||
     pathname === "/login" ||
     pathname === "/register" ||
@@ -60,6 +61,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { authUser } = useAppState();
   const landing = pathname === "/";
+  const newEraEdu = pathname === "/new-era-edu";
   const admin = pathname.startsWith("/admin");
   const auth = isAuthRoute(pathname);
   const studentAppRoute = isStudentAppRoute(pathname);
@@ -75,11 +77,23 @@ export function AppShell({ children }: { children: ReactNode }) {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
-        className={`relative mx-auto min-h-screen w-full overflow-x-hidden border-x border-white/8 bg-[rgba(8,11,22,0.88)] shadow-[0_24px_90px_rgba(0,0,0,0.7)] ${
-          landing ? "max-w-md lg:max-w-[1440px]" : admin ? "max-w-md lg:max-w-[1680px]" : auth ? "max-w-md lg:max-w-full" : "max-w-md lg:max-w-7xl"
+        className={`relative mx-auto min-h-screen w-full overflow-x-hidden ${
+          newEraEdu
+            ? "border-x-0 bg-[#f8fbff] shadow-none"
+            : "border-x border-white/8 bg-[rgba(8,11,22,0.88)] shadow-[0_24px_90px_rgba(0,0,0,0.7)]"
+        } ${
+          landing
+            ? "max-w-md lg:max-w-[1440px]"
+            : newEraEdu
+              ? "max-w-full"
+              : admin
+                ? "max-w-md lg:max-w-[1680px]"
+                : auth
+                  ? "max-w-md lg:max-w-full"
+                  : "max-w-md lg:max-w-7xl"
         }`}
       >
-        <BackgroundMathSymbols />
+        {newEraEdu ? null : <BackgroundMathSymbols />}
 
         {showStudentChrome ? (
           <div className="relative z-10 grid min-h-screen grid-rows-[auto_minmax(0,1fr)_auto]">
