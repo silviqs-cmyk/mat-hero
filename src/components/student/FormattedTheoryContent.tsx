@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { Fragment, useState } from "react";
 import { renderFormattedInlineText } from "@/components/lesson/LessonSectionContent";
+import { DayEightTheoryDiagram } from "@/components/student/DayEightTheoryDiagram";
 import { DayFiveTheoryDiagram } from "@/components/student/DayFiveTheoryDiagram";
 import { DaySixTheoryDiagram } from "@/components/student/DaySixTheoryDiagram";
 import { NeonButton } from "@/components/ui/NeonButton";
@@ -817,6 +818,9 @@ export function FormattedTheoryContent({
       ) : null}
       {dayNumber === 6 && sectionTitle && typeof sectionIndex === "number" ? (
         <DaySixTheoryDiagram sectionTitle={sectionTitle} sectionIndex={sectionIndex} />
+      ) : null}
+      {dayNumber === 8 && sectionTitle && typeof sectionIndex === "number" ? (
+        <DayEightTheoryDiagram sectionTitle={sectionTitle} sectionIndex={sectionIndex} />
       ) : null}
       {blocks.map((block, blockIndex) => {
         if (consumedBlockIndexes.has(blockIndex)) {
