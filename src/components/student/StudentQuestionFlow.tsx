@@ -772,14 +772,14 @@ export function StudentQuestionFlow({
       <NeonCard padding="sm">
         <SectionHeader
           label={flowCopy.header}
-          title={<h2 className="mh-heading-lg">{mode === "bonus" ? (bundle.day.day_number === 5 || bundle.day.day_number === 6 || bundle.day.day_number === 7 ? "НВО задачи и адаптации" : "Реални задачи от НВО") : bundle.day.title}</h2>}
+          title={<h2 className="mh-heading-lg">{mode === "bonus" ? (bundle.day.day_number === 5 || bundle.day.day_number === 6 || bundle.day.day_number === 7 || bundle.day.day_number === 8 ? "НВО задачи и адаптации" : "Реални задачи от НВО") : bundle.day.title}</h2>}
           action={<Badge tone="cyan">{currentIndex + 1} / {totalQuestions} въпроса</Badge>}
         />
       </NeonCard>
 
       <MascotCharacter
         mood="idle"
-        message={mode === "bonus" && (bundle.day.day_number === 5 || bundle.day.day_number === 7) ? "НВО задачи и адаптации. След всеки отговор ще виждаш обратна връзка и решение." : mode === "bonus" && bundle.day.day_number === 6 ? "Оригинални и адаптирани задачи от НВО и официални примерни тестове. След всеки отговор ще виждаш обратна връзка и решение." : flowCopy.mascotMessage}
+        message={mode === "bonus" && (bundle.day.day_number === 5 || bundle.day.day_number === 7 || bundle.day.day_number === 8) ? "НВО задачи и адаптации. След всеки отговор ще виждаш обратна връзка и решение." : mode === "bonus" && bundle.day.day_number === 6 ? "Оригинални и адаптирани задачи от НВО и официални примерни тестове. След всеки отговор ще виждаш обратна връзка и решение." : flowCopy.mascotMessage}
         xpText={mode === "quiz" ? "+25 XP при завършен тест" : undefined}
         showVisual={false}
       />
