@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode, Component } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, Component } from "react";
 import {
   ArrowDown,
   ArrowUp,
@@ -44,7 +44,8 @@ import {
   removePlanQuestion,
   removePlanSection,
   reorderPlanSections,
-  replacePlanSectionsForLesson,
+  savePlanSectionsForLesson,
+  validatePlanSectionSaves,
   setAdminCoursePublishedState,
   savePlanDay,
   savePlanLesson,
@@ -54,10 +55,11 @@ import {
   type AdminQuestionGroup,
 } from "@/services/adminPlan";
 import { expandLessonSectionToTopics } from "@/lib/lessonTopics";
+import { getSectionPatch, planTheorySectionSave } from "@/lib/adminTheorySections";
 import { buildLessonSectionsFromTheoryContent, parseTheoryContent } from "@/lib/parseTheoryContent";
 import { isValidVideoUrl, resolveLessonVideo } from "@/lib/video";
 import type { Lesson, LessonSection, Question } from "@/types/course";
-import type { CourseDayInput, LessonInput, LessonSectionInput, QuestionInput, QuestionOptionInput } from "@/types/admin";
+import type { CourseDayInput, LessonInput, LessonSectionInput, LessonSectionSave, QuestionInput, QuestionOptionInput } from "@/types/admin";
 
 type AdminWorkspaceMode =
   | "dashboard"
@@ -94,6 +96,8 @@ interface LessonVideoUploadState {
 
 interface TheoryTopicVideoDraft {
   key: string;
+  sectionId?: string;
+  dirty?: boolean;
   video_url: string;
   video_status: "draft" | "published";
 }
@@ -336,6 +340,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
   const [sectionVideoUpload, setSectionVideoUpload] = useState<LessonVideoUploadState>(getEmptyVideoUploadState());
   const [showTheoryPreview, setShowTheoryPreview] = useState(false);
   const [topicVideoDrafts, setTopicVideoDrafts] = useState<TheoryTopicVideoDraft[]>([]);
+  const newSectionIds = useRef(new Map<string, string>());
   const [openTopicVideoIndexes, setOpenTopicVideoIndexes] = useState<number[]>([]);
   const currentQuestionGroup: AdminQuestionGroup =
     mode === "quiz" ? "quiz" : mode === "bonus" ? "bonus" : "practice";
@@ -367,6 +372,8 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
         : [];
 
       setSnapshot(next);
+      newSectionIds.current.clear();
+      setTopicVideoDrafts([]);
       setDayForm(
         nextDay
           ? {
@@ -491,17 +498,22 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
       },
       lessonForm.content,
       lessonForm.title || `Ден ${dayNumber}`,
-      activeSections,
-    );
-  }, [activeLesson?.created_at, activeLesson?.id, activeLesson?.updated_at, dayNumber, lessonForm.content, lessonForm.is_published, lessonForm.title]);
+      [],
+    ).map(section => {
+      const matches = activeTheorySections.filter(saved => saved.title.trim() === section.title.trim());
+      const saved = matches.length === 1 ? matches[0] : null;
+      return saved ? { ...saved, content: section.content } : section;
+    });
+  }, [activeLesson?.created_at, activeLesson?.id, activeLesson?.updated_at, activeTheorySections, dayNumber, lessonForm.content, lessonForm.is_published, lessonForm.title]);
   const parsedTheoryTopics = useMemo(
     () => parseTheoryContent(lessonForm.content, lessonForm.title || `Ден ${dayNumber}`),
     [dayNumber, lessonForm.content, lessonForm.title],
   );
   useEffect(() => {
     setTopicVideoDrafts((current) =>
-      parsedTheorySections.map((section, index) => {
-        const nextKey = `${index + 1}:${section.title}:${section.section_type}`;
+      parsedTheorySections.map((section) => {
+        const saved = activeTheorySections.find(item => item.id === section.id);
+        const nextKey = saved ? saved.id : `new:${section.title.trim()}`;
         const preservedDraft = current.find((draft) => draft.key === nextKey);
         if (preservedDraft) {
           return preservedDraft;
@@ -509,12 +521,14 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
 
         return {
           key: nextKey,
+          sectionId: saved?.id,
+          dirty: false,
           video_url: section.video_url ?? "",
           video_status: section.video_status ?? "draft",
         };
       }),
     );
-  }, [parsedTheorySections]);
+  }, [parsedTheorySections, activeTheorySections]);
   const previewTheorySections = useMemo(
     () =>
       parsedTheorySections.map((section, index) => ({
@@ -644,37 +658,35 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
 
     setIsSaving(true);
     try {
+      const pendingLessonId = activeLesson?.id ?? "new-lesson";
+      const getNewId = (key: string) => {
+        const scopedKey = `${pendingLessonId}:${key}`;
+        if (!newSectionIds.current.has(scopedKey)) newSectionIds.current.set(scopedKey, crypto.randomUUID());
+        return newSectionIds.current.get(scopedKey)!;
+      };
+      // Unchanged legacy lesson.content must never regenerate real sections.
+      const contentChanged = !activeLesson || lessonForm.content !== activeLesson.content;
+      const sectionSaves: LessonSectionSave[] = contentChanged
+        ? planTheorySectionSave(pendingLessonId, lessonForm.content, lessonForm.title, activeSections, lessonForm.is_published, getNewId)
+        : [];
+      for (const draft of topicVideoDrafts.filter(item => item.dirty)) {
+        if (draft.video_url.trim() && !isValidVideoUrl(draft.video_url.trim())) throw new Error("Невалиден topic video URL.");
+        const existing = draft.sectionId ? activeSections.find(item => item.id === draft.sectionId) : undefined;
+        const planned = sectionSaves.find(item => item.id === draft.sectionId
+          || (item.kind === "create" && `new:${item.input.title.trim()}` === draft.key));
+        const video = { video_url: draft.video_url.trim() || null, video_status: draft.video_url.trim() ? draft.video_status : "draft" as const };
+        if (planned?.kind === "create") planned.input = { ...planned.input, ...video };
+        else if (planned?.kind === "update") planned.patch = { ...planned.patch, ...getSectionPatch(planned.baseline, video) };
+        else if (existing) sectionSaves.push({ kind: "update", id: existing.id, baseline: existing, patch: getSectionPatch(existing, video) });
+        else throw new Error("Видеото няма еднозначно свързана секция. Използвай редактора на конкретната секция.");
+      }
+      if (activeLesson) await validatePlanSectionSaves(activeLesson.id, sectionSaves);
       const savedLesson = await savePlanLesson(activeLesson?.id ?? null, {
         ...lessonForm,
         course_day_id: activeDay.id,
       });
-      const parsedSectionsForSave = buildLessonSectionsFromTheoryContent(
-        {
-          id: savedLesson.id,
-          lesson_id: savedLesson.id,
-          is_published: savedLesson.is_published,
-          created_at: savedLesson.created_at,
-          updated_at: savedLesson.updated_at,
-        },
-        lessonForm.content,
-        lessonForm.title || `Ден ${dayNumber}`,
-      ).map((section, index) => {
-        const draft = topicVideoDrafts[index];
-        const videoUrl = draft?.video_url?.trim() || null;
-
-        return {
-          lesson_id: savedLesson.id,
-          title: section.title,
-          section_type: section.section_type,
-          content: section.content,
-          sort_order: index + 1,
-          is_published: savedLesson.is_published,
-          video_url: videoUrl,
-          video_provider: videoUrl ? section.video_provider : "none",
-          video_status: videoUrl ? draft?.video_status ?? "draft" : "draft",
-        };
-      });
-      await replacePlanSectionsForLesson(savedLesson.id, parsedSectionsForSave);
+      await savePlanSectionsForLesson(savedLesson.id, sectionSaves.map(item => item.kind === "create"
+        ? { ...item, input: { ...item.input, lesson_id: savedLesson.id } } : item));
       await loadSnapshot();
       showToast("success", "Урокът е запазен.");
     } catch (saveError) {
@@ -700,7 +712,11 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
       await savePlanSection(editingSectionId, {
         ...sectionForm,
         lesson_id: activeLesson.id,
-      });
+      }, activeSections.find(section => section.id === editingSectionId), (() => {
+        const key = `${activeLesson.id}:section-form`;
+        if (!newSectionIds.current.has(key)) newSectionIds.current.set(key, crypto.randomUUID());
+        return newSectionIds.current.get(key);
+      })());
       await loadSnapshot();
       setEditingSectionId(null);
       setSectionForm(getEmptySectionForm(activeLesson.id, activeSections.length + 1));
@@ -803,7 +819,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
         video_url: section.video_url,
         video_provider: section.video_provider,
         video_status: section.video_status,
-      });
+      }, section);
       await loadSnapshot();
       showToast("success", !section.is_published ? "Секцията е публикувана." : "Секцията е скрита.");
     } catch (publishError) {
@@ -924,7 +940,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
           video_url: sectionForm.video_url,
           video_provider: sectionForm.video_provider,
           video_status: sectionForm.video_status,
-        });
+        }, activeSections[currentIndex]);
 
         const newIds: string[] = [];
         for (const [index, topic] of generatedTopics.slice(1).entries()) {
@@ -2180,7 +2196,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
                         onChange={(event) => {
                           const value = event.currentTarget?.value ?? "";
                           setTopicVideoDrafts((current) =>
-                            current.map((item, itemIndex) => (itemIndex === index ? { ...item, video_url: value } : item)),
+                            current.map((item, itemIndex) => (itemIndex === index ? { ...item, video_url: value, dirty: true } : item)),
                           );
                         }}
                       />
@@ -2190,7 +2206,7 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
                         onChange={(event) => {
                           const value = (event.currentTarget?.value ?? "draft") as TheoryTopicVideoDraft["video_status"];
                           setTopicVideoDrafts((current) =>
-                            current.map((item, itemIndex) => (itemIndex === index ? { ...item, video_status: value } : item)),
+                            current.map((item, itemIndex) => (itemIndex === index ? { ...item, video_status: value, dirty: true } : item)),
                           );
                         }}
                       >
@@ -2207,8 +2223,9 @@ function AdminPlanWorkspaceContent({ mode, dayNumber = 1, embedded = false }: Ad
                               current.map((item, itemIndex) =>
                                 itemIndex === index
                                   ? {
-                                      ...item,
-                                      video_status: item.video_status === "published" ? "draft" : "published",
+                                       ...item,
+                                       dirty: true,
+                                       video_status: item.video_status === "published" ? "draft" : "published",
                                     }
                                   : item,
                               ),

@@ -65,6 +65,8 @@ export interface DatabaseLessonSection {
   title: string;
   section_type: string;
   content: string;
+  mini_task_answer?: string | null;
+  mini_task_explanation?: string | null;
   sort_order: number;
   is_published: boolean;
   video_url: string | null;

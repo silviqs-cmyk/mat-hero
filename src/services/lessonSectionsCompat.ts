@@ -1,5 +1,6 @@
 import type { LessonSection } from "@/types/course";
-import type { LessonSectionInput } from "@/types/admin";
+import type { LessonSectionInput, LessonSectionPatch, LessonSectionSave } from "@/types/admin";
+import { getSectionPatch, SECTION_EDITABLE_FIELDS } from "@/lib/adminTheorySections";
 
 type SupabaseLike = any;
 
@@ -53,7 +54,7 @@ function getMissingLessonSectionColumn(error: unknown): OptionalLessonSectionCol
   return null;
 }
 
-function stripLessonSectionFields<T extends LessonSectionInput | LessonSectionInput[]>(
+function stripLessonSectionFields<T extends Partial<LessonSectionInput> | Partial<LessonSectionInput>[]>(
   payload: T,
   fieldsToStrip: ReadonlySet<OptionalLessonSectionColumn>,
 ): T {
@@ -61,7 +62,7 @@ function stripLessonSectionFields<T extends LessonSectionInput | LessonSectionIn
     return payload;
   }
 
-  const stripItem = (item: LessonSectionInput) => {
+  const stripItem = (item: Partial<LessonSectionInput>) => {
     const nextItem: Record<string, unknown> = { ...item };
     for (const field of fieldsToStrip) {
       delete nextItem[field];
@@ -81,6 +82,8 @@ export function normalizeLessonSection(section: Partial<LessonSection> & Pick<Le
 
   return {
     ...section,
+    mini_task_answer: section.mini_task_answer ?? null,
+    mini_task_explanation: section.mini_task_explanation ?? null,
     is_published: typeof section.is_published === "boolean" ? section.is_published : true,
     video_url: section.video_url ?? null,
     video_provider: section.video_provider ?? (hasVideo ? "external" : "none"),
@@ -121,64 +124,101 @@ export async function saveLessonSectionCompat(
   supabase: SupabaseLike,
   sectionId: string | null,
   input: LessonSectionInput,
+  baseline?: LessonSection,
+  insertId?: string,
 ): Promise<LessonSection> {
-  const run = async (payload: LessonSectionInput | Partial<LessonSectionInput>) => {
-    if (!sectionId) {
-      return supabase.from("lesson_sections").insert(payload).select("*").single();
+  if (sectionId) {
+    const saved = baseline ?? await readSection(supabase, sectionId, input.lesson_id);
+    const [result] = await saveLessonSectionsCompat(supabase, input.lesson_id, [{
+      kind: "update", id: sectionId, baseline: saved, patch: getSectionPatch(saved, input),
+    }]);
+    return result;
+  }
+  const [result] = await saveLessonSectionsCompat(supabase, input.lesson_id, [{
+    kind: "create", id: insertId ?? crypto.randomUUID(), input,
+  }]);
+  return result;
+}
+
+async function readSection(supabase: SupabaseLike, id: string, lessonId: string): Promise<LessonSection> {
+  const { data, error } = await supabase.from("lesson_sections").select("*")
+    .eq("id", id).eq("lesson_id", lessonId).single();
+  if (error || !data) throw new Error("Секцията липсва или е от друг урок. Презареди редактора.");
+  return normalizeLessonSection(data);
+}
+
+function sanitizePatch(patch: LessonSectionPatch): LessonSectionPatch {
+  return Object.fromEntries(SECTION_EDITABLE_FIELDS.filter(key => patch[key] !== undefined)
+    .map(key => [key, patch[key]])) as LessonSectionPatch;
+}
+
+export async function validateLessonSectionSaves(supabase: SupabaseLike, lessonId: string, inputs: LessonSectionSave[]) {
+  if (new Set(inputs.map(input => input.id)).size !== inputs.length) throw new Error("Повтарящи се section IDs.");
+  for (const input of inputs) {
+    if (input.kind === "create") {
+      if (input.input.lesson_id !== lessonId) throw new Error("Новата секция е от друг урок.");
+      continue;
     }
-
-    return supabase.from("lesson_sections").update(payload).eq("id", sectionId).select("*").single();
-  };
-
-  const missingColumns = new Set<OptionalLessonSectionColumn>();
-
-  while (true) {
-    const result = await run(stripLessonSectionFields(input, missingColumns));
-
-    if (!result.error) {
-      return normalizeLessonSection(result.data as LessonSection);
+    if (input.baseline.id !== input.id || input.baseline.lesson_id !== lessonId) throw new Error("Невалидна връзка на секцията.");
+    const current = await readSection(supabase, input.id, lessonId);
+    const patch = sanitizePatch(input.patch);
+    // An identical retry is harmless; otherwise the original snapshot must still be current.
+    const alreadySaved = Object.entries(patch).every(([key, value]) => current[key as keyof LessonSection] === value);
+    if (!alreadySaved && current.updated_at !== input.baseline.updated_at) {
+      throw new Error("Секцията е променена междувременно. Презареди редактора преди запис.");
     }
-
-    const missingColumn = getMissingLessonSectionColumn(result.error);
-    if (!missingColumn || missingColumns.has(missingColumn)) {
-      throw new Error(result.error.message);
-    }
-
-    missingColumns.add(missingColumn);
   }
 }
 
-export async function replaceLessonSectionsForLessonCompat(
+export async function saveLessonSectionsCompat(
   supabase: SupabaseLike,
   lessonId: string,
-  inputs: LessonSectionInput[],
+  inputs: LessonSectionSave[],
 ): Promise<LessonSection[]> {
-  const { error: deleteError } = await supabase.from("lesson_sections").delete().eq("lesson_id", lessonId);
-  if (deleteError) {
-    throw new Error(deleteError.message);
-  }
-
-  if (inputs.length === 0) {
-    return [];
-  }
-
-  const attemptInsert = async (payload: LessonSectionInput[] | Array<Partial<LessonSectionInput>>) =>
-    supabase.from("lesson_sections").insert(payload).select("*");
-
-  const missingColumns = new Set<OptionalLessonSectionColumn>();
-
-  while (true) {
-    const result = await attemptInsert(stripLessonSectionFields(inputs, missingColumns));
-
-    if (!result.error) {
-      return ((result.data ?? []) as LessonSection[]).map(normalizeLessonSection);
+  await validateLessonSectionSaves(supabase, lessonId, inputs);
+  const saved: LessonSection[] = [];
+  for (const input of inputs) {
+    const missingColumns = new Set<OptionalLessonSectionColumn>();
+    const patch = input.kind === "update" ? sanitizePatch(input.patch) : null;
+    if (input.kind === "update") {
+      const current = await readSection(supabase, input.id, lessonId);
+      if (Object.entries(patch!).every(([key, value]) => current[key as keyof LessonSection] === value)) {
+        saved.push(current);
+        continue;
+      }
     }
-
-    const missingColumn = getMissingLessonSectionColumn(result.error);
-    if (!missingColumn || missingColumns.has(missingColumn)) {
-      throw new Error(result.error.message);
+    while (true) {
+      const payload = stripLessonSectionFields(input.kind === "create" ? {
+        ...sanitizePatch(input.input), lesson_id: lessonId,
+      } : patch!, missingColumns);
+      if (input.kind === "update" && Object.keys(payload).length === 0) {
+        saved.push(await readSection(supabase, input.id, lessonId));
+        break;
+      }
+      const result = input.kind === "create"
+        ? await supabase.from("lesson_sections").insert({ ...payload, id: input.id }).select("*").single()
+        : await supabase.from("lesson_sections").update(payload).eq("id", input.id)
+            .eq("lesson_id", lessonId).eq("updated_at", input.baseline.updated_at).select("*").single();
+      if (!result.error) {
+        saved.push(normalizeLessonSection(result.data));
+        break;
+      }
+      if (input.kind === "create" && result.error.code === "23505") {
+        const current = await readSection(supabase, input.id, lessonId);
+        if (Object.entries(payload).every(([key, value]) => current[key as keyof LessonSection] === value)) {
+          saved.push(current);
+          break;
+        }
+        throw new Error("Конфликт при създаване на секция. Презареди редактора.");
+      }
+      const missingColumn = getMissingLessonSectionColumn(result.error);
+      if (!missingColumn || missingColumns.has(missingColumn)) {
+        throw new Error(result.error.code === "PGRST116"
+          ? "Секцията е променена междувременно. Презареди редактора."
+          : result.error.message);
+      }
+      missingColumns.add(missingColumn);
     }
-
-    missingColumns.add(missingColumn);
   }
+  return saved;
 }

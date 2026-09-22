@@ -9,11 +9,12 @@ import { DayFiveTheoryDiagram } from "@/components/student/DayFiveTheoryDiagram"
 import { DaySixTheoryDiagram } from "@/components/student/DaySixTheoryDiagram";
 import { NeonButton } from "@/components/ui/NeonButton";
 import { SectionLabel } from "@/components/ui/SectionLabel";
-import { getMiniTaskAskMatContent } from "@/lib/miniTaskAskMatContent";
 
 interface FormattedTheoryContentProps {
   content: string;
   sectionId?: string;
+  miniTaskAnswer?: string | null;
+  miniTaskExplanation?: string | null;
   sectionTitle?: string;
   dayNumber?: number;
   sectionIndex?: number;
@@ -615,18 +616,22 @@ function getSectionLabelClass(tone: "neutral" | "cyan" | "gold") {
   }
 }
 
-function AskMatMiniTask({ prompt, sectionId }: { prompt: string; sectionId?: string }) {
+function AskMatMiniTask({ prompt, sectionId, miniTaskAnswer, miniTaskExplanation }: {
+  prompt: string;
+  sectionId?: string;
+  miniTaskAnswer?: string | null;
+  miniTaskExplanation?: string | null;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
-  const askMatContent = getMiniTaskAskMatContent(sectionId);
-  const answerLines = askMatContent?.answer
-    ? askMatContent.answer
+  const answerLines = miniTaskAnswer
+    ? miniTaskAnswer
         .split(/\n+/u)
         .map((line) => line.trim())
         .filter(Boolean)
     : [];
-  const explanationLines = askMatContent?.explanation
-    ? askMatContent.explanation
+  const explanationLines = miniTaskExplanation
+    ? miniTaskExplanation
         .split(/\n\n+/u)
         .map((paragraph) => paragraph.trim())
         .filter(Boolean)
@@ -804,6 +809,8 @@ function shouldShowTheoryAskMat(dayNumber?: number) {
 export function FormattedTheoryContent({
   content,
   sectionId,
+  miniTaskAnswer,
+  miniTaskExplanation,
   sectionTitle,
   dayNumber,
   sectionIndex,
@@ -894,7 +901,7 @@ export function FormattedTheoryContent({
               ))}
             </div>
             {shouldShowTheoryAskMat(dayNumber) ? (
-              <AskMatMiniTask prompt={block.lines[0] ?? ""} sectionId={sectionId} />
+              <AskMatMiniTask prompt={block.lines[0] ?? ""} sectionId={sectionId} miniTaskAnswer={miniTaskAnswer} miniTaskExplanation={miniTaskExplanation} />
             ) : null}
           </div>
         );

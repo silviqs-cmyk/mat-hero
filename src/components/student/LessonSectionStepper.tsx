@@ -92,6 +92,8 @@ export function LessonSectionStepper({
           <FormattedTheoryContent
             content={currentSection.content}
             sectionId={currentSection.id}
+            miniTaskAnswer={currentSection.mini_task_answer}
+            miniTaskExplanation={currentSection.mini_task_explanation}
             sectionTitle={getSectionTitle(currentSection, safeIndex)}
             dayNumber={dayNumber}
             sectionIndex={safeIndex}

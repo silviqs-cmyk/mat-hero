@@ -5,11 +5,12 @@ import { getNetworkErrorMessage } from "@/lib/auth/client";
 import { getQuestionGroupFlags, resolveQuestionGroup, type QuestionGroup } from "@/lib/questionGroups";
 import {
   normalizeLessonSection,
-  replaceLessonSectionsForLessonCompat,
+  saveLessonSectionsCompat,
+  validateLessonSectionSaves,
   saveLessonSectionCompat,
 } from "@/services/lessonSectionsCompat";
 import type { Course, CourseDay, Lesson, LessonSection, Question, QuestionOption } from "@/types/course";
-import type { CourseDayInput, LessonInput, LessonSectionInput, QuestionInput } from "@/types/admin";
+import type { CourseDayInput, LessonInput, LessonSectionInput, LessonSectionSave, QuestionInput } from "@/types/admin";
 
 export const DEFAULT_ADMIN_COURSE_SLUG = "nvo-matematika-7-klas";
 const DEFAULT_ADMIN_COURSE_TITLE = "10-дневна подготовка по математика";
@@ -271,15 +272,17 @@ export async function savePlanLesson(lessonId: string | null, input: LessonInput
   });
 }
 
-export async function savePlanSection(sectionId: string | null, input: LessonSectionInput): Promise<LessonSection> {
+export async function savePlanSection(sectionId: string | null, input: LessonSectionInput, baseline?: LessonSection, insertId?: string): Promise<LessonSection> {
   return withAdminPlanRequest(async () => {
     const supabase = getSupabaseBrowserClient();
     const payload = {
       ...input,
-      video_provider: input.video_url ? detectVideoProviderFromUrl(input.video_url) : "none",
-      video_status: input.video_url ? input.video_status : "draft",
+      ...(baseline && baseline.video_url === input.video_url ? {} : {
+        video_provider: input.video_url ? detectVideoProviderFromUrl(input.video_url) : "none",
+        video_status: input.video_url ? input.video_status : "draft",
+      }),
     };
-    return saveLessonSectionCompat(supabase, sectionId, payload);
+    return saveLessonSectionCompat(supabase, sectionId, payload, baseline, insertId);
   });
 }
 
@@ -301,20 +304,29 @@ export async function setAdminCoursePublishedState(courseId: string, isPublished
   });
 }
 
-export async function replacePlanSectionsForLesson(
+export async function savePlanSectionsForLesson(
   lessonId: string,
-  inputs: LessonSectionInput[],
+  inputs: LessonSectionSave[],
 ): Promise<LessonSection[]> {
   return withAdminPlanRequest(async () => {
     const supabase = getSupabaseBrowserClient();
-    const payload = inputs.map((input) => ({
-      ...input,
-      lesson_id: lessonId,
-      video_provider: input.video_url ? detectVideoProviderFromUrl(input.video_url) : "none",
-      video_status: input.video_url ? input.video_status : "draft",
-    }));
-    return replaceLessonSectionsForLessonCompat(supabase, lessonId, payload);
+    const payload = inputs.map((input): LessonSectionSave => {
+      const fields = input.kind === "create" ? input.input : input.patch;
+      if (fields.video_url === undefined) return input;
+      const video = {
+        video_provider: fields.video_url ? detectVideoProviderFromUrl(fields.video_url) : "none" as const,
+        ...(!fields.video_url ? { video_status: "draft" as const } : {}),
+      };
+      return input.kind === "create"
+        ? { ...input, input: { ...input.input, ...video } }
+        : { ...input, patch: { ...input.patch, ...video } };
+    });
+    return saveLessonSectionsCompat(supabase, lessonId, payload);
   });
+}
+
+export async function validatePlanSectionSaves(lessonId: string, inputs: LessonSectionSave[]): Promise<void> {
+  return withAdminPlanRequest(() => validateLessonSectionSaves(getSupabaseBrowserClient(), lessonId, inputs));
 }
 
 export async function removePlanSection(sectionId: string): Promise<void> {

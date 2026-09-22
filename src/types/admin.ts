@@ -81,6 +81,13 @@ export interface LessonSectionInput {
   video_status: "draft" | "published";
 }
 
+// Updates deliberately exclude identity, Ask MAT solutions and unknown columns.
+export type LessonSectionPatch = Partial<Omit<LessonSectionInput, "lesson_id">>;
+
+export type LessonSectionSave =
+  | { kind: "update"; id: string; baseline: LessonSection; patch: LessonSectionPatch }
+  | { kind: "create"; id: string; input: LessonSectionInput };
+
 export interface QuestionOptionInput {
   id?: string;
   option_text: string;
